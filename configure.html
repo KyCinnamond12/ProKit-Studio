@@ -450,6 +450,7 @@
       <span class="meta-tag" id="tag-product">No product selected</span>
       <span class="meta-tag" id="tag-style">No style selected</span>
       <span class="meta-tag" id="tag-crown">Color: —</span>
+      <span class="meta-tag" id="tag-rope">Rope: —</span>
       <span class="meta-tag" id="tag-patch">Patch: —</span>
     </div>
   </div>
@@ -465,6 +466,7 @@
     product: null, style: null,
     crownColor: '#1a3c2b', crownName: 'Forest Green',
     brimColor: '#c9a84c',  brimName: 'Gold',
+    ropeColor: '#c9a84c',  ropeName: 'Gold',
     stitchColor: '#c9a84c', stitchName: 'Gold',
     patchColor: '#1a3c2b', patch: 'logo',
   };
@@ -611,6 +613,16 @@
       document.querySelectorAll('.angle-btn').forEach(function(b){ b.classList.remove('active'); });
       document.querySelector('.angle-btn').classList.add('active');
       showHatView('front');
+
+      // If this is the rope hat, initialize rope color (defaults to current brim color)
+      if (hasRope && name === 'Richardson 258') {
+        state.ropeColor = state.ropeColor || state.brimColor;
+        state.ropeName = state.ropeName || state.brimName;
+        updateTag('tag-rope', 'Rope: ' + (state.ropeName || '—'), true);
+      } else {
+        updateTag('tag-rope', 'Rope: —', false);
+      }
+
       updateHatDetails(hasStrap, hasRope);
     }
 
@@ -655,6 +667,10 @@
       + '<div class="color-swatches">' + swatchesFor('brim', state.brimColor) + '</div></div>'
       + '<div class="customize-section"><div class="customize-label">' + lbls.stitch + '</div>'
       + '<div class="color-swatches">' + swatchesFor('stitch', state.stitchColor) + '</div></div>'
+      + ((state.product === 'Headwear' && state.style === 'Richardson 258')
+          ? '<div class="customize-section"><div class="customize-label">Rope</div>'
+            + '<div class="color-swatches">' + swatchesFor('rope', state.ropeColor) + '</div></div>'
+          : '')
       + '<div class="customize-section"><div class="customize-label">Logo / Patch</div>'
       + '<div class="patch-options">' + patchOpts + '</div></div>'
       + '<div class="customize-section" id="patch-color-section"'
@@ -681,11 +697,14 @@
       state.brimColor = color; state.brimName = name;
       setAttr(['f-brim','s-brim'], 'fill', color);
       setAttr(['f-brim-under','s-brim-under'], 'fill', shadeColor(color, -20));
-      // Update rope color to match brim
+      // Rope color is configurable for Richardson 258; we don't auto-sync it here.
+    } else if (part === 'rope') {
+      state.ropeColor = color; state.ropeName = name;
       ['f-rope','s-rope','b-rope'].forEach(function(id){
         var g = document.getElementById(id);
         if(g){ var paths = g.querySelectorAll('path'); if(paths[0]) paths[0].setAttribute('stroke', color); }
       });
+      updateTag('tag-rope', 'Rope: ' + name, true);
     } else if (part === 'stitch') {
       state.stitchColor = color; state.stitchName = name;
       setAttr(['f-eyelet1','f-eyelet2','s-eyelet','b-eyelet1','b-eyelet2'], 'stroke', color);
@@ -758,6 +777,13 @@
       const el = document.getElementById(id);
       if (el) el.style.display = hasRope ? 'block' : 'none';
     });
+    // Apply selected rope color (if applicable)
+    if (hasRope && state.ropeColor) {
+      ['f-rope','s-rope','b-rope'].forEach(function(id){
+        var g = document.getElementById(id);
+        if(g){ var paths = g.querySelectorAll('path'); if(paths[0]) paths[0].setAttribute('stroke', state.ropeColor); }
+      });
+    }
   }
 
   // ── PRODUCT ILLUSTRATION (non-headwear) ──
