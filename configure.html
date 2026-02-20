@@ -708,9 +708,7 @@
 
   .angle-btn:hover:not(.active) { color: #555; }
 
-  #hat-canvas {
-    max-width: 100%;
-    max-height: 60vh;
+  #hat-mockup {
     filter: drop-shadow(0 12px 30px rgba(0,0,0,0.12));
   }
 
@@ -913,8 +911,33 @@
         <p class="placeholder-text">Select a product and style<br>to see your live preview</p>
       </div>
 
-      <!-- Canvas for color tinting over real hat photos -->
-      <canvas id="hat-canvas" width="500" height="500" style="display:none; max-width:100%; max-height:60vh; object-fit:contain;"></canvas>
+      <!-- Layered photo mockup -->
+      <div id="hat-mockup" style="display:none; position:relative; width:380px; height:380px;">
+        <!-- Base hat photo -->
+        <img id="hat-photo" src="" alt="hat" style="width:100%; height:100%; object-fit:contain; position:absolute; top:0; left:0;">
+        <!-- Crown color overlay (multiply blend) -->
+        <div id="crown-overlay" style="
+          position:absolute; top:0; left:0; width:100%; height:100%;
+          mix-blend-mode: multiply;
+          pointer-events:none;
+        "></div>
+        <!-- Patch overlay on front view -->
+        <div id="patch-overlay" style="
+          display:none;
+          position:absolute;
+          top:36%; left:28%;
+          width:44%; height:30%;
+          border-radius:5px;
+          display:flex;
+          flex-direction:column;
+          align-items:center;
+          justify-content:center;
+          pointer-events:none;
+        ">
+          <div id="patch-main-text" style="font-family:Arial; font-weight:bold; font-size:13px; letter-spacing:2px; text-align:center;"></div>
+          <div id="patch-sub-text" style="font-family:Arial; font-size:8px; letter-spacing:2px; text-align:center; margin-top:3px; opacity:0.6;"></div>
+        </div>
+      </div>
     </div>
 
     <!-- Meta tags -->
@@ -1020,7 +1043,7 @@
     // Show hat — hide placeholder, show canvas + angle switcher
     document.getElementById('preview-placeholder').style.display = 'none';
     document.getElementById('angle-switcher').classList.add('visible');
-    document.getElementById('hat-canvas').style.display = 'block';
+    document.getElementById('hat-mockup').style.display = 'block';
     currentAngle = 'front';
     document.querySelectorAll('.angle-btn').forEach(b => b.classList.remove('active'));
     document.querySelector('.angle-btn').classList.add('active');
@@ -1062,7 +1085,7 @@
     } else if (part === 'patch') {
       state.patchColor = color;
     }
-    if (document.getElementById('hat-canvas').style.display !== 'none') renderHat();
+    renderHat();
   }
 
   // Set patch type across all views
@@ -1096,7 +1119,7 @@
       patchColorSection.style.display = '';
       updateTag('tag-patch', 'Patch: ' + tagLabels[type], true);
     }
-    if (document.getElementById('hat-canvas').style.display !== 'none') renderHat();
+    renderHat();
   }
 
   function updateTag(id, text, lit) {
@@ -1157,8 +1180,15 @@
     return (r*299 + g*587 + b*114) / 1000 > 128;
   }
 
-  // ── Hat Photo Canvas Renderer ──
+  // ── Hat Photo Renderer (CSS blend mode approach) ──
   let currentAngle = 'front';
+
+  // Image sources by angle
+  const angleImages = {
+    front: document.getElementById('img-front'),
+    side:  document.getElementById('img-side'),
+    back:  document.getElementById('img-back'),
+  };
 
   function setAngle(angle, btn) {
     currentAngle = angle;
@@ -1168,69 +1198,42 @@
   }
 
   function renderHat() {
-    const canvas = document.getElementById('hat-canvas');
-    if (!canvas || canvas.style.display === 'none') return;
-    const ctx = canvas.getContext('2d');
-    const img = document.getElementById('img-' + currentAngle);
+    const mockup = document.getElementById('hat-mockup');
+    if (!mockup || mockup.style.display === 'none') return;
 
-    function draw() {
-      ctx.clearRect(0, 0, 500, 500);
-      ctx.drawImage(img, 0, 0, 500, 500);
+    // Swap photo
+    const photo = document.getElementById('hat-photo');
+    const imgEl = document.getElementById('img-' + currentAngle);
+    photo.src = imgEl.src;
 
-      // Color tint via pixel manipulation
-      const imageData = ctx.getImageData(0, 0, 500, 500);
-      const data = imageData.data;
-      const cr = hexToRgb(state.crownColor);
+    // Apply crown color via multiply overlay
+    // Multiply blend: overlay color darkens the white hat proportionally
+    // We use a semi-transparent colored div on top
+    const overlay = document.getElementById('crown-overlay');
+    overlay.style.background = state.crownColor;
+    overlay.style.opacity = '0.85';
 
-      for (let i = 0; i < data.length; i += 4) {
-        const r = data[i], g = data[i+1], b = data[i+2], a = data[i+3];
-        if (a < 30) continue;
-        if (r > 240 && g > 240 && b > 240) continue; // skip white bg
-        const lum = (r + g + b) / 765; // 0-1 brightness
-        data[i]   = Math.min(255, Math.round(cr.r * lum * 1.4));
-        data[i+1] = Math.min(255, Math.round(cr.g * lum * 1.4));
-        data[i+2] = Math.min(255, Math.round(cr.b * lum * 1.4));
-      }
-      ctx.putImageData(imageData, 0, 0);
+    // Show/hide patch (front view only)
+    const patchOverlay = document.getElementById('patch-overlay');
+    if (currentAngle === 'front' && state.patch !== 'none') {
+      patchOverlay.style.display = 'flex';
+      patchOverlay.style.background = state.patchColor;
+      patchOverlay.style.boxShadow = '0 2px 12px rgba(0,0,0,0.3)';
 
-      // Draw patch on front only
-      if (currentAngle === 'front' && state.patch !== 'none') {
-        const px = 152, py = 170, pw = 196, ph = 110;
-        ctx.fillStyle = state.patchColor;
-        ctx.beginPath();
-        ctx.roundRect(px, py, pw, ph, 8);
-        ctx.fill();
-        ctx.strokeStyle = 'rgba(255,255,255,0.2)';
-        ctx.lineWidth = 2;
-        ctx.beginPath();
-        ctx.roundRect(px+4, py+4, pw-8, ph-8, 5);
-        ctx.stroke();
-        const labels = {logo:'YOUR LOGO', text:'APPO GC', flag:'⛳ FLAG'};
-        const subs   = {logo:'EST. 2025', text:'GOLF CLUB', flag:'PATCH'};
-        const tc = isLight(state.patchColor) ? '#111' : '#f0ece3';
-        const ac = isLight(state.patchColor) ? '#333' : '#c9a84c';
-        ctx.textAlign = 'center';
-        ctx.fillStyle = ac;
-        ctx.font = 'bold 20px Arial';
-        ctx.fillText(labels[state.patch]||'LOGO', px+pw/2, py+ph/2);
-        ctx.fillStyle = ac+'99';
-        ctx.font = '12px Arial';
-        ctx.fillText(subs[state.patch]||'', px+pw/2, py+ph/2+20);
-      }
+      const labels = {logo:'YOUR LOGO', text:'APPO GC', flag:'⛳ FLAG'};
+      const subs   = {logo:'EST. 2025', text:'GOLF CLUB', flag:'PATCH'};
+      const ac = isLight(state.patchColor) ? '#222' : '#c9a84c';
+      const sc = isLight(state.patchColor) ? '#444' : 'rgba(201,168,76,0.6)';
+
+      const mainText = document.getElementById('patch-main-text');
+      const subText  = document.getElementById('patch-sub-text');
+      mainText.textContent = labels[state.patch] || 'YOUR LOGO';
+      mainText.style.color = ac;
+      subText.textContent  = subs[state.patch] || '';
+      subText.style.color  = sc;
+    } else {
+      patchOverlay.style.display = 'none';
     }
-
-    if (img.complete && img.naturalWidth > 0) { draw(); }
-    else { img.onload = draw; }
-  }
-
-  function hexToRgb(hex) {
-    hex = hex.replace('#','');
-    if (hex.length === 3) hex = hex.split('').map(x=>x+x).join('');
-    return {
-      r: parseInt(hex.slice(0,2),16),
-      g: parseInt(hex.slice(2,4),16),
-      b: parseInt(hex.slice(4,6),16)
-    };
   }
 
 </script>
