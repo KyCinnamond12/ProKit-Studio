@@ -440,10 +440,12 @@
   .hat-stage {
     flex: 1;
     display: flex;
+    flex-direction: column;
     align-items: center;
     justify-content: center;
     width: 100%;
     max-width: 500px;
+    gap: 1.5rem;
   }
 
   #hat-svg {
@@ -902,17 +904,16 @@
     <p class="preview-label">Live Preview</p>
 
     <div class="hat-stage" id="hat-stage">
-      <!-- Placeholder before product is chosen -->
-      <div class="preview-placeholder" id="preview-placeholder">
-        <div class="placeholder-icon">🧢</div>
-        <p class="placeholder-text">Select a product and style<br>to see your live preview</p>
-      </div>
-
       <!-- Angle switcher (hidden until style chosen) -->
       <div class="angle-switcher" id="angle-switcher">
         <button class="angle-btn active" onclick="setAngle('front', this)">Front</button>
         <button class="angle-btn" onclick="setAngle('side', this)">Side</button>
         <button class="angle-btn" onclick="setAngle('back', this)">Back</button>
+      </div>
+      <!-- Placeholder before product is chosen -->
+      <div class="preview-placeholder" id="preview-placeholder">
+        <div class="placeholder-icon">🧢</div>
+        <p class="placeholder-text">Select a product and style<br>to see your live preview</p>
       </div>
 
       <!-- FRONT VIEW -->
