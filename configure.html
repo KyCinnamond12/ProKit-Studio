@@ -73,7 +73,8 @@
   .app {
     display: grid;
     grid-template-columns: 380px 1fr;
-    min-height: calc(100vh - 61px);
+    height: calc(100vh - 61px);
+    overflow: hidden;
   }
 
   /* LEFT PANEL — Steps */
@@ -81,6 +82,7 @@
     background: var(--bg2);
     border-right: 1px solid var(--border);
     overflow-y: auto;
+    height: 100%;
     padding: 2rem 1.8rem;
   }
 
@@ -421,6 +423,8 @@
     position: relative;
     background: #ffffff;
     border-left: 1px solid #e0ddd8;
+    overflow: hidden;
+    height: 100%;
   }
 
   .preview-label {
