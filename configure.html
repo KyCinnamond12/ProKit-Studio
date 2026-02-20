@@ -669,6 +669,57 @@
 
   .modal-cancel:hover { color: #f0ece3; }
 
+
+  /* ANGLE SWITCHER */
+  .angle-switcher {
+    display: flex;
+    gap: 0.5rem;
+    margin-bottom: 1.5rem;
+    align-self: center;
+    background: #f0ede8;
+    border-radius: 6px;
+    padding: 4px;
+  }
+
+  .angle-btn {
+    padding: 0.45rem 1.1rem;
+    border: none;
+    border-radius: 4px;
+    background: transparent;
+    color: #999;
+    font-size: 0.75rem;
+    font-weight: 600;
+    letter-spacing: 0.07em;
+    text-transform: uppercase;
+    cursor: pointer;
+    transition: all 0.2s;
+    font-family: 'DM Sans', sans-serif;
+  }
+
+  .angle-btn.active {
+    background: #ffffff;
+    color: #1a3c2b;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.1);
+  }
+
+  .angle-btn:hover:not(.active) { color: #555; }
+
+  .hat-view {
+    display: none;
+    width: 100%;
+    max-width: 400px;
+    filter: drop-shadow(0 16px 32px rgba(0,0,0,0.13));
+    transition: opacity 0.3s ease;
+    animation: floatHat 5s ease-in-out infinite;
+  }
+
+  .hat-view.active { display: block; }
+
+  @keyframes floatHat {
+    0%, 100% { transform: translateY(0px) rotate(-1deg); }
+    50% { transform: translateY(-10px) rotate(1deg); }
+  }
+
 </style>
 </head>
 <body>
@@ -855,42 +906,153 @@
         <p class="placeholder-text">Select a product and style<br>to see your live preview</p>
       </div>
 
-      <!-- Hat SVG (hidden until step 2 complete) -->
-      <svg id="hat-svg" style="display:none" viewBox="0 0 400 360" fill="none" xmlns="http://www.w3.org/2000/svg">
-        <!-- Shadow -->
-        <ellipse cx="200" cy="318" rx="160" ry="22" fill="rgba(0,0,0,0.35)"/>
-        <!-- Crown -->
-        <path id="svg-crown" d="M80 280 Q72 190 100 135 Q145 68 200 62 Q255 68 300 135 Q328 190 320 280 Z" fill="#1a3c2b"/>
-        <!-- Panel seams -->
-        <path d="M200 62 Q215 140 220 280" stroke="rgba(0,0,0,0.12)" stroke-width="1.5" stroke-dasharray="none"/>
-        <path d="M200 62 Q185 140 180 280" stroke="rgba(0,0,0,0.12)" stroke-width="1.5"/>
-        <path d="M200 62 Q250 115 295 175" stroke="rgba(0,0,0,0.08)" stroke-width="1"/>
-        <path d="M200 62 Q150 115 105 175" stroke="rgba(0,0,0,0.08)" stroke-width="1"/>
-        <!-- Sweatband -->
-        <rect x="82" y="262" width="236" height="14" rx="2" fill="rgba(0,0,0,0.25)"/>
+      <!-- Angle switcher (hidden until style chosen) -->
+      <div class="angle-switcher" id="angle-switcher" style="display:none">
+        <button class="angle-btn active" onclick="setAngle('front', this)">Front</button>
+        <button class="angle-btn" onclick="setAngle('side', this)">Side</button>
+        <button class="angle-btn" onclick="setAngle('back', this)">Back</button>
+      </div>
+
+      <!-- FRONT VIEW -->
+      <svg id="view-front" class="hat-view active" style="display:none" viewBox="0 0 400 380" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <!-- Drop shadow -->
+        <ellipse cx="200" cy="352" rx="130" ry="16" fill="rgba(0,0,0,0.08)"/>
+        <!-- Crown main body -->
+        <path id="f-crown" d="M88 295 Q82 205 108 148 Q148 78 200 72 Q252 78 292 148 Q318 205 312 295 Z" fill="#1a3c2b"/>
+        <!-- Crown shading right -->
+        <path d="M292 148 Q318 205 312 295 L270 295 Q295 210 278 148 Z" fill="rgba(0,0,0,0.1)"/>
+        <!-- Crown shading left -->
+        <path d="M108 148 Q82 205 88 295 L130 295 Q105 210 122 148 Z" fill="rgba(0,0,0,0.06)"/>
+        <!-- Panel seam center -->
+        <path d="M200 72 Q212 160 215 295" stroke="rgba(0,0,0,0.1)" stroke-width="1.2"/>
+        <path d="M200 72 Q188 160 185 295" stroke="rgba(0,0,0,0.1)" stroke-width="1.2"/>
+        <!-- Panel seams left/right -->
+        <path d="M200 72 Q255 118 290 178" stroke="rgba(0,0,0,0.07)" stroke-width="1"/>
+        <path d="M200 72 Q145 118 110 178" stroke="rgba(0,0,0,0.07)" stroke-width="1"/>
+        <!-- Sweatband line -->
+        <path d="M90 280 Q200 272 310 280" stroke="rgba(0,0,0,0.18)" stroke-width="3" fill="none"/>
         <!-- Brim underside -->
-        <path id="svg-brim-under" d="M80 280 Q74 262 92 254 L308 254 Q326 262 320 280 Z" fill="#a8883a"/>
-        <!-- Brim top -->
-        <path id="svg-brim" d="M80 280 Q74 264 100 258 L300 258 Q326 264 320 280 Z" fill="#c9a84c"/>
+        <path id="f-brim-under" d="M88 295 Q76 276 96 268 L304 268 Q324 276 312 295 Z" fill="#a8883a"/>
+        <!-- Brim top surface with curve -->
+        <path id="f-brim" d="M88 295 Q80 272 108 264 L292 264 Q320 272 312 295 Z" fill="#c9a84c"/>
+        <!-- Brim highlight -->
+        <path d="M110 266 Q200 259 290 266" stroke="rgba(255,255,255,0.15)" stroke-width="1.5" fill="none"/>
+        <!-- Brim underside detail -->
+        <path d="M96 268 Q200 276 304 268" stroke="rgba(0,0,0,0.1)" stroke-width="1" fill="none"/>
         <!-- Eyelets -->
-        <circle id="svg-eyelet1" cx="258" cy="175" r="4" fill="rgba(201,168,76,0.7)"/>
-        <circle id="svg-eyelet2" cx="142" cy="175" r="4" fill="rgba(201,168,76,0.7)"/>
-        <!-- Patch area -->
-        <g id="svg-patch" style="transition: opacity 0.3s">
-          <rect id="svg-patch-bg" x="152" y="155" width="96" height="68" rx="5" fill="rgba(26,60,43,0.92)"/>
-          <text id="svg-patch-text" x="200" y="195" text-anchor="middle" fill="#c9a84c" font-size="13" font-family="Arial" font-weight="bold" letter-spacing="1">YOUR LOGO</text>
-          <text id="svg-patch-sub" x="200" y="211" text-anchor="middle" fill="rgba(201,168,76,0.5)" font-size="8" font-family="Arial" letter-spacing="2">EST. 2025</text>
+        <circle id="f-eyelet-r" cx="262" cy="182" r="5" fill="none" stroke-width="1.5"/>
+        <circle cx="262" cy="182" r="2.5" fill="rgba(0,0,0,0.3)"/>
+        <circle id="f-eyelet-l" cx="138" cy="182" r="5" fill="none" stroke-width="1.5"/>
+        <circle cx="138" cy="182" r="2.5" fill="rgba(0,0,0,0.3)"/>
+        <!-- Patch / logo area -->
+        <g id="f-patch" style="transition:opacity 0.3s">
+          <rect id="f-patch-bg" x="155" y="162" width="90" height="64" rx="5" fill="#1a3c2b"/>
+          <!-- Patch border detail -->
+          <rect x="159" y="166" width="82" height="56" rx="3" fill="none" stroke="rgba(201,168,76,0.3)" stroke-width="1"/>
+          <text id="f-patch-text" x="200" y="198" text-anchor="middle" fill="#c9a84c" font-size="12" font-family="Arial" font-weight="bold" letter-spacing="1.5">YOUR LOGO</text>
+          <text id="f-patch-sub" x="200" y="214" text-anchor="middle" fill="rgba(201,168,76,0.45)" font-size="7.5" font-family="Arial" letter-spacing="2.5">EST. 2025</text>
         </g>
-        <!-- Button top -->
-        <circle id="svg-button" cx="200" cy="68" r="10" fill="rgba(0,0,0,0.35)"/>
-        <!-- Snapback strap (only for snapback) -->
-        <g id="svg-strap">
-          <rect x="170" y="278" width="60" height="14" rx="3" fill="#111" opacity="0.7"/>
-          <rect x="188" y="282" width="24" height="6" rx="1" fill="#333" opacity="0.8"/>
-          <circle cx="212" cy="285" r="2" fill="#555"/>
-          <circle cx="207" cy="285" r="2" fill="#555"/>
-          <circle cx="202" cy="285" r="2" fill="#555"/>
+        <!-- Top button -->
+        <circle id="f-button" cx="200" cy="77" r="9" fill="rgba(0,0,0,0.3)"/>
+        <circle cx="200" cy="77" r="5" fill="rgba(0,0,0,0.2)"/>
+        <!-- Snapback strap -->
+        <g id="f-strap">
+          <rect x="168" y="288" width="64" height="16" rx="3" fill="#1a1a1a" opacity="0.8"/>
+          <rect x="184" y="293" width="32" height="6" rx="1" fill="#2a2a2a"/>
+          <circle cx="218" cy="296" r="2.2" fill="#444"/>
+          <circle cx="212" cy="296" r="2.2" fill="#444"/>
+          <circle cx="206" cy="296" r="2.2" fill="#444"/>
+          <circle cx="200" cy="296" r="2.2" fill="#444"/>
         </g>
+      </svg>
+
+      <!-- SIDE VIEW -->
+      <svg id="view-side" class="hat-view" style="display:none" viewBox="0 0 420 380" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <!-- Drop shadow -->
+        <ellipse cx="195" cy="352" rx="140" ry="15" fill="rgba(0,0,0,0.08)"/>
+        <!-- Crown side profile -->
+        <path id="s-crown" d="M100 295 Q95 215 115 160 Q140 100 180 80 Q215 65 248 72 Q278 80 295 115 Q308 145 305 295 Z" fill="#1a3c2b"/>
+        <!-- Crown highlight left face -->
+        <path d="M100 295 Q95 215 115 160 Q140 100 180 80 L185 80 Q148 105 130 162 Q112 218 118 295 Z" fill="rgba(255,255,255,0.06)"/>
+        <!-- Crown shading right -->
+        <path d="M248 72 Q278 80 295 115 Q308 145 305 295 L285 295 Q298 148 285 114 Q270 82 248 75 Z" fill="rgba(0,0,0,0.12)"/>
+        <!-- Panel seam visible on side -->
+        <path d="M248 72 Q262 140 265 295" stroke="rgba(0,0,0,0.1)" stroke-width="1.2"/>
+        <!-- Back panel seam -->
+        <path d="M180 80 Q170 160 168 295" stroke="rgba(0,0,0,0.08)" stroke-width="1"/>
+        <!-- Sweatband -->
+        <path d="M102 280 Q200 270 304 280" stroke="rgba(0,0,0,0.2)" stroke-width="3" fill="none"/>
+        <!-- Brim — long side profile extending left -->
+        <path id="s-brim-under" d="M100 295 Q90 278 30 285 Q15 288 18 298 Q22 308 40 306 Q75 302 104 300 Z" fill="#8a7030"/>
+        <path id="s-brim" d="M100 295 Q92 272 28 278 Q12 280 14 292 Q16 300 36 298 Q72 294 105 290 Z" fill="#c9a84c"/>
+        <!-- Brim highlight -->
+        <path d="M95 275 Q55 276 25 281" stroke="rgba(255,255,255,0.18)" stroke-width="1.2" fill="none"/>
+        <!-- Brim underside curve detail -->
+        <path d="M30 285 Q65 288 100 287" stroke="rgba(0,0,0,0.12)" stroke-width="1" fill="none"/>
+        <!-- Eyelet on visible side -->
+        <circle id="s-eyelet" cx="268" cy="178" r="5" fill="none" stroke-width="1.5"/>
+        <circle cx="268" cy="178" r="2.5" fill="rgba(0,0,0,0.3)"/>
+        <!-- Side patch area (right panel, partially visible) -->
+        <g id="s-patch" style="transition:opacity 0.3s; opacity:0.6">
+          <rect id="s-patch-bg" x="218" y="162" width="68" height="50" rx="4" fill="#1a3c2b"/>
+          <text id="s-patch-text" x="252" y="188" text-anchor="middle" fill="#c9a84c" font-size="9" font-family="Arial" font-weight="bold" letter-spacing="1">LOGO</text>
+          <text id="s-patch-sub" x="252" y="202" text-anchor="middle" fill="rgba(201,168,76,0.4)" font-size="6" font-family="Arial" letter-spacing="1.5">EST. 2025</text>
+        </g>
+        <!-- Top button -->
+        <circle id="s-button" cx="215" cy="72" r="9" fill="rgba(0,0,0,0.28)"/>
+        <circle cx="215" cy="72" r="5" fill="rgba(0,0,0,0.18)"/>
+        <!-- Snapback strap (side view, barely visible at back) -->
+        <g id="s-strap">
+          <rect x="285" y="288" width="28" height="14" rx="2" fill="#1a1a1a" opacity="0.7"/>
+        </g>
+      </svg>
+
+      <!-- BACK VIEW -->
+      <svg id="view-back" class="hat-view" style="display:none" viewBox="0 0 400 380" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <!-- Drop shadow -->
+        <ellipse cx="200" cy="352" rx="128" ry="15" fill="rgba(0,0,0,0.08)"/>
+        <!-- Crown back - slightly flatter top -->
+        <path id="b-crown" d="M90 295 Q84 208 110 152 Q148 85 200 80 Q252 85 290 152 Q316 208 310 295 Z" fill="#1a3c2b"/>
+        <!-- Back crown shading for depth -->
+        <path d="M90 295 Q84 208 110 152 Q148 85 200 80 L200 82 Q150 90 115 155 Q90 212 96 295 Z" fill="rgba(0,0,0,0.08)"/>
+        <path d="M290 152 Q316 208 310 295 L304 295 Q310 208 284 155 Q250 88 200 82 L200 80 Q252 85 290 152 Z" fill="rgba(0,0,0,0.08)"/>
+        <!-- Center back seam -->
+        <path d="M200 80 Q200 180 200 295" stroke="rgba(0,0,0,0.14)" stroke-width="2"/>
+        <!-- Panel seams back -->
+        <path d="M200 80 Q255 118 288 175" stroke="rgba(0,0,0,0.08)" stroke-width="1"/>
+        <path d="M200 80 Q145 118 112 175" stroke="rgba(0,0,0,0.08)" stroke-width="1"/>
+        <!-- Sweatband -->
+        <path d="M92 280 Q200 272 308 280" stroke="rgba(0,0,0,0.2)" stroke-width="3.5" fill="none"/>
+        <rect x="92" y="272" width="216" height="10" rx="2" fill="rgba(0,0,0,0.12)"/>
+        <!-- Eyelets back -->
+        <circle id="b-eyelet-r" cx="260" cy="180" r="5" fill="none" stroke-width="1.5"/>
+        <circle cx="260" cy="180" r="2.5" fill="rgba(0,0,0,0.3)"/>
+        <circle id="b-eyelet-l" cx="140" cy="180" r="5" fill="none" stroke-width="1.5"/>
+        <circle cx="140" cy="180" r="2.5" fill="rgba(0,0,0,0.3)"/>
+        <!-- Snapback closure - the main feature of the back -->
+        <g id="b-strap">
+          <!-- Strap body -->
+          <rect x="148" y="276" width="104" height="22" rx="3" fill="#111111"/>
+          <!-- Strap texture lines -->
+          <rect x="152" y="280" width="96" height="14" rx="2" fill="#1a1a1a"/>
+          <!-- Adjustment holes row -->
+          <circle cx="172" cy="287" r="2.5" fill="#333"/>
+          <circle cx="181" cy="287" r="2.5" fill="#333"/>
+          <circle cx="190" cy="287" r="2.5" fill="#333"/>
+          <circle cx="199" cy="287" r="2.5" fill="#333"/>
+          <circle cx="208" cy="287" r="2.5" fill="#333"/>
+          <circle cx="217" cy="287" r="2.5" fill="#333"/>
+          <circle cx="226" cy="287" r="2.5" fill="#333"/>
+          <!-- Snap button -->
+          <rect x="234" y="281" width="10" height="12" rx="2" fill="#222"/>
+          <circle cx="239" cy="287" r="3" fill="#444"/>
+          <circle cx="239" cy="287" r="1.5" fill="#555"/>
+        </g>
+        <!-- Back sweatband label area -->
+        <rect x="175" y="258" width="50" height="16" rx="2" fill="rgba(255,255,255,0.06)"/>
+        <text x="200" y="270" text-anchor="middle" fill="rgba(255,255,255,0.2)" font-size="6" font-family="Arial" letter-spacing="1">ONE SIZE</text>
+        <!-- No brim on back view, just small curved bottom edge -->
+        <path d="M90 295 Q95 302 200 305 Q305 302 310 295" stroke="rgba(0,0,0,0.12)" stroke-width="2" fill="none"/>
       </svg>
     </div>
 
@@ -1007,6 +1169,26 @@
     updateTag('tag-patch', 'Patch: Custom Logo', true);
   }
 
+  // Angle switching
+  let currentAngle = 'front';
+  function setAngle(angle, btn) {
+    currentAngle = angle;
+    document.querySelectorAll('.angle-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    document.querySelectorAll('.hat-view').forEach(v => {
+      v.classList.remove('active');
+      v.style.display = 'none';
+    });
+    const target = document.getElementById('view-' + angle);
+    target.classList.add('active');
+    target.style.display = 'block';
+  }
+
+  // Helper: set attr on all elements matching a selector pattern
+  function setAll(ids, attr, val) {
+    ids.forEach(id => { const el = document.getElementById(id); if(el) el.setAttribute(attr, val); });
+  }
+
   // Set color
   function setColor(el, part, color) {
     const group = el.parentElement;
@@ -1017,66 +1199,60 @@
     if (part === 'crown') {
       state.crownColor = color;
       state.crownName = name;
-      document.getElementById('svg-crown').setAttribute('fill', color);
-      document.getElementById('svg-button').setAttribute('fill', shadeColor(color, -30));
+      setAll(['f-crown','s-crown','b-crown'], 'fill', color);
+      setAll(['f-button','s-button'], 'fill', shadeColor(color, -30));
       updateTag('tag-crown', 'Crown: ' + name, true);
     } else if (part === 'brim') {
       state.brimColor = color;
       state.brimName = name;
-      document.getElementById('svg-brim').setAttribute('fill', color);
-      document.getElementById('svg-brim-under').setAttribute('fill', shadeColor(color, -20));
+      setAll(['f-brim','s-brim'], 'fill', color);
+      setAll(['f-brim-under','s-brim-under'], 'fill', shadeColor(color, -20));
       updateTag('tag-brim', 'Brim: ' + name, true);
     } else if (part === 'stitch') {
       state.stitchColor = color;
       state.stitchName = name;
-      document.getElementById('svg-eyelet1').setAttribute('fill', color + 'cc');
-      document.getElementById('svg-eyelet2').setAttribute('fill', color + 'cc');
+      ['f-eyelet-r','f-eyelet-l','s-eyelet','b-eyelet-r','b-eyelet-l'].forEach(id => {
+        const el = document.getElementById(id);
+        if(el) el.setAttribute('stroke', color);
+      });
     } else if (part === 'patch') {
       state.patchColor = color;
-      document.getElementById('svg-patch-bg').setAttribute('fill', color);
-      // auto-contrast text
-      document.getElementById('svg-patch-text').setAttribute('fill', isLight(color) ? '#1a1a1a' : '#c9a84c');
+      setAll(['f-patch-bg','s-patch-bg'], 'fill', color);
+      const textColor = isLight(color) ? '#1a1a1a' : '#c9a84c';
+      setAll(['f-patch-text','s-patch-text'], 'fill', textColor);
     }
   }
 
-  // Set patch type
+  // Set patch type across all views
   function setPatch(el, type) {
     document.querySelectorAll('.patch-option').forEach(o => o.classList.remove('selected'));
     el.classList.add('selected');
     state.patch = type;
-
-    const patch = document.getElementById('svg-patch');
-    const patchText = document.getElementById('svg-patch-text');
-    const patchSub = document.getElementById('svg-patch-sub');
-    const patchBg = document.getElementById('svg-patch-bg');
     const patchColorSection = document.getElementById('patch-color-section');
-
+    const patches = [
+      { group: 'f-patch', text: 'f-patch-text', sub: 'f-patch-sub' },
+      { group: 's-patch', text: 's-patch-text', sub: 's-patch-sub' },
+    ];
     if (type === 'none') {
-      patch.style.opacity = '0';
-      patch.style.pointerEvents = 'none';
+      patches.forEach(p => {
+        const g = document.getElementById(p.group);
+        if(g) { g.style.opacity = '0'; g.style.pointerEvents = 'none'; }
+      });
       patchColorSection.style.display = 'none';
       updateTag('tag-patch', 'Patch: None', true);
-    } else if (type === 'logo') {
-      patch.style.opacity = '1';
-      patch.style.pointerEvents = '';
-      patchText.textContent = 'YOUR LOGO';
-      patchSub.textContent = 'EST. 2025';
+    } else {
+      const labels = { logo: ['YOUR LOGO','EST. 2025'], text: ['APPO GC','GOLF CLUB'], flag: ['⛳ FLAG','PATCH'] };
+      const tagLabels = { logo: 'Custom Logo', text: 'Text Embroidery', flag: 'Flag Patch' };
+      patches.forEach(p => {
+        const g = document.getElementById(p.group);
+        if(g) { g.style.opacity = p.group === 's-patch' ? '0.65' : '1'; g.style.pointerEvents = ''; }
+        const t = document.getElementById(p.text);
+        const s = document.getElementById(p.sub);
+        if(t) t.textContent = labels[type][0];
+        if(s) s.textContent = labels[type][1];
+      });
       patchColorSection.style.display = '';
-      updateTag('tag-patch', 'Patch: Custom Logo', true);
-    } else if (type === 'text') {
-      patch.style.opacity = '1';
-      patch.style.pointerEvents = '';
-      patchText.textContent = 'APPO GC';
-      patchSub.textContent = 'GOLF CLUB';
-      patchColorSection.style.display = '';
-      updateTag('tag-patch', 'Patch: Text', true);
-    } else if (type === 'flag') {
-      patch.style.opacity = '1';
-      patch.style.pointerEvents = '';
-      patchText.textContent = '⛳ FLAG';
-      patchSub.textContent = 'PATCH';
-      patchColorSection.style.display = '';
-      updateTag('tag-patch', 'Patch: Flag', true);
+      updateTag('tag-patch', 'Patch: ' + tagLabels[type], true);
     }
   }
 
