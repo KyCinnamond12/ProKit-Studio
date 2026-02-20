@@ -338,7 +338,7 @@
       </div>
 
       <!-- FRONT VIEW -->
-      <svg id="hat-front" class="hat-view" style="display:none" viewBox="0 0 400 360" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <svg id="hat-front" class="hat-view" viewBox="0 0 400 360" fill="none" xmlns="http://www.w3.org/2000/svg">
         <ellipse cx="200" cy="322" rx="150" ry="16" fill="rgba(0,0,0,0.07)"/>
         <path id="f-crown" d="M88 295 Q82 205 108 148 Q148 78 200 72 Q252 78 292 148 Q318 205 312 295 Z" fill="#1a3c2b"/>
         <path d="M292 148 Q318 205 312 295 L270 295 Q295 210 278 148 Z" fill="rgba(0,0,0,0.08)"/>
@@ -378,7 +378,7 @@
       </svg>
 
       <!-- SIDE VIEW -->
-      <svg id="hat-side" class="hat-view" style="display:none" viewBox="0 0 420 360" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <svg id="hat-side" class="hat-view" viewBox="0 0 420 360" fill="none" xmlns="http://www.w3.org/2000/svg">
         <ellipse cx="195" cy="322" rx="145" ry="14" fill="rgba(0,0,0,0.07)"/>
         <path id="s-crown" d="M100 295 Q95 215 115 160 Q140 100 180 80 Q215 65 248 72 Q278 80 295 115 Q308 145 305 295 Z" fill="#1a3c2b"/>
         <path d="M100 295 Q95 215 115 160 Q140 100 180 80 L185 80 Q148 105 130 162 Q112 218 118 295 Z" fill="rgba(255,255,255,0.04)"/>
@@ -403,7 +403,7 @@
       </svg>
 
       <!-- BACK VIEW -->
-      <svg id="hat-back" class="hat-view" style="display:none" viewBox="0 0 400 360" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <svg id="hat-back" class="hat-view" viewBox="0 0 400 360" fill="none" xmlns="http://www.w3.org/2000/svg">
         <ellipse cx="200" cy="322" rx="145" ry="14" fill="rgba(0,0,0,0.07)"/>
         <path id="b-crown" d="M90 295 Q84 208 110 152 Q148 85 200 80 Q252 85 290 152 Q316 208 310 295 Z" fill="#1a3c2b"/>
         <path d="M90 295 Q84 208 110 152 Q148 85 200 80 L200 84 Q150 92 115 155 Q90 212 96 295 Z" fill="rgba(0,0,0,0.07)"/>
@@ -550,7 +550,7 @@
     minNote.style.display = 'block';
 
     document.getElementById('style-list').innerHTML = styles.map(s =>
-      '<div class="style-option" onclick="selectStyle(this,\'' + s.name + '\',' + (s.strap || false) + ')">'
+      '<div class="style-option" onclick="selectStyle(this,\'' + s.name + '\',' + (s.strap || false) + ',' + (s.rope || false) + ')">'
       + '<div><div class="style-name">' + s.name + '</div><div class="style-desc">' + s.desc + '</div></div>'
       + '<div class="style-check">✓</div></div>'
     ).join('');
@@ -560,14 +560,24 @@
 
     // Show/update preview
     document.getElementById('preview-placeholder').style.display = 'none';
-    document.getElementById('hat-svg').style.display = 'none';
     document.getElementById('angle-switcher').classList.remove('visible');
 
     if (name === 'Headwear') {
+      // Show the hat preview immediately (default front view)
       document.getElementById('product-illustration').style.display = 'none';
-      document.getElementById('preview-placeholder').style.display = 'block';
+      document.getElementById('preview-placeholder').style.display = 'none';
+      document.getElementById('angle-switcher').classList.add('visible');
+      currentAngle = 'front';
+      document.querySelectorAll('.angle-btn').forEach(function(b){ b.classList.remove('active'); });
+      const firstAngleBtn = document.querySelector('#angle-switcher .angle-btn');
+      if (firstAngleBtn) firstAngleBtn.classList.add('active');
+      showHatView('front');
+      // Reset hat details until a style is chosen
+      updateHatDetails(true, false);
     } else {
       document.getElementById('product-illustration').style.display = 'flex';
+      // Hide any hat SVG views when switching away from Headwear
+      document.querySelectorAll('.hat-view').forEach(function(v){ v.classList.remove('active'); v.style.display='none'; });
       updateIllustration();
     }
 
@@ -718,9 +728,16 @@
   let currentAngle = 'front';
 
   function showHatView(angle) {
-    document.querySelectorAll('.hat-view').forEach(v => v.classList.remove('active'));
+    // Ensure only the selected hat SVG is visible (works even if any inline styles exist)
+    document.querySelectorAll('.hat-view').forEach(function(v){
+      v.classList.remove('active');
+      v.style.display = 'none';
+    });
     const el = document.getElementById('hat-' + angle);
-    if (el) el.classList.add('active');
+    if (el) {
+      el.classList.add('active');
+      el.style.display = 'block';
+    }
   }
 
   function setAngle(angle, btn) {
