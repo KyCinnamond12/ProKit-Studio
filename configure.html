@@ -752,20 +752,17 @@
             <div class="product-icon">🧢</div>
             <div class="product-name">Headwear</div>
           </div>
-          <div class="product-card coming-soon" onclick="">
+          <div class="product-card" onclick="selectProduct(this, 'Polos', '👔')">
             <div class="product-icon">👔</div>
-            <div class="product-name">Shirts</div>
-            <div class="product-soon">Coming Soon</div>
+            <div class="product-name">Polos</div>
           </div>
-          <div class="product-card coming-soon">
-            <div class="product-icon">🩳</div>
-            <div class="product-name">Bottoms</div>
-            <div class="product-soon">Coming Soon</div>
+          <div class="product-card" onclick="selectProduct(this, 'Quarter Zips', '🧥')">
+            <div class="product-icon">🧥</div>
+            <div class="product-name">Quarter Zips</div>
           </div>
-          <div class="product-card coming-soon">
+          <div class="product-card" onclick="selectProduct(this, 'Belts', '🪣')">
             <div class="product-icon">🎽</div>
-            <div class="product-name">Outerwear</div>
-            <div class="product-soon">Coming Soon</div>
+            <div class="product-name">Belts</div>
           </div>
           <div class="product-card coming-soon">
             <div class="product-icon">👜</div>
@@ -773,8 +770,8 @@
             <div class="product-soon">Coming Soon</div>
           </div>
           <div class="product-card coming-soon">
-            <div class="product-icon">🪣</div>
-            <div class="product-name">Belts</div>
+            <div class="product-icon">🧣</div>
+            <div class="product-name">Accessories</div>
             <div class="product-soon">Coming Soon</div>
           </div>
         </div>
@@ -810,82 +807,11 @@
         <div class="step-chevron">▼</div>
       </div>
       <div class="step-content">
-
-        <!-- Crown Color -->
-        <div class="customize-section">
-          <div class="customize-label">Crown Color</div>
-          <div class="color-swatches" id="crown-swatches">
-            <div class="swatch active" style="background:#1a3c2b" onclick="setColor(this,'crown','#1a3c2b')" title="Forest Green"></div>
-            <div class="swatch" style="background:#c9a84c" onclick="setColor(this,'crown','#c9a84c')" title="Gold"></div>
-            <div class="swatch" style="background:#1a1a2e" onclick="setColor(this,'crown','#1a1a2e')" title="Navy"></div>
-            <div class="swatch" style="background:#8B1A1A" onclick="setColor(this,'crown','#8B1A1A')" title="Cardinal"></div>
-            <div class="swatch" style="background:#f0ece3; border:1px solid #555" onclick="setColor(this,'crown','#e0dcd3')" title="White"></div>
-            <div class="swatch" style="background:#2b2b2b" onclick="setColor(this,'crown','#2b2b2b')" title="Charcoal"></div>
-            <div class="swatch" style="background:#5c3d1e" onclick="setColor(this,'crown','#5c3d1e')" title="Brown"></div>
-            <div class="swatch" style="background:#7a4f7d" onclick="setColor(this,'crown','#7a4f7d')" title="Purple"></div>
-          </div>
+        <div id="customize-fields">
+          <!-- Populated dynamically based on product -->
         </div>
 
-        <!-- Brim Color -->
-        <div class="customize-section">
-          <div class="customize-label">Brim Color</div>
-          <div class="color-swatches" id="brim-swatches">
-            <div class="swatch active" style="background:#c9a84c" onclick="setColor(this,'brim','#c9a84c')" title="Gold"></div>
-            <div class="swatch" style="background:#1a3c2b" onclick="setColor(this,'brim','#1a3c2b')" title="Forest Green"></div>
-            <div class="swatch" style="background:#2b2b2b" onclick="setColor(this,'brim','#2b2b2b')" title="Black"></div>
-            <div class="swatch" style="background:#f0ece3; border:1px solid #555" onclick="setColor(this,'brim','#e0dcd3')" title="White"></div>
-            <div class="swatch" style="background:#1a1a2e" onclick="setColor(this,'brim','#1a1a2e')" title="Navy"></div>
-            <div class="swatch" style="background:#8B1A1A" onclick="setColor(this,'brim','#8B1A1A')" title="Cardinal"></div>
-          </div>
-        </div>
-
-        <!-- Eyelet/Stitch Color -->
-        <div class="customize-section">
-          <div class="customize-label">Stitch & Eyelet Color</div>
-          <div class="color-swatches" id="stitch-swatches">
-            <div class="swatch active" style="background:#c9a84c" onclick="setColor(this,'stitch','#c9a84c')" title="Gold"></div>
-            <div class="swatch" style="background:#f0ece3; border:1px solid #555" onclick="setColor(this,'stitch','#f0ece3')" title="White"></div>
-            <div class="swatch" style="background:#2b2b2b" onclick="setColor(this,'stitch','#2b2b2b')" title="Black"></div>
-            <div class="swatch" style="background:#1a3c2b" onclick="setColor(this,'stitch','#1a3c2b')" title="Forest Green"></div>
-          </div>
-        </div>
-
-        <!-- Patch / Logo -->
-        <div class="customize-section">
-          <div class="customize-label">Logo / Patch</div>
-          <div class="patch-options">
-            <div class="patch-option selected" onclick="setPatch(this,'logo')">
-              <span class="patch-icon">🖼️</span>
-              Custom Logo
-            </div>
-            <div class="patch-option" onclick="setPatch(this,'text')">
-              <span class="patch-icon">✏️</span>
-              Text Only
-            </div>
-            <div class="patch-option" onclick="setPatch(this,'flag')">
-              <span class="patch-icon">📍</span>
-              Flag Patch
-            </div>
-            <div class="patch-option" onclick="setPatch(this,'none')">
-              <span class="patch-icon">✕</span>
-              No Patch
-            </div>
-          </div>
-        </div>
-
-        <!-- Patch Color -->
-        <div class="customize-section" id="patch-color-section">
-          <div class="customize-label">Patch Color</div>
-          <div class="color-swatches" id="patch-swatches">
-            <div class="swatch active" style="background:#1a3c2b" onclick="setColor(this,'patch','#1a3c2b')" title="Forest Green"></div>
-            <div class="swatch" style="background:#c9a84c" onclick="setColor(this,'patch','#c9a84c')" title="Gold"></div>
-            <div class="swatch" style="background:#1a1a2e" onclick="setColor(this,'patch','#1a1a2e')" title="Navy"></div>
-            <div class="swatch" style="background:#2b2b2b" onclick="setColor(this,'patch','#2b2b2b')" title="Black"></div>
-            <div class="swatch" style="background:#f0ece3; border:1px solid #555" onclick="setColor(this,'patch','#f0ece3')" title="White"></div>
-          </div>
-        </div>
-
-        <button class="submit-btn" onclick="submitConfig()">Submit for Production →</button>
+                <button class="submit-btn" onclick="submitConfig()">Submit for Production →</button>
         <button class="proceed-btn" style="background:transparent; border:1px solid var(--border); color:var(--muted); margin-top:0.5rem" onclick="saveDraft()">Save Draft</button>
 
       </div>
@@ -977,7 +903,23 @@
       { name: 'Richardson 65', desc: '5-Panel Trucker Snapback', strap: true },
       { name: 'Richardson 172', desc: 'Fitted Performance Cap', strap: false },
       { name: 'Richardson 115', desc: 'Washed Chino Twill Dad Hat', strap: false },
-    ]
+    ],
+    Polos: [
+      { name: 'Classic Piqué Polo', desc: 'Traditional piqué weave, tailored fit' },
+      { name: 'Performance Polo', desc: 'Moisture-wicking, stretch fabric' },
+      { name: 'Tour Polo', desc: 'Tour-inspired, premium feel' },
+      { name: 'Ladies Polo', desc: 'Women's fit, piqué fabric' },
+    ],
+    'Quarter Zips': [
+      { name: 'Lightweight Quarter Zip', desc: 'Midlayer fleece, great for cool mornings' },
+      { name: 'Performance Quarter Zip', desc: 'Moisture-wicking stretch fabric' },
+      { name: 'Sherpa Quarter Zip', desc: 'Sherpa-lined interior, premium warmth' },
+    ],
+    Belts: [
+      { name: 'Ribbon Belt', desc: 'Classic woven ribbon, adjustable buckle' },
+      { name: 'Leather Belt', desc: 'Full-grain leather, custom emboss' },
+      { name: 'Stretch Belt', desc: 'Elastic stretch, performance fit' },
+    ],
   };
 
   // Toggle step open/close
@@ -1024,6 +966,18 @@
     }, 300);
 
     updateTag('tag-product', name, true);
+
+    // For non-headwear, show SVG illustration immediately (no style needed for preview)
+    if (name !== 'Headwear') {
+      document.getElementById('preview-placeholder').style.display = 'none';
+      document.getElementById('angle-switcher').classList.remove('visible');
+      document.getElementById('hat-mockup').style.display = 'none';
+      showProductIllustration(name);
+    } else {
+      // Hide illustration for headwear, show after style picked
+      const ill = document.getElementById('product-illustration');
+      if (ill) ill.style.display = 'none';
+    }
   }
 
   // Step 2: Select style
@@ -1054,6 +1008,7 @@
       document.getElementById('step2').classList.add('completed');
       document.getElementById('step3').classList.remove('locked');
       document.getElementById('step3').classList.add('active');
+      buildCustomizeFields(state.product);
     }, 300);
 
     updateTag('tag-style', name, true);
@@ -1086,6 +1041,7 @@
       state.patchColor = color;
     }
     renderHat();
+    updateIllustrationColors();
   }
 
   // Set patch type across all views
@@ -1120,6 +1076,7 @@
       updateTag('tag-patch', 'Patch: ' + tagLabels[type], true);
     }
     renderHat();
+    updateIllustrationColors();
   }
 
   function updateTag(id, text, lit) {
@@ -1234,6 +1191,288 @@
     } else {
       patchOverlay.style.display = 'none';
     }
+  }
+
+
+  // ── Dynamic Customize Fields ──
+
+  const COLORS = [
+    { hex: '#1a3c2b', name: 'Forest Green' },
+    { hex: '#c9a84c', name: 'Gold' },
+    { hex: '#1a1a2e', name: 'Navy' },
+    { hex: '#8B1A1A', name: 'Cardinal' },
+    { hex: '#e0dcd3', name: 'White', border: true },
+    { hex: '#2b2b2b', name: 'Charcoal' },
+    { hex: '#5c3d1e', name: 'Brown' },
+    { hex: '#7a4f7d', name: 'Purple' },
+    { hex: '#3a6fa8', name: 'Royal Blue' },
+    { hex: '#c0392b', name: 'Red' },
+    { hex: '#e67e22', name: 'Orange' },
+    { hex: '#f5f5dc', name: 'Khaki', border: true },
+  ];
+
+  function swatchHTML(part, selectedHex) {
+    return COLORS.map(c => `
+      <div class="swatch ${c.hex === selectedHex ? 'active' : ''}"
+        style="background:${c.hex}; ${c.border ? 'border:1px solid #555;' : ''}"
+        onclick="setColor(this,'${part}','${c.hex}')"
+        title="${c.name}"></div>
+    `).join('');
+  }
+
+  function patchOptionsHTML() {
+    return `
+      <div class="patch-options">
+        <div class="patch-option selected" onclick="setPatch(this,'logo')">
+          <span class="patch-icon">🖼️</span>Custom Logo
+        </div>
+        <div class="patch-option" onclick="setPatch(this,'text')">
+          <span class="patch-icon">✏️</span>Text Only
+        </div>
+        <div class="patch-option" onclick="setPatch(this,'flag')">
+          <span class="patch-icon">📍</span>Flag Patch
+        </div>
+        <div class="patch-option" onclick="setPatch(this,'none')">
+          <span class="patch-icon">✕</span>No Patch
+        </div>
+      </div>
+    `;
+  }
+
+  function buildCustomizeFields(product) {
+    const fields = document.getElementById('customize-fields');
+
+    if (product === 'Headwear') {
+      fields.innerHTML = `
+        <div class="customize-section">
+          <div class="customize-label">Crown Color</div>
+          <div class="color-swatches">${swatchHTML('crown', state.crownColor)}</div>
+        </div>
+        <div class="customize-section">
+          <div class="customize-label">Brim Color</div>
+          <div class="color-swatches">${swatchHTML('brim', state.brimColor)}</div>
+        </div>
+        <div class="customize-section">
+          <div class="customize-label">Stitch & Eyelet Color</div>
+          <div class="color-swatches">${swatchHTML('stitch', state.stitchColor)}</div>
+        </div>
+        <div class="customize-section">
+          <div class="customize-label">Logo / Patch</div>
+          ${patchOptionsHTML()}
+        </div>
+        <div class="customize-section" id="patch-color-section">
+          <div class="customize-label">Patch Color</div>
+          <div class="color-swatches">${swatchHTML('patch', state.patchColor)}</div>
+        </div>
+      `;
+    } else if (product === 'Polos') {
+      fields.innerHTML = `
+        <div class="customize-section">
+          <div class="customize-label">Body Color</div>
+          <div class="color-swatches">${swatchHTML('crown', state.crownColor)}</div>
+        </div>
+        <div class="customize-section">
+          <div class="customize-label">Collar & Sleeve Trim</div>
+          <div class="color-swatches">${swatchHTML('brim', state.brimColor)}</div>
+        </div>
+        <div class="customize-section">
+          <div class="customize-label">Button Color</div>
+          <div class="color-swatches">${swatchHTML('stitch', state.stitchColor)}</div>
+        </div>
+        <div class="customize-section">
+          <div class="customize-label">Logo Placement</div>
+          ${patchOptionsHTML()}
+        </div>
+        <div class="customize-section" id="patch-color-section">
+          <div class="customize-label">Logo Color</div>
+          <div class="color-swatches">${swatchHTML('patch', state.patchColor)}</div>
+        </div>
+      `;
+    } else if (product === 'Quarter Zips') {
+      fields.innerHTML = `
+        <div class="customize-section">
+          <div class="customize-label">Body Color</div>
+          <div class="color-swatches">${swatchHTML('crown', state.crownColor)}</div>
+        </div>
+        <div class="customize-section">
+          <div class="customize-label">Zipper & Collar Color</div>
+          <div class="color-swatches">${swatchHTML('brim', state.brimColor)}</div>
+        </div>
+        <div class="customize-section">
+          <div class="customize-label">Stitch Color</div>
+          <div class="color-swatches">${swatchHTML('stitch', state.stitchColor)}</div>
+        </div>
+        <div class="customize-section">
+          <div class="customize-label">Logo Placement</div>
+          ${patchOptionsHTML()}
+        </div>
+        <div class="customize-section" id="patch-color-section">
+          <div class="customize-label">Logo Color</div>
+          <div class="color-swatches">${swatchHTML('patch', state.patchColor)}</div>
+        </div>
+      `;
+    } else if (product === 'Belts') {
+      fields.innerHTML = `
+        <div class="customize-section">
+          <div class="customize-label">Belt Color</div>
+          <div class="color-swatches">${swatchHTML('crown', state.crownColor)}</div>
+        </div>
+        <div class="customize-section">
+          <div class="customize-label">Buckle Finish</div>
+          <div class="color-swatches">${swatchHTML('brim', '#c9a84c')}</div>
+        </div>
+        <div class="customize-section">
+          <div class="customize-label">Stitch Color</div>
+          <div class="color-swatches">${swatchHTML('stitch', state.stitchColor)}</div>
+        </div>
+        <div class="customize-section">
+          <div class="customize-label">Logo / Emboss</div>
+          ${patchOptionsHTML()}
+        </div>
+        <div class="customize-section" id="patch-color-section">
+          <div class="customize-label">Logo Color</div>
+          <div class="color-swatches">${swatchHTML('patch', state.patchColor)}</div>
+        </div>
+      `;
+    }
+  }
+
+
+  // ── Product Illustrations ──
+  function showProductIllustration(product) {
+    let container = document.getElementById('product-illustration');
+    if (!container) {
+      container = document.createElement('div');
+      container.id = 'product-illustration';
+      container.style.cssText = 'width:320px;height:320px;display:flex;align-items:center;justify-content:center;';
+      document.getElementById('hat-mockup').parentNode.insertBefore(container, document.getElementById('hat-mockup'));
+    }
+    container.style.display = 'flex';
+    container.innerHTML = getSVG(product);
+  }
+
+  function updateIllustrationColors() {
+    const container = document.getElementById('product-illustration');
+    if (!container || container.style.display === 'none') return;
+    const product = state.product;
+    if (product && product !== 'Headwear') {
+      container.innerHTML = getSVG(product);
+    }
+  }
+
+  function getSVG(product) {
+    const c = state.crownColor || '#1a3c2b';
+    const b = state.brimColor || '#c9a84c';
+    const s = state.stitchColor || '#c9a84c';
+    const p = state.patchColor || '#1a3c2b';
+    const shade = (hex, amt) => {
+      const n = parseInt(hex.replace('#',''),16);
+      const R = Math.min(255,Math.max(0,(n>>16)+amt));
+      const G = Math.min(255,Math.max(0,((n>>8)&0xff)+amt));
+      const B = Math.min(255,Math.max(0,(n&0xff)+amt));
+      return '#'+(0x1000000+R*0x10000+G*0x100+B).toString(16).slice(1);
+    };
+    const dark = shade(c, -40);
+    const mid  = shade(c, -20);
+
+    if (product === 'Polos') {
+      const patchVisible = state.patch !== 'none';
+      return `<svg viewBox="0 0 300 340" fill="none" xmlns="http://www.w3.org/2000/svg" style="width:100%;height:100%;filter:drop-shadow(0 12px 28px rgba(0,0,0,0.13))">
+        <!-- Body -->
+        <path d="M75 110 L50 90 L20 130 L45 145 L45 300 L255 300 L255 145 L280 130 L250 90 L225 110 Q200 85 150 85 Q100 85 75 110Z" fill="${c}"/>
+        <!-- Collar -->
+        <path d="M110 88 Q150 105 190 88 L180 65 Q165 58 150 56 Q135 58 120 65Z" fill="${mid}"/>
+        <!-- Collar border -->
+        <path d="M110 88 Q150 105 190 88" stroke="${b}" stroke-width="2.5" fill="none"/>
+        <!-- Left sleeve -->
+        <path d="M75 110 L50 90 L20 130 L45 145 L60 130 Z" fill="${dark}"/>
+        <!-- Right sleeve -->
+        <path d="M225 110 L250 90 L280 130 L255 145 L240 130 Z" fill="${dark}"/>
+        <!-- Sleeve trim left -->
+        <path d="M20 130 L45 145" stroke="${b}" stroke-width="3"/>
+        <!-- Sleeve trim right -->
+        <path d="M280 130 L255 145" stroke="${b}" stroke-width="3"/>
+        <!-- Placket/button line -->
+        <line x1="150" y1="90" x2="150" y2="190" stroke="${mid}" stroke-width="2"/>
+        <!-- Buttons -->
+        <circle cx="150" cy="105" r="3" fill="${b}"/>
+        <circle cx="150" cy="120" r="3" fill="${b}"/>
+        <circle cx="150" cy="135" r="3" fill="${b}"/>
+        <!-- Side seams -->
+        <line x1="90" y1="300" x2="80" y2="145" stroke="${dark}" stroke-width="1.5" opacity="0.5"/>
+        <line x1="210" y1="300" x2="220" y2="145" stroke="${dark}" stroke-width="1.5" opacity="0.5"/>
+        <!-- Chest logo patch -->
+        ${patchVisible ? `<rect x="90" y="145" width="65" height="45" rx="4" fill="${p}"/>
+        <text x="122" y="168" text-anchor="middle" fill="${isLight(p)?'#111':'#c9a84c'}" font-size="8" font-family="Arial" font-weight="bold" letter-spacing="1">LOGO</text>
+        <text x="122" y="182" text-anchor="middle" fill="${isLight(p)?'#333':'rgba(201,168,76,0.6)'}" font-size="6" font-family="Arial">EST. 2025</text>` : ''}
+        <!-- Bottom hem -->
+        <line x1="45" y1="295" x2="255" y2="295" stroke="${mid}" stroke-width="2"/>
+      </svg>`;
+    }
+
+    if (product === 'Quarter Zips') {
+      const patchVisible = state.patch !== 'none';
+      return `<svg viewBox="0 0 300 360" fill="none" xmlns="http://www.w3.org/2000/svg" style="width:100%;height:100%;filter:drop-shadow(0 12px 28px rgba(0,0,0,0.13))">
+        <!-- Body -->
+        <path d="M70 120 L45 95 L15 140 L42 155 L42 310 L258 310 L258 155 L285 140 L255 95 L230 120 Q200 92 150 90 Q100 92 70 120Z" fill="${c}"/>
+        <!-- Left sleeve -->
+        <path d="M70 120 L45 95 L15 140 L42 155 L58 138 Z" fill="${dark}"/>
+        <!-- Right sleeve -->
+        <path d="M230 120 L255 95 L285 140 L258 155 L242 138 Z" fill="${dark}"/>
+        <!-- Sleeve cuffs -->
+        <rect x="15" y="138" width="27" height="10" rx="2" fill="${b}"/>
+        <rect x="258" y="138" width="27" height="10" rx="2" fill="${b}"/>
+        <!-- Collar -->
+        <path d="M108 92 Q150 108 192 92 L185 68 Q168 60 150 58 Q132 60 115 68Z" fill="${mid}"/>
+        <path d="M108 92 Q150 108 192 92" stroke="${b}" stroke-width="2.5" fill="none"/>
+        <!-- Zipper track -->
+        <rect x="146" y="90" width="8" height="90" rx="2" fill="${mid}"/>
+        <!-- Zipper pull -->
+        <rect x="143" y="155" width="14" height="8" rx="2" fill="${b}"/>
+        <circle cx="150" cy="159" r="2" fill="${dark}"/>
+        <!-- Chest logo -->
+        ${patchVisible ? `<rect x="88" y="158" width="65" height="45" rx="4" fill="${p}"/>
+        <text x="120" y="181" text-anchor="middle" fill="${isLight(p)?'#111':'#c9a84c'}" font-size="8" font-family="Arial" font-weight="bold" letter-spacing="1">LOGO</text>
+        <text x="120" y="195" text-anchor="middle" fill="${isLight(p)?'#333':'rgba(201,168,76,0.6)'}" font-size="6" font-family="Arial">EST. 2025</text>` : ''}
+        <!-- Bottom hem -->
+        <rect x="42" y="302" width="216" height="10" rx="3" fill="${mid}"/>
+        <!-- Side seams -->
+        <line x1="88" y1="310" x2="78" y2="155" stroke="${dark}" stroke-width="1.5" opacity="0.4"/>
+        <line x1="212" y1="310" x2="222" y2="155" stroke="${dark}" stroke-width="1.5" opacity="0.4"/>
+      </svg>`;
+    }
+
+    if (product === 'Belts') {
+      return `<svg viewBox="0 0 400 200" fill="none" xmlns="http://www.w3.org/2000/svg" style="width:100%;height:100%;filter:drop-shadow(0 12px 28px rgba(0,0,0,0.13))">
+        <!-- Belt strap -->
+        <rect x="20" y="70" width="360" height="60" rx="6" fill="${c}"/>
+        <!-- Belt texture stitching top -->
+        <line x1="20" y1="78" x2="380" y2="78" stroke="${s}" stroke-width="1" stroke-dasharray="8,4" opacity="0.5"/>
+        <!-- Belt texture stitching bottom -->
+        <line x1="20" y1="122" x2="380" y2="122" stroke="${s}" stroke-width="1" stroke-dasharray="8,4" opacity="0.5"/>
+        <!-- Buckle frame -->
+        <rect x="20" y="62" width="75" height="76" rx="6" fill="${b}"/>
+        <rect x="26" y="68" width="63" height="64" rx="4" fill="${shade(b,-30)}"/>
+        <!-- Buckle bar -->
+        <rect x="54" y="65" width="6" height="70" rx="3" fill="${b}"/>
+        <!-- Buckle prong -->
+        <path d="M57 68 L57 120 L63 115 L63 73 Z" fill="${shade(b,-50)}"/>
+        <!-- Belt holes -->
+        <circle cx="130" cy="100" r="5" fill="${dark}"/>
+        <circle cx="155" cy="100" r="5" fill="${dark}"/>
+        <circle cx="180" cy="100" r="5" fill="${dark}"/>
+        <circle cx="205" cy="100" r="5" fill="${dark}"/>
+        <circle cx="230" cy="100" r="5" fill="${dark}"/>
+        <!-- Logo emboss on belt -->
+        ${state.patch !== 'none' ? `<rect x="275" y="78" width="80" height="44" rx="4" fill="${p}" opacity="0.9"/>
+        <text x="315" y="101" text-anchor="middle" fill="${isLight(p)?'#111':'#c9a84c'}" font-size="9" font-family="Arial" font-weight="bold" letter-spacing="1">LOGO</text>
+        <text x="315" y="113" text-anchor="middle" fill="${isLight(p)?'#333':'rgba(201,168,76,0.5)'}" font-size="6" font-family="Arial">EST. 2025</text>` : ''}
+        <!-- Belt tip -->
+        <path d="M370 70 L380 100 L370 130 L375 130 L385 100 L375 70Z" fill="${mid}"/>
+      </svg>`;
+    }
+
+    return '';
   }
 
 </script>
