@@ -182,6 +182,65 @@
   .modal-confirm:hover { background:#3a8563; }
   .modal-cancel { padding:0.9rem 1.5rem; background:transparent; color:#7a7d74; font-size:0.85rem; font-weight:600; border:1px solid #2e332a; border-radius:4px; cursor:pointer; transition:color 0.2s; }
   .modal-cancel:hover { color:#f0ece3; }
+
+
+  /* ─────────────────────────────────────────────
+     RESPONSIVE (mobile/tablet)
+     ───────────────────────────────────────────── */
+
+  @media (max-width: 980px) {
+    /* Put preview first on mobile so you always see it */
+    .app {
+      display: flex;
+      flex-direction: column;
+      height: auto;
+      overflow: visible;
+    }
+    .preview-panel { order: 0; padding: 1.1rem; }
+    .steps-panel  { order: 1; padding: 1.1rem; border-right: 0; border-top: 1px solid var(--border); }
+
+    .preview-card {
+      min-height: 380px;
+      height: auto;
+    }
+
+    /* Keep SVG visible and centered */
+    .preview-card svg {
+      max-width: 100%;
+      height: auto;
+      display: block;
+      margin: 0 auto;
+    }
+
+    .cart-badge { right: 12px; bottom: 12px; }
+  }
+
+  @media (max-width: 640px) {
+    nav {
+      padding: 0.85rem 1rem;
+      gap: 0.75rem;
+      flex-wrap: wrap;
+    }
+    .nav-back { font-size: 0.75rem; }
+
+    .product-grid { grid-template-columns: 1fr; }
+    .style-grid { grid-template-columns: 1fr; }
+    .color-grid { grid-template-columns: repeat(4, 1fr); }
+
+    .step-header { padding: 0.95rem 1rem; }
+    .step-content { padding: 1rem; }
+
+    /* Bigger tap targets */
+    .product-card, .style-card { padding: 1.05rem; }
+    button, .btn { min-height: 44px; }
+
+    /* Cart drawer full width */
+    .cart-drawer { width: 100%; max-width: 100%; }
+  }
+
+  @media (max-width: 420px) {
+    .color-grid { grid-template-columns: repeat(3, 1fr); }
+  }
 </style>
 </head>
 <body>
@@ -1030,62 +1089,7 @@
       + '.qty-row{display:flex;align-items:center;gap:0.8rem;padding-top:0.8rem;border-top:1px solid #e0ddd8}'
       + '.qty{font-weight:700;color:#1a3c2b}.min{font-size:0.72rem;color:#c9a84c;margin-left:auto}'
       + '.footer{margin-top:2rem;padding-top:1.5rem;border-top:2px solid #1a3c2b;display:flex;justify-content:space-between;font-size:0.8rem;color:#888}'
-      + '.total{font-weight:700;color:#1a3c2b}@media print{body{padding:1.5rem}}
-
-  /* ─────────────────────────────────────────────
-     RESPONSIVE (mobile/tablet)
-     ───────────────────────────────────────────── */
-
-  @media (max-width: 980px) {
-    .app {
-      grid-template-columns: 1fr;
-      height: auto;
-      overflow: visible;
-    }
-    .steps-panel {
-      border-right: 0;
-      border-bottom: 1px solid var(--border);
-      height: auto;
-      padding: 1.25rem;
-    }
-    .preview-panel {
-      height: auto;
-      overflow: visible;
-      padding: 1.25rem;
-    }
-    .preview-card { min-height: 420px; }
-
-    .cart-badge { right: 12px; bottom: 12px; }
-  }
-
-  @media (max-width: 640px) {
-    nav {
-      padding: 0.85rem 1rem;
-      gap: 0.75rem;
-      flex-wrap: wrap;
-    }
-    .nav-back { font-size: 0.75rem; }
-
-    .product-grid { grid-template-columns: 1fr; }
-    .style-grid { grid-template-columns: 1fr; }
-    .color-grid { grid-template-columns: repeat(4, 1fr); }
-
-    .step-header { padding: 0.95rem 1rem; }
-    .step-content { padding: 1rem; }
-
-    /* Bigger tap targets */
-    .product-card, .style-card { padding: 1.05rem; }
-    button, .btn { min-height: 44px; }
-
-    /* Cart drawer full width */
-    .cart-drawer { width: 100%; max-width: 100%; }
-  }
-
-  @media (max-width: 420px) {
-    .color-grid { grid-template-columns: repeat(3, 1fr); }
-  }
-
-</style></head><body>'
+      + '.total{font-weight:700;color:#1a3c2b}@media print{body{padding:1.5rem}}</style></head><body>'
       + '<div class="header"><div class="logo">ProKit<span>Studio</span></div>'
       + '<div class="date">' + new Date().toLocaleDateString('en-US',{year:'numeric',month:'long',day:'numeric'}) + '</div></div>'
       + '<div class="title">Custom Order Summary</div>'
