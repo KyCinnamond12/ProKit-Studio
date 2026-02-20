@@ -1149,12 +1149,25 @@
 
     document.getElementById('step2-selection').textContent = name;
 
-    // Show/hide strap
-    document.getElementById('svg-strap').style.display = hasStrap ? 'block' : 'none';
+    // Show/hide straps across all views
+    ['f-strap','s-strap','b-strap'].forEach(id => {
+      const el = document.getElementById(id);
+      if (el) el.style.display = hasStrap ? 'block' : 'none';
+    });
 
-    // Show hat
+    // Show hat — hide placeholder, show angle switcher, show front view
     document.getElementById('preview-placeholder').style.display = 'none';
-    document.getElementById('hat-svg').style.display = 'block';
+    document.getElementById('angle-switcher').style.display = 'flex';
+    // Reset to front view
+    document.querySelectorAll('.hat-view').forEach(v => {
+      v.style.display = 'none';
+      v.classList.remove('active');
+    });
+    document.querySelectorAll('.angle-btn').forEach(b => b.classList.remove('active'));
+    document.querySelector('.angle-btn').classList.add('active');
+    const front = document.getElementById('view-front');
+    front.style.display = 'block';
+    front.classList.add('active');
 
     setTimeout(() => {
       document.getElementById('step2').classList.remove('active');
