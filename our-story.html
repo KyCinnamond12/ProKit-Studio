@@ -1,0 +1,239 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Our Story — ProKit Studio</title>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@300;400;500;600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --black: #0a0a0a;
+    --white: #f5f3ee;
+    --cream: #f0ece3;
+    --green: #1a3c2b;
+    --grass: #2d6a4f;
+    --gold: #c9a84c;
+    --gold-light: #e8c96d;
+    --gray: #8a8a8a;
+    --light-gray: #e2ddd6;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
+  body {
+    font-family: 'DM Sans', sans-serif;
+    background: var(--white);
+    color: var(--black);
+    overflow-x: hidden;
+  }
+
+  /* NAV (match index) */
+  nav {
+    position: fixed;
+    top: 0; left: 0; right: 0;
+    z-index: 100;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 1.4rem 3rem;
+    background: rgba(245, 243, 238, 0.85);
+    backdrop-filter: blur(12px);
+    border-bottom: 1px solid var(--light-gray);
+  }
+  .logo {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 1.6rem;
+    letter-spacing: 0.08em;
+    color: var(--green);
+    text-decoration: none;
+  }
+  .logo span { color: var(--gold); }
+  nav ul { list-style: none; display: flex; gap: 2.5rem; }
+  nav ul a {
+    text-decoration: none;
+    font-size: 0.85rem;
+    font-weight: 500;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--black);
+    transition: color 0.2s;
+  }
+  nav ul a:hover { color: var(--grass); }
+  .nav-cta {
+    background: var(--green);
+    color: var(--white) !important;
+    padding: 0.55rem 1.4rem;
+    border-radius: 2px;
+    transition: background 0.2s !important;
+  }
+  .nav-cta:hover { background: var(--grass) !important; color: var(--white) !important; }
+
+  /* PAGE */
+  .page {
+    padding: 8.5rem 3rem 6rem;
+    max-width: 980px;
+    margin: 0 auto;
+  }
+  .eyebrow {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.72rem;
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
+    color: var(--gold);
+    margin-bottom: 1.2rem;
+  }
+  h1 {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: clamp(3.5rem, 7vw, 6rem);
+    color: var(--green);
+    line-height: 0.95;
+    margin-bottom: 1.2rem;
+  }
+  .lede {
+    font-size: 1.05rem;
+    line-height: 1.75;
+    color: #555;
+    max-width: 720px;
+    margin-bottom: 3rem;
+  }
+  .card {
+    background: var(--cream);
+    border: 1px solid var(--light-gray);
+    padding: 2.2rem;
+    margin-bottom: 1.2rem;
+  }
+  .card h2 {
+    font-size: 1rem;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--green);
+    margin-bottom: 0.7rem;
+  }
+  .card p {
+    font-size: 0.98rem;
+    line-height: 1.75;
+    color: #555;
+  }
+
+  .cta {
+    margin-top: 2.5rem;
+    padding: 2.5rem;
+    background: var(--black);
+    color: var(--white);
+    position: relative;
+    overflow: hidden;
+  }
+  .cta h3 {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 3rem;
+    line-height: 1;
+    margin-bottom: 0.8rem;
+  }
+  .cta h3 span { color: var(--gold); }
+  .cta p {
+    color: #bbb;
+    max-width: 680px;
+    line-height: 1.7;
+    margin-bottom: 1.3rem;
+  }
+  .btn-primary {
+    background: var(--green);
+    color: var(--white);
+    padding: 0.9rem 2.2rem;
+    font-size: 0.9rem;
+    font-weight: 600;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    border: none;
+    cursor: pointer;
+    border-radius: 2px;
+    transition: background 0.2s, transform 0.15s;
+    text-decoration: none;
+    display: inline-block;
+  }
+  .btn-primary:hover { background: var(--grass); transform: translateY(-2px); }
+
+  /* FOOTER */
+  footer {
+    background: var(--green);
+    padding: 3rem;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+  footer .logo { color: var(--white); }
+  footer .logo span { color: var(--gold); }
+  .footer-text {
+    font-size: 0.82rem;
+    color: rgba(255,255,255,0.5);
+  }
+
+  /* Light mobile support (we can do a full mobile pass next) */
+  @media (max-width: 760px) {
+    nav { padding: 1rem 1.2rem; }
+    nav ul { gap: 1rem; flex-wrap: wrap; justify-content: flex-end; }
+    .page { padding: 7.5rem 1.2rem 4rem; }
+    footer { padding: 2rem 1.2rem; flex-direction: column; gap: 0.75rem; align-items: flex-start; }
+  }
+</style>
+</head>
+<body>
+
+<nav>
+  <a class="logo" href="index.html">ProKit<span>Studio</span></a>
+  <ul>
+    <li><a href="index.html#how-it-works">How It Works</a></li>
+    <li><a href="index.html#features">Features</a></li>
+    <li><a href="index.html#who">Who It's For</a></li>
+    <li><a href="our-story.html">Our Story</a></li>
+    <li><a href="configure.html" class="nav-cta">Try the Demo</a></li>
+  </ul>
+</nav>
+
+<main class="page">
+  <div class="eyebrow">Why ProKit Studio exists</div>
+  <h1>Our Story</h1>
+  <p class="lede">
+    ProKit Studio started with a simple frustration: ordering custom gear shouldn’t feel like a project management job.
+    Endless email chains, mockup delays, version confusion, and “close enough” approvals are the norm — even when everyone
+    is trying to move fast. We built ProKit to put the configurator directly in the buyer’s hands.
+  </p>
+
+  <section class="card">
+    <h2>The problem we saw</h2>
+    <p>
+      Custom gear orders have lots of small decisions (style, colors, patch type, placement, quantities). In most workflows,
+      each change requires a supplier rep to recreate and resend a mockup. That slows the process, introduces mistakes, and
+      makes approvals painful.
+    </p>
+  </section>
+
+  <section class="card">
+    <h2>What we’re building</h2>
+    <p>
+      A simple, real-time configuration experience: pick a product, customize it visually, and submit a clean spec for
+      production. No waiting. No back-and-forth. And approvals happen by link, not by email thread.
+    </p>
+  </section>
+
+  <section class="card">
+    <h2>Who it’s for</h2>
+    <p>
+      Gear suppliers and the customers they serve: golf courses, sports teams, corporate buyers, events, and clubs. If you
+      order branded gear and care about speed + accuracy, this is built for you.
+    </p>
+  </section>
+
+  <section class="cta">
+    <h3>Ready to build <span>your kit?</span></h3>
+    <p>Try the configurator demo and see how fast approvals can be when the mockup is live.</p>
+    <a class="btn-primary" href="configure.html">Try the Demo</a>
+  </section>
+</main>
+
+<footer>
+  <a class="logo" href="index.html">ProKit<span>Studio</span></a>
+  <p class="footer-text">© 2025 ProKit Studio. All rights reserved.</p>
+</footer>
+
+</body>
+</html>
