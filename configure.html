@@ -111,7 +111,8 @@
   .angle-btn.active { background:#ffffff; color:#1a3c2b; box-shadow:0 1px 4px rgba(0,0,0,0.1); }
   .angle-btn:hover:not(.active) { color:#555; }
 
-  #hat-svg { width:100%; max-width:400px; filter:drop-shadow(0 16px 36px rgba(0,0,0,0.12)); animation:floatHat 5s ease-in-out infinite; }
+  .hat-view { display:none; width:100%; max-width:400px; filter:drop-shadow(0 16px 36px rgba(0,0,0,0.12)); animation:floatHat 5s ease-in-out infinite; }
+  .hat-view.active { display:block; }
   @keyframes floatHat { 0%,100% { transform:translateY(0px) rotate(-1deg); } 50% { transform:translateY(-10px) rotate(1deg); } }
 
   .product-illustration { width:340px; height:340px; display:flex; align-items:center; justify-content:center; }
@@ -336,10 +337,10 @@
         <p class="placeholder-text">Select a product to see<br>your live preview</p>
       </div>
 
-      <!-- Hat SVG (headwear only) -->
-      <svg id="hat-svg" style="display:none" viewBox="0 0 400 360" fill="none" xmlns="http://www.w3.org/2000/svg">
-        <ellipse cx="200" cy="318" rx="155" ry="18" fill="rgba(0,0,0,0.08)"/>
-        <path id="svg-crown" d="M88 295 Q82 205 108 148 Q148 78 200 72 Q252 78 292 148 Q318 205 312 295 Z" fill="#1a3c2b"/>
+      <!-- FRONT VIEW -->
+      <svg id="hat-front" class="hat-view" style="display:none" viewBox="0 0 400 360" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <ellipse cx="200" cy="322" rx="150" ry="16" fill="rgba(0,0,0,0.07)"/>
+        <path id="f-crown" d="M88 295 Q82 205 108 148 Q148 78 200 72 Q252 78 292 148 Q318 205 312 295 Z" fill="#1a3c2b"/>
         <path d="M292 148 Q318 205 312 295 L270 295 Q295 210 278 148 Z" fill="rgba(0,0,0,0.08)"/>
         <path d="M108 148 Q82 205 88 295 L130 295 Q105 210 122 148 Z" fill="rgba(0,0,0,0.05)"/>
         <path d="M200 72 Q212 160 215 295" stroke="rgba(0,0,0,0.08)" stroke-width="1.2"/>
@@ -347,21 +348,26 @@
         <path d="M200 72 Q255 118 290 178" stroke="rgba(0,0,0,0.06)" stroke-width="1"/>
         <path d="M200 72 Q145 118 110 178" stroke="rgba(0,0,0,0.06)" stroke-width="1"/>
         <path d="M90 280 Q200 272 310 280" stroke="rgba(0,0,0,0.15)" stroke-width="2.5" fill="none"/>
-        <path id="svg-brim-under" d="M88 295 Q76 276 96 268 L304 268 Q324 276 312 295 Z" fill="#a8883a"/>
-        <path id="svg-brim" d="M88 295 Q80 272 108 264 L292 264 Q320 272 312 295 Z" fill="#c9a84c"/>
+        <path id="f-brim-under" d="M88 295 Q76 276 96 268 L304 268 Q324 276 312 295 Z" fill="#a8883a"/>
+        <path id="f-brim" d="M88 295 Q80 272 108 264 L292 264 Q320 272 312 295 Z" fill="#c9a84c"/>
         <path d="M110 266 Q200 259 290 266" stroke="rgba(255,255,255,0.12)" stroke-width="1.5" fill="none"/>
-        <circle id="svg-eyelet1" cx="262" cy="182" r="5" fill="none" stroke="#c9a84c" stroke-width="1.5"/>
-        <circle cx="262" cy="182" r="2.5" fill="rgba(0,0,0,0.3)"/>
-        <circle id="svg-eyelet2" cx="138" cy="182" r="5" fill="none" stroke="#c9a84c" stroke-width="1.5"/>
-        <circle cx="138" cy="182" r="2.5" fill="rgba(0,0,0,0.3)"/>
-        <g id="svg-patch">
-          <rect id="svg-patch-bg" x="155" y="162" width="90" height="64" rx="5" fill="#1a3c2b"/>
-          <rect x="159" y="166" width="82" height="56" rx="3" fill="none" stroke="rgba(201,168,76,0.3)" stroke-width="1"/>
-          <text id="svg-patch-text" x="200" y="198" text-anchor="middle" fill="#c9a84c" font-size="12" font-family="Arial" font-weight="bold" letter-spacing="1.5">YOUR LOGO</text>
-          <text id="svg-patch-sub" x="200" y="214" text-anchor="middle" fill="rgba(201,168,76,0.45)" font-size="7.5" font-family="Arial" letter-spacing="2.5">EST. 2025</text>
+        <!-- Rope detail (shown for rope hats) -->
+        <g id="f-rope" style="display:none">
+          <path d="M92 266 Q200 258 308 266" stroke="#c9a84c" stroke-width="4" fill="none" stroke-linecap="round"/>
+          <path d="M92 266 Q200 258 308 266" stroke="rgba(0,0,0,0.2)" stroke-width="4" fill="none" stroke-dasharray="6,5" stroke-linecap="round"/>
         </g>
-        <circle id="svg-button" cx="200" cy="77" r="9" fill="rgba(0,0,0,0.28)"/>
-        <g id="svg-strap">
+        <circle id="f-eyelet1" cx="262" cy="182" r="5" fill="none" stroke="#c9a84c" stroke-width="1.5"/>
+        <circle cx="262" cy="182" r="2.5" fill="rgba(0,0,0,0.3)"/>
+        <circle id="f-eyelet2" cx="138" cy="182" r="5" fill="none" stroke="#c9a84c" stroke-width="1.5"/>
+        <circle cx="138" cy="182" r="2.5" fill="rgba(0,0,0,0.3)"/>
+        <g id="f-patch">
+          <rect id="f-patch-bg" x="155" y="162" width="90" height="64" rx="5" fill="#1a3c2b"/>
+          <rect x="159" y="166" width="82" height="56" rx="3" fill="none" stroke="rgba(201,168,76,0.3)" stroke-width="1"/>
+          <text id="f-patch-text" x="200" y="198" text-anchor="middle" fill="#c9a84c" font-size="12" font-family="Arial" font-weight="bold" letter-spacing="1.5">YOUR LOGO</text>
+          <text id="f-patch-sub" x="200" y="214" text-anchor="middle" fill="rgba(201,168,76,0.45)" font-size="7.5" font-family="Arial" letter-spacing="2.5">EST. 2025</text>
+        </g>
+        <circle id="f-button" cx="200" cy="77" r="9" fill="rgba(0,0,0,0.28)"/>
+        <g id="f-strap">
           <rect x="168" y="288" width="64" height="16" rx="3" fill="#1a1a1a" opacity="0.8"/>
           <rect x="184" y="293" width="32" height="6" rx="2" fill="#2a2a2a"/>
           <circle cx="218" cy="296" r="2.2" fill="#444"/>
@@ -369,6 +375,70 @@
           <circle cx="206" cy="296" r="2.2" fill="#444"/>
           <circle cx="200" cy="296" r="2.2" fill="#444"/>
         </g>
+      </svg>
+
+      <!-- SIDE VIEW -->
+      <svg id="hat-side" class="hat-view" style="display:none" viewBox="0 0 420 360" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <ellipse cx="195" cy="322" rx="145" ry="14" fill="rgba(0,0,0,0.07)"/>
+        <path id="s-crown" d="M100 295 Q95 215 115 160 Q140 100 180 80 Q215 65 248 72 Q278 80 295 115 Q308 145 305 295 Z" fill="#1a3c2b"/>
+        <path d="M100 295 Q95 215 115 160 Q140 100 180 80 L185 80 Q148 105 130 162 Q112 218 118 295 Z" fill="rgba(255,255,255,0.04)"/>
+        <path d="M248 72 Q278 80 295 115 Q308 145 305 295 L285 295 Q298 148 285 114 Q270 82 248 75 Z" fill="rgba(0,0,0,0.1)"/>
+        <path d="M248 72 Q262 140 265 295" stroke="rgba(0,0,0,0.08)" stroke-width="1.2"/>
+        <path d="M180 80 Q170 160 168 295" stroke="rgba(0,0,0,0.06)" stroke-width="1"/>
+        <path d="M102 280 Q200 270 304 280" stroke="rgba(0,0,0,0.18)" stroke-width="2.5" fill="none"/>
+        <path id="s-brim-under" d="M100 295 Q90 278 30 285 Q15 288 18 298 Q22 308 40 306 Q75 302 104 300 Z" fill="#8a7030"/>
+        <path id="s-brim" d="M100 295 Q92 272 28 278 Q12 280 14 292 Q16 300 36 298 Q72 294 105 290 Z" fill="#c9a84c"/>
+        <path d="M95 275 Q55 276 25 281" stroke="rgba(255,255,255,0.15)" stroke-width="1.2" fill="none"/>
+        <!-- Rope (side view - runs along brim junction) -->
+        <g id="s-rope" style="display:none">
+          <path d="M103 278 Q200 268 304 276" stroke="#c9a84c" stroke-width="4" fill="none" stroke-linecap="round"/>
+          <path d="M103 278 Q200 268 304 276" stroke="rgba(0,0,0,0.2)" stroke-width="4" fill="none" stroke-dasharray="6,5" stroke-linecap="round"/>
+        </g>
+        <circle id="s-eyelet" cx="268" cy="178" r="5" fill="none" stroke="#c9a84c" stroke-width="1.5"/>
+        <circle cx="268" cy="178" r="2.5" fill="rgba(0,0,0,0.3)"/>
+        <circle id="s-button" cx="215" cy="72" r="9" fill="rgba(0,0,0,0.28)"/>
+        <g id="s-strap">
+          <rect x="285" y="288" width="28" height="14" rx="2" fill="#1a1a1a" opacity="0.7"/>
+        </g>
+      </svg>
+
+      <!-- BACK VIEW -->
+      <svg id="hat-back" class="hat-view" style="display:none" viewBox="0 0 400 360" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <ellipse cx="200" cy="322" rx="145" ry="14" fill="rgba(0,0,0,0.07)"/>
+        <path id="b-crown" d="M90 295 Q84 208 110 152 Q148 85 200 80 Q252 85 290 152 Q316 208 310 295 Z" fill="#1a3c2b"/>
+        <path d="M90 295 Q84 208 110 152 Q148 85 200 80 L200 84 Q150 92 115 155 Q90 212 96 295 Z" fill="rgba(0,0,0,0.07)"/>
+        <path d="M290 152 Q316 208 310 295 L304 295 Q310 208 284 155 Q250 88 200 84 L200 80 Q252 85 290 152 Z" fill="rgba(0,0,0,0.07)"/>
+        <path d="M200 80 L200 295" stroke="rgba(0,0,0,0.12)" stroke-width="2"/>
+        <path d="M200 80 Q255 118 288 175" stroke="rgba(0,0,0,0.06)" stroke-width="1"/>
+        <path d="M200 80 Q145 118 112 175" stroke="rgba(0,0,0,0.06)" stroke-width="1"/>
+        <path d="M92 280 Q200 272 308 280" stroke="rgba(0,0,0,0.18)" stroke-width="3" fill="none"/>
+        <rect x="92" y="272" width="216" height="10" rx="2" fill="rgba(0,0,0,0.1)"/>
+        <!-- Rope (back view) -->
+        <g id="b-rope" style="display:none">
+          <path d="M92 272 Q200 264 308 272" stroke="#c9a84c" stroke-width="4" fill="none" stroke-linecap="round"/>
+          <path d="M92 272 Q200 264 308 272" stroke="rgba(0,0,0,0.2)" stroke-width="4" fill="none" stroke-dasharray="6,5" stroke-linecap="round"/>
+        </g>
+        <circle id="b-eyelet1" cx="260" cy="180" r="5" fill="none" stroke="#c9a84c" stroke-width="1.5"/>
+        <circle cx="260" cy="180" r="2.5" fill="rgba(0,0,0,0.3)"/>
+        <circle id="b-eyelet2" cx="140" cy="180" r="5" fill="none" stroke="#c9a84c" stroke-width="1.5"/>
+        <circle cx="140" cy="180" r="2.5" fill="rgba(0,0,0,0.3)"/>
+        <!-- Snapback strap detail -->
+        <g id="b-strap">
+          <rect x="148" y="278" width="104" height="22" rx="3" fill="#111111"/>
+          <rect x="152" y="282" width="96" height="14" rx="2" fill="#1a1a1a"/>
+          <circle cx="172" cy="289" r="2.5" fill="#333"/>
+          <circle cx="181" cy="289" r="2.5" fill="#333"/>
+          <circle cx="190" cy="289" r="2.5" fill="#333"/>
+          <circle cx="199" cy="289" r="2.5" fill="#333"/>
+          <circle cx="208" cy="289" r="2.5" fill="#333"/>
+          <circle cx="217" cy="289" r="2.5" fill="#333"/>
+          <circle cx="226" cy="289" r="2.5" fill="#333"/>
+          <rect x="234" y="283" width="10" height="12" rx="2" fill="#222"/>
+          <circle cx="239" cy="289" r="3" fill="#444"/>
+          <circle cx="239" cy="289" r="1.5" fill="#555"/>
+        </g>
+        <rect x="178" y="260" width="44" height="14" rx="2" fill="rgba(255,255,255,0.04)"/>
+        <text x="200" y="271" text-anchor="middle" fill="rgba(255,255,255,0.15)" font-size="6" font-family="Arial" letter-spacing="1">ONE SIZE</text>
       </svg>
 
       <!-- Product illustration (non-headwear) -->
@@ -405,10 +475,11 @@
 
   const STYLES = {
     Headwear: [
-      { name: 'Richardson 112', desc: '6-Panel Structured Snapback', strap: true },
-      { name: 'Richardson 65',  desc: '5-Panel Trucker Snapback',    strap: true },
-      { name: 'Richardson 172', desc: 'Fitted Performance Cap',      strap: false },
-      { name: 'Richardson 115', desc: 'Washed Chino Twill Dad Hat',  strap: false },
+      { name: 'Richardson 112', desc: '6-Panel Structured Snapback', strap: true,  rope: false },
+      { name: 'Richardson 258', desc: '6-Panel Rope Hat Snapback',   strap: true,  rope: true  },
+      { name: 'Richardson 65',  desc: '5-Panel Trucker Snapback',    strap: true,  rope: false },
+      { name: 'Richardson 172', desc: 'Fitted Performance Cap',      strap: false, rope: false },
+      { name: 'Richardson 115', desc: 'Washed Chino Twill Dad Hat',  strap: false, rope: false },
     ],
     Polos: [
       { name: 'Classic Pique Polo',   desc: 'Traditional pique weave, tailored fit' },
@@ -515,18 +586,22 @@
   }
 
   // ── STEP 2: SELECT STYLE ──
-  function selectStyle(el, name, hasStrap) {
+  function selectStyle(el, name, hasStrap, hasRope) {
     document.querySelectorAll('.style-option').forEach(o => o.classList.remove('selected'));
     el.classList.add('selected');
     state.style = name;
+    state.hasRope = hasRope;
     document.getElementById('step2-selection').textContent = name;
 
     // Show hat for headwear
     if (state.product === 'Headwear') {
       document.getElementById('preview-placeholder').style.display = 'none';
-      document.getElementById('hat-svg').style.display = 'block';
       document.getElementById('angle-switcher').classList.add('visible');
-      document.getElementById('svg-strap').style.display = hasStrap ? 'block' : 'none';
+      currentAngle = 'front';
+      document.querySelectorAll('.angle-btn').forEach(function(b){ b.classList.remove('active'); });
+      document.querySelector('.angle-btn').classList.add('active');
+      showHatView('front');
+      updateHatDetails(hasStrap, hasRope);
     }
 
     updateTag('tag-style', name, true);
@@ -584,33 +659,31 @@
     el.classList.add('active');
     const name = el.getAttribute('title');
 
+    function setAttr(ids, attr, val) {
+      ids.forEach(function(id){ var el=document.getElementById(id); if(el) el.setAttribute(attr,val); });
+    }
     if (part === 'crown') {
       state.crownColor = color; state.crownName = name;
-      const cr = document.getElementById('svg-crown');
-      const bt = document.getElementById('svg-button');
-      if (cr) cr.setAttribute('fill', color);
-      if (bt) bt.setAttribute('fill', shadeColor(color, -30));
+      setAttr(['f-crown','s-crown','b-crown'], 'fill', color);
+      setAttr(['f-button','s-button'], 'fill', shadeColor(color, -30));
       updateTag('tag-crown', 'Crown: ' + name, true);
     } else if (part === 'brim') {
       state.brimColor = color; state.brimName = name;
-      const br = document.getElementById('svg-brim');
-      const bu = document.getElementById('svg-brim-under');
-      if (br) br.setAttribute('fill', color);
-      if (bu) bu.setAttribute('fill', shadeColor(color, -20));
+      setAttr(['f-brim','s-brim'], 'fill', color);
+      setAttr(['f-brim-under','s-brim-under'], 'fill', shadeColor(color, -20));
+      // Update rope color to match brim
+      ['f-rope','s-rope','b-rope'].forEach(function(id){
+        var g = document.getElementById(id);
+        if(g){ var paths = g.querySelectorAll('path'); if(paths[0]) paths[0].setAttribute('stroke', color); }
+      });
     } else if (part === 'stitch') {
       state.stitchColor = color; state.stitchName = name;
-      const e1 = document.getElementById('svg-eyelet1');
-      const e2 = document.getElementById('svg-eyelet2');
-      if (e1) e1.setAttribute('stroke', color);
-      if (e2) e2.setAttribute('stroke', color);
+      setAttr(['f-eyelet1','f-eyelet2','s-eyelet','b-eyelet1','b-eyelet2'], 'stroke', color);
     } else if (part === 'patch') {
       state.patchColor = color;
-      const pb = document.getElementById('svg-patch-bg');
-      if (pb) {
-        pb.setAttribute('fill', color);
-        const pt = document.getElementById('svg-patch-text');
-        if (pt) pt.setAttribute('fill', isLight(color) ? '#1a1a1a' : '#c9a84c');
-      }
+      setAttr(['f-patch-bg'], 'fill', color);
+      var pt = document.getElementById('f-patch-text');
+      if(pt) pt.setAttribute('fill', isLight(color) ? '#1a1a1a' : '#c9a84c');
     }
     updateIllustration();
   }
@@ -621,7 +694,7 @@
     el.classList.add('selected');
     state.patch = type;
 
-    const svgPatch = document.getElementById('svg-patch');
+    const svgPatch = document.getElementById('f-patch');
     const pcs = document.getElementById('patch-color-section');
     const textMap = { logo:['YOUR LOGO','EST. 2025'], text:['APPO GC','GOLF CLUB'], flag:['FLAG','PATCH'] };
 
@@ -632,8 +705,8 @@
       if (svgPatch) { svgPatch.style.opacity = '1'; svgPatch.style.pointerEvents = ''; }
       if (pcs) pcs.style.display = '';
       const lbl = textMap[type];
-      const pt = document.getElementById('svg-patch-text');
-      const ps = document.getElementById('svg-patch-sub');
+      const pt = document.getElementById('f-patch-text');
+      const ps = document.getElementById('f-patch-sub');
       if (pt && lbl) pt.textContent = lbl[0];
       if (ps && lbl) ps.textContent = lbl[1];
     }
@@ -643,10 +716,31 @@
 
   // ── ANGLE SWITCHER (headwear) ──
   let currentAngle = 'front';
+
+  function showHatView(angle) {
+    document.querySelectorAll('.hat-view').forEach(v => v.classList.remove('active'));
+    const el = document.getElementById('hat-' + angle);
+    if (el) el.classList.add('active');
+  }
+
   function setAngle(angle, btn) {
     currentAngle = angle;
     document.querySelectorAll('.angle-btn').forEach(b => b.classList.remove('active'));
     btn.classList.add('active');
+    showHatView(angle);
+  }
+
+  function updateHatDetails(hasStrap, hasRope) {
+    // Straps
+    ['f-strap','s-strap','b-strap'].forEach(function(id) {
+      const el = document.getElementById(id);
+      if (el) el.style.display = hasStrap ? 'block' : 'none';
+    });
+    // Rope
+    ['f-rope','s-rope','b-rope'].forEach(function(id) {
+      const el = document.getElementById(id);
+      if (el) el.style.display = hasRope ? 'block' : 'none';
+    });
   }
 
   // ── PRODUCT ILLUSTRATION (non-headwear) ──
