@@ -672,7 +672,7 @@
 
   /* ANGLE SWITCHER */
   .angle-switcher {
-    display: flex;
+    display: none;
     gap: 0.5rem;
     margin-bottom: 1.5rem;
     align-self: center;
@@ -695,6 +695,8 @@
     transition: all 0.2s;
     font-family: 'DM Sans', sans-serif;
   }
+
+  .angle-switcher.visible { display: flex; }
 
   .angle-btn.active {
     background: #ffffff;
@@ -914,7 +916,7 @@
       </div>
 
       <!-- FRONT VIEW -->
-      <svg id="view-front" class="hat-view active" style="display:none" viewBox="0 0 400 380" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <svg id="view-front" class="hat-view" viewBox="0 0 400 380" fill="none" xmlns="http://www.w3.org/2000/svg">
         <!-- Drop shadow -->
         <ellipse cx="200" cy="352" rx="130" ry="16" fill="rgba(0,0,0,0.08)"/>
         <!-- Crown main body -->
@@ -967,7 +969,7 @@
       </svg>
 
       <!-- SIDE VIEW -->
-      <svg id="view-side" class="hat-view" style="display:none" viewBox="0 0 420 380" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <svg id="view-side" class="hat-view" viewBox="0 0 420 380" fill="none" xmlns="http://www.w3.org/2000/svg">
         <!-- Drop shadow -->
         <ellipse cx="195" cy="352" rx="140" ry="15" fill="rgba(0,0,0,0.08)"/>
         <!-- Crown side profile -->
@@ -1008,7 +1010,7 @@
       </svg>
 
       <!-- BACK VIEW -->
-      <svg id="view-back" class="hat-view" style="display:none" viewBox="0 0 400 380" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <svg id="view-back" class="hat-view" viewBox="0 0 400 380" fill="none" xmlns="http://www.w3.org/2000/svg">
         <!-- Drop shadow -->
         <ellipse cx="200" cy="352" rx="128" ry="15" fill="rgba(0,0,0,0.08)"/>
         <!-- Crown back - slightly flatter top -->
@@ -1157,17 +1159,12 @@
 
     // Show hat — hide placeholder, show angle switcher, show front view
     document.getElementById('preview-placeholder').style.display = 'none';
-    document.getElementById('angle-switcher').style.display = 'flex';
+    document.getElementById('angle-switcher').classList.add('visible');
     // Reset to front view
-    document.querySelectorAll('.hat-view').forEach(v => {
-      v.style.display = 'none';
-      v.classList.remove('active');
-    });
+    document.querySelectorAll('.hat-view').forEach(v => v.classList.remove('active'));
     document.querySelectorAll('.angle-btn').forEach(b => b.classList.remove('active'));
     document.querySelector('.angle-btn').classList.add('active');
-    const front = document.getElementById('view-front');
-    front.style.display = 'block';
-    front.classList.add('active');
+    document.getElementById('view-front').classList.add('active');
 
     setTimeout(() => {
       document.getElementById('step2').classList.remove('active');
@@ -1188,13 +1185,8 @@
     currentAngle = angle;
     document.querySelectorAll('.angle-btn').forEach(b => b.classList.remove('active'));
     btn.classList.add('active');
-    document.querySelectorAll('.hat-view').forEach(v => {
-      v.classList.remove('active');
-      v.style.display = 'none';
-    });
-    const target = document.getElementById('view-' + angle);
-    target.classList.add('active');
-    target.style.display = 'block';
+    document.querySelectorAll('.hat-view').forEach(v => v.classList.remove('active'));
+    document.getElementById('view-' + angle).classList.add('active');
   }
 
   // Helper: set attr on all elements matching a selector pattern
