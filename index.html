@@ -588,14 +588,107 @@
   #hat-preview {
     cursor: pointer;
   }
+
+  /* ─────────────────────────────────────────────
+     RESPONSIVE (mobile/tablet)
+     ───────────────────────────────────────────── */
+
+  /* Hamburger toggle (CSS-only) */
+  .nav-toggle { display: none; }
+  .nav-toggle-label {
+    display: none;
+    width: 44px;
+    height: 44px;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    border-radius: 6px;
+    border: 1px solid var(--light-gray);
+    background: rgba(255,255,255,0.65);
+  }
+  .nav-toggle-label span,
+  .nav-toggle-label span::before,
+  .nav-toggle-label span::after {
+    display: block;
+    position: relative;
+    width: 20px;
+    height: 2px;
+    background: var(--green);
+    border-radius: 2px;
+    content: "";
+  }
+  .nav-toggle-label span::before { position: absolute; top: -6px; left: 0; }
+  .nav-toggle-label span::after  { position: absolute; top:  6px; left: 0; }
+
+  @media (max-width: 1024px) {
+    nav { padding: 1.1rem 1.8rem; }
+    .section { padding-left: 1.8rem; padding-right: 1.8rem; }
+  }
+
+  @media (max-width: 860px) {
+    nav { padding: 0.9rem 1.1rem; }
+
+    /* Turn nav into dropdown */
+    .nav-toggle-label { display: flex; }
+    nav ul.nav-links {
+      position: absolute;
+      top: 100%;
+      left: 0;
+      right: 0;
+      display: none;
+      flex-direction: column;
+      gap: 0;
+      background: rgba(245,243,238,0.97);
+      border-bottom: 1px solid var(--light-gray);
+      padding: 0.75rem 1.1rem 1rem;
+    }
+    nav ul.nav-links li { padding: 0.55rem 0; border-top: 1px solid rgba(0,0,0,0.06); }
+    nav ul.nav-links li:first-child { border-top: 0; }
+    nav ul.nav-links a { display: inline-block; width: 100%; }
+
+    /* Show when checked */
+    .nav-toggle:checked ~ ul.nav-links { display: flex; }
+
+    /* General spacing */
+    .hero { padding: 9rem 1.1rem 4rem; }
+    .section { padding: 5rem 1.1rem; }
+
+    /* Grids stack */
+    .steps { grid-template-columns: 1fr; }
+    .features-grid { grid-template-columns: 1fr; }
+    .audience-grid { grid-template-columns: 1fr 1fr; }
+
+    /* Mockup section stack (sidebar + preview) */
+    .mockup-body { grid-template-columns: 1fr; }
+    .mockup-sidebar { border-right: 0; border-bottom: 1px solid var(--light-gray); }
+  }
+
+  @media (max-width: 520px) {
+    .audience-grid { grid-template-columns: 1fr; }
+
+    /* Buttons/tap targets */
+    .btn-primary, .btn-secondary { width: 100%; text-align: center; }
+    .hero-buttons { display: grid; grid-template-columns: 1fr; gap: 0.8rem; }
+
+    /* Prevent overflow from large paddings */
+    .step { padding: 2.2rem 1.6rem; }
+    .feature-card { padding: 2rem 1.6rem; }
+  }
+
 </style>
 </head>
 <body>
 
 <!-- NAV -->
 <nav>
-  <a class="logo" href="index.html" style="text-decoration:none;">ProKit<span>Studio</span></a>
-  <ul>
+  <a class="logo" href="index.html">ProKit<span>Studio</span></a>
+
+  <input type="checkbox" id="nav-toggle" class="nav-toggle" aria-label="Toggle navigation">
+  <label for="nav-toggle" class="nav-toggle-label" aria-hidden="true">
+    <span></span>
+  </label>
+
+  <ul class="nav-links">
     <li><a href="#how-it-works">How It Works</a></li>
     <li><a href="#features">Features</a></li>
     <li><a href="#who">Who It's For</a></li>
@@ -715,7 +808,7 @@
 
 <!-- FOOTER -->
 <footer>
-  <a class="logo" href="index.html" style="text-decoration:none;">ProKit<span>Studio</span></a>
+  <div class="logo">ProKit<span>Studio</span></div>
   <p class="footer-text">© 2025 ProKit Studio. All rights reserved.</p>
 </footer>
 
