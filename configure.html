@@ -28,6 +28,8 @@
   .logo { font-family:'Bebas Neue',sans-serif; font-size:1.5rem; letter-spacing:0.08em; color:var(--white); text-decoration:none; }
   .logo span { color:var(--gold); }
   .nav-back { font-size:0.82rem; font-weight:500; letter-spacing:0.06em; text-transform:uppercase; color:var(--muted); text-decoration:none; display:flex; align-items:center; gap:0.5rem; transition:color 0.2s; }
+  .nav-supplier { font-size:0.72rem; font-weight:500; letter-spacing:0.06em; text-transform:uppercase; color:var(--muted); text-decoration:none; padding:0.4rem 0.8rem; border:1px solid var(--border); border-radius:3px; transition:all 0.2s; }
+  .nav-supplier:hover { color:var(--gold); border-color:var(--gold); }
   .nav-back:hover { color:var(--white); }
 
   /* LAYOUT */
@@ -247,8 +249,14 @@
 
 <!-- NAV -->
 <nav>
-  <a href="index.html" class="logo">ProKit<span>Studio</span></a>
-  <a href="index.html" class="nav-back">← Back to Home</a>
+  <div style="display:flex;align-items:center;gap:1rem">
+    <a href="index.html" class="logo" id="nav-logo">ProKit<span>Studio</span></a>
+    <span id="supplier-banner" style="display:none;font-family:'DM Mono',monospace;font-size:0.62rem;letter-spacing:0.12em;text-transform:uppercase;color:var(--gold);background:rgba(201,168,76,0.1);border:1px solid rgba(201,168,76,0.2);padding:0.2rem 0.6rem;border-radius:3px;"></span>
+  </div>
+  <div style="display:flex;align-items:center;gap:1rem">
+    <a href="index.html" class="nav-back">← Home</a>
+    <a href="supplier.html" class="nav-supplier">Supplier Portal</a>
+  </div>
 </nav>
 
 <!-- CART BADGE -->
@@ -313,34 +321,7 @@
         <div class="step-chevron">▼</div>
       </div>
       <div class="step-content">
-        <div class="product-grid">
-          <div class="product-card" onclick="selectProduct(this,'Headwear','🧢')">
-            <div class="product-icon">🧢</div>
-            <div class="product-name">Headwear</div>
-          </div>
-          <div class="product-card" onclick="selectProduct(this,'Polos','👔')">
-            <div class="product-icon">👔</div>
-            <div class="product-name">Polos</div>
-          </div>
-          <div class="product-card" onclick="selectProduct(this,'Quarter Zips','🧥')">
-            <div class="product-icon">🧥</div>
-            <div class="product-name">Quarter Zips</div>
-          </div>
-          <div class="product-card" onclick="selectProduct(this,'Belts','🪣')">
-            <div class="product-icon" style="font-size:1.8rem">🔗</div>
-            <div class="product-name">Belts</div>
-          </div>
-          <div class="product-card coming-soon">
-            <div class="product-icon">👜</div>
-            <div class="product-name">Bags</div>
-            <div class="product-soon">Coming Soon</div>
-          </div>
-          <div class="product-card coming-soon">
-            <div class="product-icon">🧣</div>
-            <div class="product-name">Accessories</div>
-            <div class="product-soon">Coming Soon</div>
-          </div>
-        </div>
+        <div class="product-grid" id="product-grid"><!-- populated by JS --></div>
       </div>
     </div>
 
@@ -520,6 +501,116 @@
 <div class="toast" id="toast"></div>
 
 <script>
+  // ── LOAD SUPPLIER CATALOG ──
+  var supplierCatalog = null;
+  try {
+    var saved = localStorage.getItem('prokit_supplier_catalog');
+    if (saved) supplierCatalog = JSON.parse(saved);
+  } catch(e) {}
+
+  function getSupplierName() {
+    return supplierCatalog && supplierCatalog.brand && supplierCatalog.brand.name
+      ? supplierCatalog.brand.name : null;
+  }
+
+  function getColors() {
+    if (supplierCatalog && supplierCatalog.colors && supplierCatalog.colors.length)
+      return supplierCatalog.colors;
+    return [
+      { hex:'#1a3c2b', name:'Forest Green' },
+      { hex:'#c9a84c', name:'Gold' },
+      { hex:'#1a1a2e', name:'Navy' },
+      { hex:'#8B1A1A', name:'Cardinal' },
+      { hex:'#e0dcd3', name:'White', border:true },
+      { hex:'#2b2b2b', name:'Charcoal' },
+      { hex:'#5c3d1e', name:'Brown' },
+      { hex:'#7a4f7d', name:'Purple' },
+      { hex:'#3a6fa8', name:'Royal Blue' },
+      { hex:'#c0392b', name:'Red' },
+      { hex:'#e67e22', name:'Orange' },
+      { hex:'#f5f5dc', name:'Khaki', border:true },
+    ];
+  }
+
+  function getProductStyles(category) {
+    if (supplierCatalog && supplierCatalog.products) {
+      var filtered = supplierCatalog.products.filter(function(p){
+        return p.active && p.category === category;
+      });
+      if (filtered.length) return filtered.map(function(p){
+        return { name: p.name, desc: p.desc + (p.sku ? ' — ' + p.sku : ''), strap: p.strap, rope: p.rope };
+      });
+    }
+    // Fallback defaults by category
+    var defaults = {
+      Headwear: [
+        { name:'Richardson 112', desc:'6-Panel Structured Snapback', strap:true, rope:false },
+        { name:'Richardson 258', desc:'6-Panel Rope Hat Snapback', strap:true, rope:true },
+        { name:'Richardson 65',  desc:'5-Panel Trucker Snapback', strap:true, rope:false },
+        { name:'Richardson 172', desc:'Fitted Performance Cap', strap:false, rope:false },
+        { name:'Richardson 115', desc:'Washed Chino Twill Dad Hat', strap:false, rope:false },
+      ],
+      Polos: [
+        { name:'Classic Pique Polo', desc:'Traditional pique weave, tailored fit' },
+        { name:'Performance Polo', desc:'Moisture-wicking stretch fabric' },
+      ],
+      'Quarter Zips': [
+        { name:'Lightweight Quarter Zip', desc:'Midlayer fleece for cool mornings' },
+        { name:'Performance Quarter Zip', desc:'Moisture-wicking stretch fabric' },
+      ],
+      Belts: [
+        { name:'Ribbon Belt', desc:'Classic woven ribbon, adjustable buckle' },
+        { name:'Leather Belt', desc:'Full-grain leather, custom emboss' },
+      ],
+    };
+    return defaults[category] || [];
+  }
+
+  function getMinimum(category) {
+    if (supplierCatalog && supplierCatalog.minimums && supplierCatalog.minimums[category])
+      return supplierCatalog.minimums[category];
+    return { Headwear:12, Polos:24, 'Quarter Zips':12, Belts:24 }[category] || 12;
+  }
+
+  function getActivePatches() {
+    if (supplierCatalog && supplierCatalog.patches)
+      return supplierCatalog.patches.filter(function(p){ return p.active; });
+    return [
+      { id:'logo', icon:'🖼️', name:'Custom Logo' },
+      { id:'text', icon:'✏️', name:'Text Only' },
+      { id:'flag', icon:'📍', name:'Flag Patch' },
+      { id:'none', icon:'✕',  name:'No Logo' },
+    ];
+  }
+
+  function getActiveCategories() {
+    if (supplierCatalog && supplierCatalog.products) {
+      var cats = [];
+      supplierCatalog.products.forEach(function(p){
+        if (p.active && cats.indexOf(p.category) === -1) cats.push(p.category);
+      });
+      if (cats.length) return cats;
+    }
+    return ['Headwear','Polos','Quarter Zips','Belts'];
+  }
+
+  function applySupplierBranding() {
+    if (!supplierCatalog || !supplierCatalog.brand) return;
+    var b = supplierCatalog.brand;
+    if (b.name) {
+      document.getElementById('supplier-banner').textContent = b.name + ' × ProKit Studio';
+      document.getElementById('supplier-banner').style.display = 'inline-block';
+    }
+    if (b.primaryColor) {
+      document.documentElement.style.setProperty('--green', b.primaryColor);
+      document.documentElement.style.setProperty('--green-light', b.primaryColor);
+    }
+    if (b.accentColor) {
+      document.documentElement.style.setProperty('--gold', b.accentColor);
+      document.documentElement.style.setProperty('--gold-light', b.accentColor);
+    }
+  }
+
   // ── STATE ──
   const state = {
     product: null, style: null,
@@ -534,7 +625,8 @@
     'Headwear': 12, 'Polos': 24, 'Quarter Zips': 12, 'Belts': 24,
   };
 
-  const STYLES = {
+  // STYLES now loaded dynamically via getProductStyles()
+  const STYLES_STATIC = {
     Headwear: [
       { name: 'Richardson 112', desc: '6-Panel Structured Snapback', strap: true,  rope: false },
       { name: 'Richardson 258', desc: '6-Panel Rope Hat Snapback',   strap: true,  rope: true  },
@@ -567,7 +659,9 @@
     Belts:         { crown: 'Belt Color',    brim: 'Buckle Finish',         stitch: 'Stitch Color'    },
   };
 
-  const ALL_COLORS = [
+  const ALL_COLORS_DYNAMIC = getColors();
+  const ALL_COLORS = ALL_COLORS_DYNAMIC;
+  const ALL_COLORS_ORIG = [
     { hex: '#1a3c2b', name: 'Forest Green' },
     { hex: '#c9a84c', name: 'Gold' },
     { hex: '#1a1a2e', name: 'Navy' },
@@ -604,8 +698,8 @@
     document.getElementById('step2-selection').textContent = '';
 
     // Populate styles
-    const styles = STYLES[name] || [];
-    const min = MINIMUMS[name] || 12;
+    const styles = getProductStyles(name);
+    const min = getMinimum(name);
     const minNote = document.getElementById('minimum-note');
     minNote.textContent = 'Minimum order: ' + min + ' units for this product';
     minNote.style.display = 'block';
@@ -709,15 +803,13 @@
         + 'title="' + c.name + '"></div>'
       ).join('');
 
-    const patchOpts = [
-      {type:'logo', icon:'🖼️', label:'Custom Logo'},
-      {type:'text', icon:'✏️', label:'Text Only'},
-      {type:'flag', icon:'📍', label:'Flag Patch'},
-      {type:'none', icon:'✕',  label:'No Logo'},
-    ].map(p =>
-      '<div class="patch-option ' + (state.patch === p.type ? 'selected' : '') + '" onclick="setPatch(this,\'' + p.type + '\')">'
-      + '<span class="patch-icon">' + p.icon + '</span>' + p.label + '</div>'
-    ).join('');
+    const patchOpts = getActivePatches().map(function(p) {
+      var type = p.id || p.type;
+      var icon = p.icon || '📋';
+      var label = p.name || type;
+      return '<div class="patch-option ' + (state.patch === type ? 'selected' : '') + '" onclick="setPatch(this,\'' + type + '\')">'
+        + '<span class="patch-icon">' + icon + '</span>' + label + '</div>';
+    }).join('');
 
     document.getElementById('customize-fields').innerHTML =
       '<div class="customize-section"><div class="customize-label">' + lbls.crown + '</div>'
@@ -947,7 +1039,7 @@
     if (!state.style) state.style = state.product;
 
     const lbls = LABEL_MAP[state.product] || LABEL_MAP.Headwear;
-    const min = MINIMUMS[state.product] || 12;
+    const min = getMinimum(state.product);
     const patchLabels = { logo:'Custom Logo', text:'Text Only', flag:'Flag Patch', none:'No Logo' };
 
     document.getElementById('sum-product').textContent = state.product;
@@ -969,7 +1061,7 @@
 
   function confirmAddToOrder() {
     closeModal();
-    const min = MINIMUMS[state.product] || 12;
+    const min = getMinimum(state.product);
     orderItems.push({
       id: Date.now(),
       product:   state.product,
@@ -1033,7 +1125,7 @@
     const patchLabels = { logo:'Custom Logo', text:'Text Only', flag:'Flag Patch', none:'No Logo' };
     const lblMap = LABEL_MAP;
     el.innerHTML = orderItems.map(function(item) {
-      const min = MINIMUMS[item.product] || 12;
+      const min = getMinimum(item.product);
       const lbls = lblMap[item.product] || lblMap.Headwear;
       return '<div class="cart-item">'
         + '<div class="cart-item-header">'
@@ -1059,7 +1151,7 @@
     const patchLabels = { logo:'Custom Logo', text:'Text Only', flag:'Flag Patch', none:'No Logo' };
     const win = window.open('', '_blank');
     const itemsHTML = orderItems.map(function(item, i) {
-      const min = MINIMUMS[item.product] || 12;
+      const min = getMinimum(item.product);
       const lbls = LABEL_MAP[item.product] || LABEL_MAP.Headwear;
       return '<div class="item">'
         + '<div class="item-header"><div class="item-name">' + item.style + '</div>'
@@ -1133,6 +1225,36 @@
     t.classList.add('show');
     setTimeout(function(){ t.classList.remove('show'); }, 3000);
   }
+
+  // ── INIT: BUILD PRODUCT GRID FROM SUPPLIER CATALOG ──
+  (function initProductGrid() {
+    var ICONS = { Headwear:'🧢', Polos:'👔', 'Quarter Zips':'🧥', Belts:'🔗', Bags:'👜', Outerwear:'🧣', Accessories:'🧣' };
+    var categories = getActiveCategories();
+    var grid = document.getElementById('product-grid');
+    if (!grid) return;
+
+    var html = categories.map(function(cat) {
+      var icon = ICONS[cat] || '📦';
+      return '<div class="product-card" onclick="selectProduct(this,\'' + cat + '\',\'' + icon + '\')">'
+        + '<div class="product-icon">' + icon + '</div>'
+        + '<div class="product-name">' + cat + '</div>'
+        + '</div>';
+    }).join('');
+
+    // Add coming soon for non-active categories
+    var ALL_CATS = ['Headwear','Polos','Quarter Zips','Belts','Bags','Outerwear'];
+    ALL_CATS.forEach(function(cat) {
+      if (categories.indexOf(cat) === -1) {
+        html += '<div class="product-card coming-soon"><div class="product-icon">' + (ICONS[cat]||'📦') + '</div>'
+          + '<div class="product-name">' + cat + '</div>'
+          + '<div class="product-soon">Coming Soon</div></div>';
+      }
+    });
+
+    grid.innerHTML = html;
+    applySupplierBranding();
+  })();
+
 </script>
 </body>
 </html>
