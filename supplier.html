@@ -1,0 +1,1089 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Supplier Portal — ProKit Studio</title>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@300;400;500;600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0d0f0c;
+    --bg2: #141714;
+    --bg3: #1c201b;
+    --bg4: #222622;
+    --border: #2a2e29;
+    --border2: #343934;
+    --gold: #c9a84c;
+    --gold-light: #e8c96d;
+    --gold-dim: rgba(201,168,76,0.12);
+    --green: #2d6a4f;
+    --green-light: #3a8563;
+    --white: #f0ece3;
+    --muted: #6b6e66;
+    --muted2: #8a8d84;
+    --cream: #d6d2c8;
+    --red: #c0392b;
+    --red-dim: rgba(192,57,43,0.12);
+  }
+  * { margin:0; padding:0; box-sizing:border-box; }
+  html { scroll-behavior:smooth; }
+  body { font-family:'DM Sans',sans-serif; background:var(--bg); color:var(--white); min-height:100vh; }
+
+  /* ── NAV ── */
+  nav {
+    display:flex; align-items:center; justify-content:space-between;
+    padding:1rem 2rem; border-bottom:1px solid var(--border);
+    background:var(--bg2); position:sticky; top:0; z-index:100;
+  }
+  .nav-left { display:flex; align-items:center; gap:1.2rem; }
+  .logo { font-family:'Bebas Neue',sans-serif; font-size:1.4rem; letter-spacing:0.08em; color:var(--white); text-decoration:none; }
+  .logo span { color:var(--gold); }
+  .portal-badge {
+    font-family:'DM Mono',monospace; font-size:0.62rem; letter-spacing:0.15em;
+    text-transform:uppercase; background:var(--gold-dim); color:var(--gold);
+    border:1px solid rgba(201,168,76,0.25); padding:0.25rem 0.6rem; border-radius:3px;
+  }
+  .nav-right { display:flex; align-items:center; gap:1rem; }
+  .supplier-name-display {
+    font-size:0.82rem; color:var(--muted2); font-family:'DM Mono',monospace;
+  }
+  .btn-preview {
+    background:var(--green); color:white; padding:0.5rem 1.1rem;
+    font-size:0.78rem; font-weight:600; letter-spacing:0.06em; text-transform:uppercase;
+    border:none; border-radius:3px; cursor:pointer; text-decoration:none;
+    transition:background 0.2s; display:inline-flex; align-items:center; gap:0.4rem;
+  }
+  .btn-preview:hover { background:var(--green-light); }
+  .btn-save-nav {
+    background:var(--gold); color:var(--bg); padding:0.5rem 1.1rem;
+    font-size:0.78rem; font-weight:700; letter-spacing:0.06em; text-transform:uppercase;
+    border:none; border-radius:3px; cursor:pointer; transition:background 0.2s;
+  }
+  .btn-save-nav:hover { background:var(--gold-light); }
+
+  /* ── LAYOUT ── */
+  .layout { display:grid; grid-template-columns:220px 1fr; min-height:calc(100vh - 57px); }
+
+  /* ── SIDEBAR ── */
+  .sidebar {
+    background:var(--bg2); border-right:1px solid var(--border);
+    padding:1.5rem 0; position:sticky; top:57px; height:calc(100vh - 57px); overflow-y:auto;
+  }
+  .sidebar-section { padding:0 1rem 1rem; margin-bottom:0.5rem; }
+  .sidebar-label {
+    font-family:'DM Mono',monospace; font-size:0.58rem; letter-spacing:0.2em;
+    text-transform:uppercase; color:var(--muted); padding:0 0.5rem; margin-bottom:0.5rem;
+  }
+  .sidebar-item {
+    display:flex; align-items:center; gap:0.7rem; padding:0.6rem 0.8rem;
+    border-radius:4px; cursor:pointer; font-size:0.85rem; color:var(--muted2);
+    transition:all 0.15s; border:1px solid transparent;
+  }
+  .sidebar-item:hover { background:var(--bg3); color:var(--white); }
+  .sidebar-item.active { background:var(--gold-dim); color:var(--gold); border-color:rgba(201,168,76,0.2); }
+  .sidebar-icon { font-size:1rem; width:20px; text-align:center; }
+  .sidebar-divider { border:none; border-top:1px solid var(--border); margin:0.5rem 1rem 1rem; }
+
+  /* ── MAIN ── */
+  .main { padding:2rem 2.5rem; overflow-y:auto; }
+  .page-header { margin-bottom:2rem; }
+  .page-eyebrow {
+    font-family:'DM Mono',monospace; font-size:0.62rem; letter-spacing:0.2em;
+    text-transform:uppercase; color:var(--gold); margin-bottom:0.5rem;
+  }
+  .page-title {
+    font-family:'Bebas Neue',sans-serif; font-size:2.2rem; letter-spacing:0.04em;
+    color:var(--white); line-height:1;
+  }
+  .page-desc { font-size:0.88rem; color:var(--muted2); margin-top:0.4rem; line-height:1.6; }
+
+  /* ── TABS ── */
+  .tab-content { display:none; }
+  .tab-content.active { display:block; }
+
+  /* ── CARDS ── */
+  .card {
+    background:var(--bg2); border:1px solid var(--border); border-radius:6px;
+    padding:1.5rem; margin-bottom:1.2rem;
+  }
+  .card-header { display:flex; align-items:center; justify-content:space-between; margin-bottom:1.2rem; }
+  .card-title { font-size:0.9rem; font-weight:700; color:var(--white); display:flex; align-items:center; gap:0.5rem; }
+  .card-title-icon { font-size:1.1rem; }
+  .card-subtitle { font-size:0.75rem; color:var(--muted); margin-top:0.2rem; }
+
+  /* ── FORM ELEMENTS ── */
+  .form-row { display:grid; grid-template-columns:1fr 1fr; gap:1rem; margin-bottom:1rem; }
+  .form-row.single { grid-template-columns:1fr; }
+  .form-row.triple { grid-template-columns:1fr 1fr 1fr; }
+  .form-group { display:flex; flex-direction:column; gap:0.4rem; }
+  .form-label {
+    font-family:'DM Mono',monospace; font-size:0.62rem; letter-spacing:0.12em;
+    text-transform:uppercase; color:var(--muted);
+  }
+  .form-input {
+    background:var(--bg3); border:1px solid var(--border2); color:var(--white);
+    font-family:'DM Sans',sans-serif; font-size:0.88rem; padding:0.65rem 0.85rem;
+    border-radius:4px; transition:border-color 0.2s; width:100%;
+  }
+  .form-input:focus { outline:none; border-color:var(--gold); }
+  .form-input::placeholder { color:var(--muted); }
+  .form-select {
+    background:var(--bg3); border:1px solid var(--border2); color:var(--white);
+    font-family:'DM Sans',sans-serif; font-size:0.88rem; padding:0.65rem 0.85rem;
+    border-radius:4px; cursor:pointer; width:100%;
+  }
+  .form-select:focus { outline:none; border-color:var(--gold); }
+  .form-hint { font-size:0.72rem; color:var(--muted); margin-top:0.2rem; }
+
+  /* ── BRANDING PREVIEW ── */
+  .branding-preview {
+    background:var(--bg3); border:1px solid var(--border2); border-radius:6px;
+    padding:1.5rem; display:flex; align-items:center; gap:1.5rem;
+    margin-bottom:1rem;
+  }
+  .brand-logo-preview {
+    width:80px; height:80px; border-radius:6px; background:var(--bg4);
+    border:2px dashed var(--border2); display:flex; align-items:center;
+    justify-content:center; font-size:2rem; flex-shrink:0; overflow:hidden;
+  }
+  .brand-logo-preview img { width:100%; height:100%; object-fit:contain; }
+  .brand-info-preview { flex:1; }
+  .brand-name-preview { font-family:'Bebas Neue',sans-serif; font-size:1.6rem; letter-spacing:0.05em; color:var(--white); }
+  .brand-tagline-preview { font-size:0.82rem; color:var(--muted2); margin-top:0.2rem; }
+  .brand-accent-preview { display:flex; align-items:center; gap:0.5rem; margin-top:0.6rem; }
+  .accent-dot { width:18px; height:18px; border-radius:50%; border:1px solid rgba(255,255,255,0.15); }
+  .accent-label { font-size:0.72rem; font-family:'DM Mono',monospace; color:var(--muted); }
+
+  /* ── COLOR PALETTE BUILDER ── */
+  .palette-grid { display:flex; flex-wrap:wrap; gap:0.6rem; margin-bottom:1rem; }
+  .palette-swatch {
+    position:relative; width:44px; height:44px; border-radius:6px;
+    border:2px solid transparent; cursor:pointer; transition:transform 0.15s;
+    display:flex; align-items:center; justify-content:center;
+  }
+  .palette-swatch:hover { transform:scale(1.1); }
+  .palette-swatch.active { border-color:var(--gold); }
+  .swatch-remove {
+    position:absolute; top:-6px; right:-6px; width:16px; height:16px;
+    background:var(--red); border-radius:50%; color:white; font-size:0.6rem;
+    display:none; align-items:center; justify-content:center; cursor:pointer;
+    font-weight:bold; line-height:1;
+  }
+  .palette-swatch:hover .swatch-remove { display:flex; }
+  .add-color-btn {
+    width:44px; height:44px; border-radius:6px; border:2px dashed var(--border2);
+    background:transparent; color:var(--muted); font-size:1.4rem; cursor:pointer;
+    display:flex; align-items:center; justify-content:center; transition:all 0.2s;
+  }
+  .add-color-btn:hover { border-color:var(--gold); color:var(--gold); }
+
+  /* Color add modal */
+  .color-modal {
+    position:fixed; inset:0; background:rgba(0,0,0,0.7); backdrop-filter:blur(4px);
+    z-index:500; display:none; align-items:center; justify-content:center;
+  }
+  .color-modal.open { display:flex; }
+  .color-modal-box {
+    background:var(--bg2); border:1px solid var(--border2); border-radius:8px;
+    padding:1.8rem; width:340px;
+  }
+  .color-modal-title { font-weight:700; font-size:1rem; margin-bottom:1.2rem; }
+  .color-preview-large {
+    width:100%; height:60px; border-radius:5px; margin-bottom:1rem;
+    border:1px solid var(--border2); transition:background 0.2s;
+  }
+
+  /* ── PRODUCT TABLE ── */
+  .product-table { width:100%; border-collapse:collapse; }
+  .product-table th {
+    font-family:'DM Mono',monospace; font-size:0.6rem; letter-spacing:0.15em;
+    text-transform:uppercase; color:var(--muted); text-align:left;
+    padding:0.6rem 0.8rem; border-bottom:1px solid var(--border);
+  }
+  .product-table td {
+    padding:0.85rem 0.8rem; border-bottom:1px solid var(--border);
+    font-size:0.85rem; vertical-align:middle;
+  }
+  .product-table tr:last-child td { border-bottom:none; }
+  .product-table tr:hover td { background:var(--bg3); }
+  .product-toggle { position:relative; display:inline-block; width:38px; height:20px; }
+  .product-toggle input { display:none; }
+  .toggle-slider {
+    position:absolute; inset:0; background:var(--border2); border-radius:20px;
+    cursor:pointer; transition:background 0.2s;
+  }
+  .toggle-slider::before {
+    content:''; position:absolute; width:14px; height:14px; left:3px; top:3px;
+    background:white; border-radius:50%; transition:transform 0.2s;
+  }
+  .product-toggle input:checked + .toggle-slider { background:var(--green); }
+  .product-toggle input:checked + .toggle-slider::before { transform:translateX(18px); }
+  .product-tag {
+    display:inline-block; font-size:0.65rem; font-family:'DM Mono',monospace;
+    padding:0.15rem 0.5rem; border-radius:3px; margin-right:0.3rem;
+  }
+  .tag-active { background:rgba(45,106,79,0.2); color:#5dba8a; border:1px solid rgba(45,106,79,0.3); }
+  .tag-inactive { background:var(--bg4); color:var(--muted); border:1px solid var(--border); }
+  .product-edit-btn {
+    background:transparent; border:1px solid var(--border2); color:var(--muted2);
+    font-size:0.72rem; padding:0.3rem 0.7rem; border-radius:3px; cursor:pointer;
+    transition:all 0.2s; font-family:'DM Sans',sans-serif;
+  }
+  .product-edit-btn:hover { border-color:var(--gold); color:var(--gold); }
+
+  /* ── ADD PRODUCT PANEL ── */
+  .add-product-panel {
+    background:var(--bg3); border:1px dashed var(--border2); border-radius:6px;
+    padding:1.5rem; margin-top:1rem;
+  }
+  .add-product-title { font-size:0.88rem; font-weight:700; margin-bottom:1rem; color:var(--gold); }
+
+  /* ── PATCH OPTIONS ── */
+  .patch-list { display:flex; flex-direction:column; gap:0.6rem; }
+  .patch-item {
+    background:var(--bg3); border:1px solid var(--border); border-radius:5px;
+    padding:0.9rem 1rem; display:flex; align-items:center; gap:1rem;
+  }
+  .patch-icon-preview { font-size:1.6rem; width:40px; text-align:center; flex-shrink:0; }
+  .patch-info { flex:1; }
+  .patch-name { font-weight:600; font-size:0.88rem; }
+  .patch-desc { font-size:0.75rem; color:var(--muted); margin-top:0.15rem; }
+  .patch-toggle { margin-left:auto; }
+
+  /* ── MINIMUMS TABLE ── */
+  .minimums-grid { display:grid; grid-template-columns:repeat(4,1fr); gap:0.8rem; }
+  .minimum-card {
+    background:var(--bg3); border:1px solid var(--border); border-radius:5px; padding:1rem;
+  }
+  .minimum-product { font-size:0.72rem; font-family:'DM Mono',monospace; color:var(--muted); text-transform:uppercase; letter-spacing:0.1em; margin-bottom:0.5rem; }
+  .minimum-input {
+    background:var(--bg); border:1px solid var(--border2); color:var(--gold);
+    font-size:1.4rem; font-weight:700; font-family:'Bebas Neue',sans-serif;
+    letter-spacing:0.05em; padding:0.4rem 0.6rem; border-radius:3px; width:100%;
+    text-align:center;
+  }
+  .minimum-input:focus { outline:none; border-color:var(--gold); }
+  .minimum-unit { font-size:0.68rem; color:var(--muted); text-align:center; margin-top:0.3rem; font-family:'DM Mono',monospace; }
+
+  /* ── BUTTONS ── */
+  .btn-primary {
+    background:var(--gold); color:var(--bg); font-size:0.82rem; font-weight:700;
+    letter-spacing:0.07em; text-transform:uppercase; padding:0.7rem 1.4rem;
+    border:none; border-radius:4px; cursor:pointer; transition:background 0.2s;
+  }
+  .btn-primary:hover { background:var(--gold-light); }
+  .btn-secondary {
+    background:transparent; color:var(--muted2); font-size:0.82rem; font-weight:600;
+    letter-spacing:0.05em; text-transform:uppercase; padding:0.7rem 1.2rem;
+    border:1px solid var(--border2); border-radius:4px; cursor:pointer; transition:all 0.2s;
+  }
+  .btn-secondary:hover { border-color:var(--white); color:var(--white); }
+  .btn-danger {
+    background:transparent; color:var(--red); font-size:0.78rem;
+    border:1px solid rgba(192,57,43,0.3); border-radius:3px; padding:0.4rem 0.8rem;
+    cursor:pointer; transition:all 0.2s;
+  }
+  .btn-danger:hover { background:var(--red-dim); }
+  .btn-row { display:flex; gap:0.7rem; align-items:center; margin-top:1.2rem; }
+
+  /* ── STATS ROW ── */
+  .stats-row { display:grid; grid-template-columns:repeat(4,1fr); gap:1rem; margin-bottom:2rem; }
+  .stat-card {
+    background:var(--bg2); border:1px solid var(--border); border-radius:6px; padding:1.2rem;
+  }
+  .stat-value { font-family:'Bebas Neue',sans-serif; font-size:2.5rem; color:var(--gold); line-height:1; }
+  .stat-label { font-size:0.72rem; color:var(--muted); font-family:'DM Mono',monospace; text-transform:uppercase; letter-spacing:0.1em; margin-top:0.3rem; }
+  .stat-sub { font-size:0.75rem; color:var(--muted2); margin-top:0.2rem; }
+
+  /* ── EMBED CODE ── */
+  .embed-box {
+    background:var(--bg); border:1px solid var(--border2); border-radius:4px;
+    padding:1rem 1.2rem; font-family:'DM Mono',monospace; font-size:0.8rem;
+    color:var(--gold); line-height:1.8; overflow-x:auto; white-space:pre;
+    margin-bottom:0.8rem;
+  }
+  .copy-btn {
+    background:var(--bg3); border:1px solid var(--border2); color:var(--muted2);
+    font-size:0.75rem; padding:0.4rem 0.9rem; border-radius:3px; cursor:pointer;
+    transition:all 0.2s; font-family:'DM Sans',sans-serif;
+  }
+  .copy-btn:hover { border-color:var(--gold); color:var(--gold); }
+
+  /* ── TOAST ── */
+  .toast {
+    position:fixed; bottom:2rem; left:50%; transform:translateX(-50%) translateY(60px);
+    opacity:0; background:var(--green); color:white; padding:0.8rem 1.5rem;
+    border-radius:4px; font-size:0.85rem; font-weight:600; transition:all 0.3s;
+    z-index:999; white-space:nowrap;
+  }
+  .toast.show { transform:translateX(-50%) translateY(0); opacity:1; }
+
+  /* ── SECTION DIVIDER ── */
+  .section-divider { display:flex; align-items:center; gap:1rem; margin:1.5rem 0; }
+  .section-divider span { font-family:'DM Mono',monospace; font-size:0.62rem; letter-spacing:0.15em; text-transform:uppercase; color:var(--muted); white-space:nowrap; }
+  .section-divider::before, .section-divider::after { content:''; flex:1; height:1px; background:var(--border); }
+
+  /* ── ALERT ── */
+  .alert {
+    background:var(--gold-dim); border:1px solid rgba(201,168,76,0.25); border-radius:4px;
+    padding:0.9rem 1rem; font-size:0.85rem; color:var(--cream); margin-bottom:1.2rem;
+    display:flex; align-items:flex-start; gap:0.7rem; line-height:1.6;
+  }
+  .alert-icon { flex-shrink:0; font-size:1rem; }
+</style>
+</head>
+<body>
+
+<!-- Color Add Modal -->
+<div class="color-modal" id="color-modal">
+  <div class="color-modal-box">
+    <div class="color-modal-title">Add Color to Palette</div>
+    <div class="color-preview-large" id="color-preview-large" style="background:#1a3c2b"></div>
+    <div class="form-row">
+      <div class="form-group">
+        <label class="form-label">Color Name</label>
+        <input class="form-input" id="new-color-name" placeholder="e.g. Forest Green">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Hex Code</label>
+        <input class="form-input" id="new-color-hex" placeholder="#1a3c2b" maxlength="7">
+      </div>
+    </div>
+    <div class="form-group" style="margin-bottom:1rem">
+      <label class="form-label">Color Picker</label>
+      <input type="color" id="new-color-picker" value="#1a3c2b" style="width:100%;height:40px;border:none;border-radius:4px;cursor:pointer;background:none;">
+    </div>
+    <div class="btn-row">
+      <button class="btn-primary" onclick="confirmAddColor()">Add Color</button>
+      <button class="btn-secondary" onclick="closeColorModal()">Cancel</button>
+    </div>
+  </div>
+</div>
+
+<!-- NAV -->
+<nav>
+  <div class="nav-left">
+    <a class="logo" href="index.html">ProKit<span>Studio</span></a>
+    <span class="portal-badge">Supplier Portal</span>
+  </div>
+  <div class="nav-right">
+    <span class="supplier-name-display" id="nav-supplier-name">Not saved yet</span>
+    <a class="btn-preview" href="configure.html" target="_blank">Preview Configurator →</a>
+    <button class="btn-save-nav" onclick="saveAll()">Save Changes</button>
+  </div>
+</nav>
+
+<div class="layout">
+
+  <!-- SIDEBAR -->
+  <aside class="sidebar">
+    <div class="sidebar-section">
+      <div class="sidebar-label">Setup</div>
+      <div class="sidebar-item active" onclick="switchTab('branding', this)">
+        <span class="sidebar-icon">🏷️</span> Branding
+      </div>
+      <div class="sidebar-item" onclick="switchTab('catalog', this)">
+        <span class="sidebar-icon">📦</span> Product Catalog
+      </div>
+      <div class="sidebar-item" onclick="switchTab('colors', this)">
+        <span class="sidebar-icon">🎨</span> Color Palette
+      </div>
+      <div class="sidebar-item" onclick="switchTab('patches', this)">
+        <span class="sidebar-icon">🖼️</span> Logo & Patch Options
+      </div>
+      <div class="sidebar-item" onclick="switchTab('minimums', this)">
+        <span class="sidebar-icon">📋</span> Order Minimums
+      </div>
+    </div>
+    <hr class="sidebar-divider">
+    <div class="sidebar-section">
+      <div class="sidebar-label">Publish</div>
+      <div class="sidebar-item" onclick="switchTab('embed', this)">
+        <span class="sidebar-icon">🔗</span> Embed & Share
+      </div>
+      <div class="sidebar-item" onclick="switchTab('preview', this)">
+        <span class="sidebar-icon">👁️</span> Preview
+      </div>
+    </div>
+  </aside>
+
+  <!-- MAIN CONTENT -->
+  <main class="main">
+
+    <!-- ── BRANDING TAB ── -->
+    <div class="tab-content active" id="tab-branding">
+      <div class="page-header">
+        <div class="page-eyebrow">Step 1 of 5</div>
+        <div class="page-title">Your Branding</div>
+        <div class="page-desc">This is how your configurator will be presented to your customers. Use your company name, colors, and tagline.</div>
+      </div>
+
+      <div class="card">
+        <div class="card-header">
+          <div>
+            <div class="card-title"><span class="card-title-icon">🏢</span> Company Information</div>
+            <div class="card-subtitle">Appears in the configurator header and order receipts</div>
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label">Company Name</label>
+            <input class="form-input" id="brand-name" placeholder="e.g. Richardson Sports" oninput="updateBrandingPreview()">
+          </div>
+          <div class="form-group">
+            <label class="form-label">Tagline (optional)</label>
+            <input class="form-input" id="brand-tagline" placeholder="e.g. Premium Custom Headwear Since 1970" oninput="updateBrandingPreview()">
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label">Primary Brand Color</label>
+            <div style="display:flex;gap:0.5rem;align-items:center">
+              <input type="color" id="brand-primary-color" value="#1a3c2b" oninput="updateBrandingPreview()" style="width:44px;height:38px;border:none;border-radius:4px;cursor:pointer;flex-shrink:0">
+              <input class="form-input" id="brand-primary-hex" placeholder="#1a3c2b" oninput="syncColorFromHex('brand-primary-color','brand-primary-hex');updateBrandingPreview()">
+            </div>
+            <span class="form-hint">Used for buttons and accents in your configurator</span>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Accent Color</label>
+            <div style="display:flex;gap:0.5rem;align-items:center">
+              <input type="color" id="brand-accent-color" value="#c9a84c" oninput="updateBrandingPreview()" style="width:44px;height:38px;border:none;border-radius:4px;cursor:pointer;flex-shrink:0">
+              <input class="form-input" id="brand-accent-hex" placeholder="#c9a84c" oninput="syncColorFromHex('brand-accent-color','brand-accent-hex');updateBrandingPreview()">
+            </div>
+            <span class="form-hint">Used for highlights and active states</span>
+          </div>
+        </div>
+        <div class="form-row single">
+          <div class="form-group">
+            <label class="form-label">Logo URL (optional)</label>
+            <input class="form-input" id="brand-logo-url" placeholder="https://yoursite.com/logo.png" oninput="updateBrandingPreview()">
+            <span class="form-hint">Paste a direct link to your logo image. Leave blank to use your company name as text.</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-header">
+          <div class="card-title"><span class="card-title-icon">👁️</span> Live Preview</div>
+        </div>
+        <div class="branding-preview" id="branding-preview">
+          <div class="brand-logo-preview" id="logo-preview-box">🏷️</div>
+          <div class="brand-info-preview">
+            <div class="brand-name-preview" id="preview-brand-name">Your Company Name</div>
+            <div class="brand-tagline-preview" id="preview-brand-tagline">Your tagline will appear here</div>
+            <div class="brand-accent-preview">
+              <div class="accent-dot" id="preview-primary-dot" style="background:#1a3c2b"></div>
+              <span class="accent-label" id="preview-primary-label">Primary</span>
+              <div class="accent-dot" id="preview-accent-dot" style="background:#c9a84c"></div>
+              <span class="accent-label" id="preview-accent-label">Accent</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="btn-row">
+        <button class="btn-primary" onclick="saveAll(); switchTab('catalog', document.querySelector('.sidebar-item:nth-child(2)'))">Save & Continue →</button>
+      </div>
+    </div>
+
+    <!-- ── CATALOG TAB ── -->
+    <div class="tab-content" id="tab-catalog">
+      <div class="page-header">
+        <div class="page-eyebrow">Step 2 of 5</div>
+        <div class="page-title">Product Catalog</div>
+        <div class="page-desc">Enable the products and styles you carry. Only active products will appear in your customer-facing configurator.</div>
+      </div>
+
+      <div class="alert">
+        <span class="alert-icon">💡</span>
+        Toggle on the products you carry and add your specific SKUs or style names. Customers will only see what you enable here.
+      </div>
+
+      <div class="card" id="catalog-card">
+        <table class="product-table" id="product-table">
+          <thead>
+            <tr>
+              <th>Active</th>
+              <th>Category</th>
+              <th>Style Name</th>
+              <th>SKU / Model</th>
+              <th>Description</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody id="product-tbody"></tbody>
+        </table>
+      </div>
+
+      <div class="add-product-panel">
+        <div class="add-product-title">+ Add a Style</div>
+        <div class="form-row triple">
+          <div class="form-group">
+            <label class="form-label">Category</label>
+            <select class="form-select" id="new-product-category">
+              <option value="Headwear">Headwear</option>
+              <option value="Polos">Polos</option>
+              <option value="Quarter Zips">Quarter Zips</option>
+              <option value="Belts">Belts</option>
+              <option value="Bags">Bags</option>
+              <option value="Outerwear">Outerwear</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Style Name</label>
+            <input class="form-input" id="new-product-name" placeholder="e.g. Richardson 112">
+          </div>
+          <div class="form-group">
+            <label class="form-label">SKU / Model #</label>
+            <input class="form-input" id="new-product-sku" placeholder="e.g. R112">
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label">Description</label>
+            <input class="form-input" id="new-product-desc" placeholder="e.g. 6-Panel Structured Snapback">
+          </div>
+          <div class="form-group">
+            <label class="form-label">Has Snapback Strap?</label>
+            <select class="form-select" id="new-product-strap">
+              <option value="true">Yes</option>
+              <option value="false">No</option>
+            </select>
+          </div>
+        </div>
+        <div class="btn-row">
+          <button class="btn-primary" onclick="addProduct()">Add Style</button>
+        </div>
+      </div>
+
+      <div class="btn-row" style="margin-top:1.5rem">
+        <button class="btn-primary" onclick="saveAll(); switchTab('colors', document.querySelectorAll('.sidebar-item')[2])">Save & Continue →</button>
+      </div>
+    </div>
+
+    <!-- ── COLORS TAB ── -->
+    <div class="tab-content" id="tab-colors">
+      <div class="page-header">
+        <div class="page-eyebrow">Step 3 of 5</div>
+        <div class="page-title">Color Palette</div>
+        <div class="page-desc">Add every colorway you carry. These colors will be the options shown to your customers in the configurator.</div>
+      </div>
+
+      <div class="alert">
+        <span class="alert-icon">🎨</span>
+        Add your exact brand colors using hex codes. Your customers will pick from only these colors — no guessing, no mismatches.
+      </div>
+
+      <div class="card">
+        <div class="card-header">
+          <div class="card-title"><span class="card-title-icon">🎨</span> Your Color Palette</div>
+          <button class="btn-primary" style="font-size:0.75rem;padding:0.5rem 1rem" onclick="openColorModal()">+ Add Color</button>
+        </div>
+        <div class="palette-grid" id="palette-grid"></div>
+        <div class="form-hint" style="margin-top:0.5rem">Click the × on a color to remove it. Click + to add a new one.</div>
+      </div>
+
+      <div class="btn-row">
+        <button class="btn-primary" onclick="saveAll(); switchTab('patches', document.querySelectorAll('.sidebar-item')[3])">Save & Continue →</button>
+      </div>
+    </div>
+
+    <!-- ── PATCHES TAB ── -->
+    <div class="tab-content" id="tab-patches">
+      <div class="page-header">
+        <div class="page-eyebrow">Step 4 of 5</div>
+        <div class="page-title">Logo & Patch Options</div>
+        <div class="page-desc">Choose which patch and logo options you support. Customers will only see what you enable here.</div>
+      </div>
+
+      <div class="card">
+        <div class="card-header">
+          <div class="card-title"><span class="card-title-icon">🖼️</span> Supported Decoration Methods</div>
+        </div>
+        <div class="patch-list" id="patch-list"></div>
+      </div>
+
+      <div class="card">
+        <div class="card-header">
+          <div>
+            <div class="card-title"><span class="card-title-icon">📁</span> Logo Upload Instructions</div>
+            <div class="card-subtitle">This is what your customers will see when they go to upload a logo</div>
+          </div>
+        </div>
+        <div class="form-row single">
+          <div class="form-group">
+            <label class="form-label">Accepted File Types</label>
+            <input class="form-input" id="accepted-files" value="AI, EPS, PDF, PNG (300dpi+)" placeholder="e.g. AI, EPS, PDF, PNG">
+          </div>
+        </div>
+        <div class="form-row single">
+          <div class="form-group">
+            <label class="form-label">Logo Submission Note (shown to customers)</label>
+            <textarea class="form-input" id="logo-note" rows="3" placeholder="e.g. Please submit vector files for best results. Raster images must be 300dpi or higher at final size."
+              style="resize:vertical; font-family:'DM Sans',sans-serif">Please submit vector files (AI or EPS) for best embroidery results. PNG files accepted at 300dpi minimum.</textarea>
+          </div>
+        </div>
+      </div>
+
+      <div class="btn-row">
+        <button class="btn-primary" onclick="saveAll(); switchTab('minimums', document.querySelectorAll('.sidebar-item')[4])">Save & Continue →</button>
+      </div>
+    </div>
+
+    <!-- ── MINIMUMS TAB ── -->
+    <div class="tab-content" id="tab-minimums">
+      <div class="page-header">
+        <div class="page-eyebrow">Step 5 of 5</div>
+        <div class="page-title">Order Minimums</div>
+        <div class="page-desc">Set the minimum order quantity per product category. Customers will see this before they submit.</div>
+      </div>
+
+      <div class="card">
+        <div class="card-header">
+          <div class="card-title"><span class="card-title-icon">📋</span> Minimum Order Quantities</div>
+        </div>
+        <div class="minimums-grid" id="minimums-grid"></div>
+      </div>
+
+      <div class="card">
+        <div class="card-header">
+          <div>
+            <div class="card-title"><span class="card-title-icon">⚡</span> Rush Order Policy</div>
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label">Standard Lead Time</label>
+            <input class="form-input" id="lead-time" placeholder="e.g. 3-4 weeks" value="3-4 weeks">
+          </div>
+          <div class="form-group">
+            <label class="form-label">Rush Lead Time (if offered)</label>
+            <input class="form-input" id="rush-time" placeholder="e.g. 10-14 business days" value="10-14 business days">
+          </div>
+        </div>
+      </div>
+
+      <div class="btn-row">
+        <button class="btn-primary" onclick="saveAll(); switchTab('embed', document.querySelectorAll('.sidebar-item')[5])">Save & Get Embed Code →</button>
+      </div>
+    </div>
+
+    <!-- ── EMBED TAB ── -->
+    <div class="tab-content" id="tab-embed">
+      <div class="page-header">
+        <div class="page-eyebrow">Publish</div>
+        <div class="page-title">Embed & Share</div>
+        <div class="page-desc">Add ProKit Studio to your website with a single line of code — or share a direct link with your customers.</div>
+      </div>
+
+      <div class="stats-row">
+        <div class="stat-card">
+          <div class="stat-value" id="stat-products">0</div>
+          <div class="stat-label">Active Styles</div>
+          <div class="stat-sub">In your catalog</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-value" id="stat-colors">0</div>
+          <div class="stat-label">Colors</div>
+          <div class="stat-sub">In your palette</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-value" id="stat-patches">0</div>
+          <div class="stat-label">Patch Options</div>
+          <div class="stat-sub">Available to customers</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-value" id="stat-categories">0</div>
+          <div class="stat-label">Categories</div>
+          <div class="stat-sub">Product types</div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-header">
+          <div>
+            <div class="card-title"><span class="card-title-icon">🔗</span> Direct Link</div>
+            <div class="card-subtitle">Share this URL — it loads the configurator pre-populated with your catalog</div>
+          </div>
+          <button class="copy-btn" onclick="copyLink()">Copy Link</button>
+        </div>
+        <div class="embed-box" id="direct-link-box">Loading...</div>
+      </div>
+
+      <div class="card">
+        <div class="card-header">
+          <div>
+            <div class="card-title"><span class="card-title-icon">💻</span> Embed Code</div>
+            <div class="card-subtitle">Paste this into your website HTML where you want the configurator button to appear</div>
+          </div>
+          <button class="copy-btn" onclick="copyEmbed()">Copy Code</button>
+        </div>
+        <div class="embed-box" id="embed-code-box">Loading...</div>
+        <div class="form-hint" style="margin-top:0.5rem">This adds a "Configure Your Gear" button to your site that opens ProKit Studio loaded with your catalog.</div>
+      </div>
+
+      <div class="card">
+        <div class="card-header">
+          <div class="card-title"><span class="card-title-icon">📥</span> Export Catalog</div>
+        </div>
+        <p style="font-size:0.85rem;color:var(--muted2);margin-bottom:1rem;line-height:1.6">Download your full catalog configuration as a JSON file. Use this to back up your settings or share with your developer.</p>
+        <button class="btn-secondary" onclick="exportCatalog()">Download catalog.json</button>
+      </div>
+    </div>
+
+    <!-- ── PREVIEW TAB ── -->
+    <div class="tab-content" id="tab-preview">
+      <div class="page-header">
+        <div class="page-eyebrow">Preview</div>
+        <div class="page-title">Customer View</div>
+        <div class="page-desc">This is exactly what your customers will see when they access your configurator link.</div>
+      </div>
+      <div class="alert">
+        <span class="alert-icon">👁️</span>
+        Save your changes first, then open the configurator to see your catalog live. The configurator reads your saved settings automatically.
+      </div>
+      <div style="text-align:center;padding:3rem;">
+        <div style="font-size:4rem;margin-bottom:1rem">🎨</div>
+        <div style="font-size:1.1rem;font-weight:600;margin-bottom:0.5rem">Ready to preview?</div>
+        <div style="font-size:0.88rem;color:var(--muted2);margin-bottom:1.5rem">Save your changes then click below to open the live configurator with your catalog loaded.</div>
+        <button class="btn-primary" onclick="saveAll(); window.open('configure.html','_blank')">Save & Open Configurator →</button>
+      </div>
+    </div>
+
+  </main>
+</div>
+
+<!-- TOAST -->
+<div class="toast" id="toast"></div>
+
+<script>
+// ── DEFAULT CATALOG DATA ──
+const DEFAULT_PRODUCTS = [
+  { id:1, active:true,  category:'Headwear',     name:'Richardson 112', sku:'R112',   desc:'6-Panel Structured Snapback', strap:true,  rope:false },
+  { id:2, active:true,  category:'Headwear',     name:'Richardson 258', sku:'R258',   desc:'6-Panel Rope Hat Snapback',   strap:true,  rope:true  },
+  { id:3, active:true,  category:'Headwear',     name:'Richardson 65',  sku:'R65',    desc:'5-Panel Trucker Snapback',    strap:true,  rope:false },
+  { id:4, active:false, category:'Headwear',     name:'Richardson 172', sku:'R172',   desc:'Fitted Performance Cap',      strap:false, rope:false },
+  { id:5, active:false, category:'Headwear',     name:'Richardson 115', sku:'R115',   desc:'Washed Chino Twill Dad Hat',  strap:false, rope:false },
+  { id:6, active:true,  category:'Polos',        name:'Classic Pique Polo',    sku:'PL-CL',  desc:'Traditional pique weave, tailored fit', strap:false, rope:false },
+  { id:7, active:true,  category:'Polos',        name:'Performance Polo',      sku:'PL-PF',  desc:'Moisture-wicking stretch fabric',       strap:false, rope:false },
+  { id:8, active:true,  category:'Quarter Zips', name:'Lightweight Quarter Zip',sku:'QZ-LW', desc:'Midlayer fleece for cool mornings',     strap:false, rope:false },
+  { id:9, active:true,  category:'Belts',        name:'Ribbon Belt',   sku:'BLT-RB', desc:'Classic woven ribbon, adjustable buckle', strap:false, rope:false },
+];
+
+const DEFAULT_COLORS = [
+  { hex:'#1a3c2b', name:'Forest Green' },
+  { hex:'#c9a84c', name:'Gold' },
+  { hex:'#1a1a2e', name:'Navy' },
+  { hex:'#8B1A1A', name:'Cardinal' },
+  { hex:'#e0dcd3', name:'White', border:true },
+  { hex:'#2b2b2b', name:'Charcoal' },
+  { hex:'#5c3d1e', name:'Brown' },
+  { hex:'#3a6fa8', name:'Royal Blue' },
+  { hex:'#c0392b', name:'Red' },
+  { hex:'#f5f5dc', name:'Khaki', border:true },
+];
+
+const DEFAULT_PATCHES = [
+  { id:'logo',     active:true,  icon:'🖼️', name:'Custom Logo',       desc:'Embroidered or woven customer logo patch' },
+  { id:'text',     active:true,  icon:'✏️', name:'Text Embroidery',   desc:'Custom text — name, initials, or short phrase' },
+  { id:'flag',     active:true,  icon:'📍', name:'Flag Patch',        desc:'Country or custom flag patch on side panel' },
+  { id:'none',     active:true,  icon:'✕',  name:'No Decoration',     desc:'Plain hat, no patch or embroidery' },
+];
+
+const DEFAULT_MINIMUMS = {
+  Headwear: 12, Polos: 24, 'Quarter Zips': 12, Belts: 24, Bags: 48, Outerwear: 24,
+};
+
+// ── STATE ──
+let catalog = {
+  brand: { name:'', tagline:'', primaryColor:'#1a3c2b', accentColor:'#c9a84c', logoUrl:'' },
+  products: JSON.parse(JSON.stringify(DEFAULT_PRODUCTS)),
+  colors: JSON.parse(JSON.stringify(DEFAULT_COLORS)),
+  patches: JSON.parse(JSON.stringify(DEFAULT_PATCHES)),
+  minimums: Object.assign({}, DEFAULT_MINIMUMS),
+  leadTime: '3-4 weeks',
+  rushTime: '10-14 business days',
+  acceptedFiles: 'AI, EPS, PDF, PNG (300dpi+)',
+  logoNote: 'Please submit vector files (AI or EPS) for best embroidery results. PNG files accepted at 300dpi minimum.',
+};
+
+// ── LOAD FROM STORAGE ──
+function loadFromStorage() {
+  try {
+    const saved = localStorage.getItem('prokit_supplier_catalog');
+    if (saved) {
+      catalog = JSON.parse(saved);
+      applyToForm();
+    }
+  } catch(e) { console.error('Load error', e); }
+}
+
+function applyToForm() {
+  document.getElementById('brand-name').value = catalog.brand.name || '';
+  document.getElementById('brand-tagline').value = catalog.brand.tagline || '';
+  document.getElementById('brand-primary-color').value = catalog.brand.primaryColor || '#1a3c2b';
+  document.getElementById('brand-primary-hex').value = catalog.brand.primaryColor || '#1a3c2b';
+  document.getElementById('brand-accent-color').value = catalog.brand.accentColor || '#c9a84c';
+  document.getElementById('brand-accent-hex').value = catalog.brand.accentColor || '#c9a84c';
+  document.getElementById('brand-logo-url').value = catalog.brand.logoUrl || '';
+  document.getElementById('lead-time').value = catalog.leadTime || '3-4 weeks';
+  document.getElementById('rush-time').value = catalog.rushTime || '10-14 business days';
+  document.getElementById('accepted-files').value = catalog.acceptedFiles || 'AI, EPS, PDF, PNG (300dpi+)';
+  document.getElementById('logo-note').value = catalog.logoNote || '';
+  document.getElementById('nav-supplier-name').textContent = catalog.brand.name || 'Not saved yet';
+  updateBrandingPreview();
+  renderProducts();
+  renderPalette();
+  renderPatches();
+  renderMinimums();
+}
+
+// ── SAVE ──
+function saveAll() {
+  // Collect brand info
+  catalog.brand.name         = document.getElementById('brand-name').value.trim();
+  catalog.brand.tagline      = document.getElementById('brand-tagline').value.trim();
+  catalog.brand.primaryColor = document.getElementById('brand-primary-color').value;
+  catalog.brand.accentColor  = document.getElementById('brand-accent-color').value;
+  catalog.brand.logoUrl      = document.getElementById('brand-logo-url').value.trim();
+  catalog.leadTime           = document.getElementById('lead-time').value.trim();
+  catalog.rushTime           = document.getElementById('rush-time').value.trim();
+  catalog.acceptedFiles      = document.getElementById('accepted-files').value.trim();
+  catalog.logoNote           = document.getElementById('logo-note').value.trim();
+
+  // Collect minimums
+  document.querySelectorAll('.minimum-input').forEach(function(inp) {
+    catalog.minimums[inp.dataset.product] = parseInt(inp.value) || 12;
+  });
+
+  // Collect product active states and SKUs from table inputs
+  document.querySelectorAll('[data-product-id]').forEach(function(row) {
+    var id = parseInt(row.dataset.productId);
+    var item = catalog.products.find(function(p){ return p.id === id; });
+    if (!item) return;
+    var toggle = row.querySelector('.product-toggle input');
+    var skuInput = row.querySelector('.sku-input');
+    if (toggle) item.active = toggle.checked;
+    if (skuInput) item.sku = skuInput.value;
+  });
+
+  localStorage.setItem('prokit_supplier_catalog', JSON.stringify(catalog));
+  document.getElementById('nav-supplier-name').textContent = catalog.brand.name || 'Not saved yet';
+  updateEmbedCodes();
+  updateStats();
+  showToast('Catalog saved successfully!');
+}
+
+// ── TAB SWITCHING ──
+function switchTab(name, el) {
+  document.querySelectorAll('.tab-content').forEach(function(t){ t.classList.remove('active'); });
+  document.getElementById('tab-' + name).classList.add('active');
+  document.querySelectorAll('.sidebar-item').forEach(function(s){ s.classList.remove('active'); });
+  if (el) el.classList.add('active');
+  if (name === 'embed' || name === 'preview') { updateEmbedCodes(); updateStats(); }
+}
+
+// ── BRANDING PREVIEW ──
+function updateBrandingPreview() {
+  var name    = document.getElementById('brand-name').value || 'Your Company Name';
+  var tagline = document.getElementById('brand-tagline').value || 'Your tagline will appear here';
+  var primary = document.getElementById('brand-primary-color').value;
+  var accent  = document.getElementById('brand-accent-color').value;
+  var logoUrl = document.getElementById('brand-logo-url').value;
+
+  document.getElementById('preview-brand-name').textContent = name;
+  document.getElementById('preview-brand-tagline').textContent = tagline;
+  document.getElementById('preview-primary-dot').style.background = primary;
+  document.getElementById('preview-accent-dot').style.background = accent;
+  document.getElementById('brand-primary-hex').value = primary;
+  document.getElementById('brand-accent-hex').value = accent;
+
+  var logoBox = document.getElementById('logo-preview-box');
+  if (logoUrl) {
+    logoBox.innerHTML = '<img src="' + logoUrl + '" alt="logo" onerror="this.parentElement.innerHTML=\'🏷️\'">';
+  } else {
+    logoBox.innerHTML = '🏷️';
+  }
+}
+
+function syncColorFromHex(pickerId, hexId) {
+  var hex = document.getElementById(hexId).value;
+  if (/^#[0-9a-fA-F]{6}$/.test(hex)) {
+    document.getElementById(pickerId).value = hex;
+  }
+}
+
+// ── PRODUCT TABLE ──
+function renderProducts() {
+  var tbody = document.getElementById('product-tbody');
+  tbody.innerHTML = catalog.products.map(function(p) {
+    return '<tr data-product-id="' + p.id + '">'
+      + '<td><label class="product-toggle"><input type="checkbox"' + (p.active ? ' checked' : '') + '>'
+      + '<div class="toggle-slider"></div></label></td>'
+      + '<td><span class="product-tag ' + (p.active ? 'tag-active' : 'tag-inactive') + '">' + p.category + '</span></td>'
+      + '<td style="font-weight:600">' + p.name + '</td>'
+      + '<td><input class="form-input sku-input" style="padding:0.3rem 0.5rem;font-size:0.8rem;width:90px" value="' + (p.sku||'') + '" placeholder="SKU"></td>'
+      + '<td style="color:var(--muted2);font-size:0.82rem">' + p.desc + '</td>'
+      + '<td><button class="btn-danger" onclick="removeProduct(' + p.id + ')">Remove</button></td>'
+      + '</tr>';
+  }).join('');
+}
+
+function addProduct() {
+  var category = document.getElementById('new-product-category').value;
+  var name     = document.getElementById('new-product-name').value.trim();
+  var sku      = document.getElementById('new-product-sku').value.trim();
+  var desc     = document.getElementById('new-product-desc').value.trim();
+  var strap    = document.getElementById('new-product-strap').value === 'true';
+  if (!name) { showToast('Please enter a style name'); return; }
+  var newId = Date.now();
+  catalog.products.push({ id:newId, active:true, category:category, name:name, sku:sku, desc:desc, strap:strap, rope:false });
+  renderProducts();
+  document.getElementById('new-product-name').value = '';
+  document.getElementById('new-product-sku').value = '';
+  document.getElementById('new-product-desc').value = '';
+  showToast('Style added!');
+}
+
+function removeProduct(id) {
+  catalog.products = catalog.products.filter(function(p){ return p.id !== id; });
+  renderProducts();
+}
+
+// ── COLOR PALETTE ──
+function renderPalette() {
+  var grid = document.getElementById('palette-grid');
+  grid.innerHTML = catalog.colors.map(function(c, i) {
+    return '<div class="palette-swatch" style="background:' + c.hex + ';' + (c.border ? 'border:2px solid #aaa;' : '') + '" title="' + c.name + '">'
+      + '<div class="swatch-remove" onclick="removeColor(' + i + ')">×</div>'
+      + '</div>';
+  }).join('') + '<button class="add-color-btn" onclick="openColorModal()" title="Add color">+</button>';
+}
+
+var editingColorIndex = -1;
+
+function openColorModal() {
+  document.getElementById('new-color-name').value = '';
+  document.getElementById('new-color-hex').value = '#1a3c2b';
+  document.getElementById('new-color-picker').value = '#1a3c2b';
+  document.getElementById('color-preview-large').style.background = '#1a3c2b';
+  document.getElementById('color-modal').classList.add('open');
+
+  document.getElementById('new-color-picker').oninput = function() {
+    var hex = this.value;
+    document.getElementById('new-color-hex').value = hex;
+    document.getElementById('color-preview-large').style.background = hex;
+  };
+  document.getElementById('new-color-hex').oninput = function() {
+    var hex = this.value;
+    if (/^#[0-9a-fA-F]{6}$/.test(hex)) {
+      document.getElementById('new-color-picker').value = hex;
+      document.getElementById('color-preview-large').style.background = hex;
+    }
+  };
+}
+
+function closeColorModal() {
+  document.getElementById('color-modal').classList.remove('open');
+}
+
+function confirmAddColor() {
+  var name = document.getElementById('new-color-name').value.trim();
+  var hex  = document.getElementById('new-color-hex').value.trim();
+  if (!name) { showToast('Please enter a color name'); return; }
+  if (!/^#[0-9a-fA-F]{6}$/.test(hex)) { showToast('Please enter a valid hex code (e.g. #1a3c2b)'); return; }
+  catalog.colors.push({ hex:hex, name:name });
+  renderPalette();
+  closeColorModal();
+  showToast('Color added!');
+}
+
+function removeColor(index) {
+  catalog.colors.splice(index, 1);
+  renderPalette();
+}
+
+// ── PATCHES ──
+function renderPatches() {
+  var list = document.getElementById('patch-list');
+  list.innerHTML = catalog.patches.map(function(p, i) {
+    return '<div class="patch-item">'
+      + '<div class="patch-icon-preview">' + p.icon + '</div>'
+      + '<div class="patch-info"><div class="patch-name">' + p.name + '</div>'
+      + '<div class="patch-desc">' + p.desc + '</div></div>'
+      + '<div class="patch-toggle"><label class="product-toggle"><input type="checkbox"' + (p.active ? ' checked' : '')
+      + ' onchange="catalog.patches[' + i + '].active=this.checked">'
+      + '<div class="toggle-slider"></div></label></div>'
+      + '</div>';
+  }).join('');
+}
+
+// ── MINIMUMS ──
+function renderMinimums() {
+  var categories = ['Headwear','Polos','Quarter Zips','Belts','Bags','Outerwear'];
+  document.getElementById('minimums-grid').innerHTML = categories.map(function(cat) {
+    return '<div class="minimum-card">'
+      + '<div class="minimum-product">' + cat + '</div>'
+      + '<input class="minimum-input" type="number" data-product="' + cat + '" value="' + (catalog.minimums[cat] || 12) + '" min="1">'
+      + '<div class="minimum-unit">units minimum</div>'
+      + '</div>';
+  }).join('');
+}
+
+// ── EMBED & STATS ──
+function updateEmbedCodes() {
+  var base = window.location.href.replace('supplier.html','configure.html');
+  var linkBox = document.getElementById('direct-link-box');
+  var embedBox = document.getElementById('embed-code-box');
+  if (linkBox) linkBox.textContent = base + '?supplier=local';
+  if (embedBox) embedBox.textContent = '<a href="' + base + '?supplier=local"\n   target="_blank"\n   style="background:#1a3c2b;color:white;padding:12px 24px;\n          font-family:sans-serif;font-size:14px;font-weight:600;\n          text-decoration:none;border-radius:3px;display:inline-block">\n  Configure Your Gear ›\n</a>';
+}
+
+function updateStats() {
+  var activeProducts = catalog.products.filter(function(p){ return p.active; });
+  var cats = [];
+  activeProducts.forEach(function(p){ if(cats.indexOf(p.category)===-1) cats.push(p.category); });
+  var activePatches = catalog.patches.filter(function(p){ return p.active; });
+  var s1 = document.getElementById('stat-products');
+  var s2 = document.getElementById('stat-colors');
+  var s3 = document.getElementById('stat-patches');
+  var s4 = document.getElementById('stat-categories');
+  if (s1) s1.textContent = activeProducts.length;
+  if (s2) s2.textContent = catalog.colors.length;
+  if (s3) s3.textContent = activePatches.length;
+  if (s4) s4.textContent = cats.length;
+}
+
+function copyLink() {
+  var box = document.getElementById('direct-link-box');
+  if (box) { navigator.clipboard.writeText(box.textContent); showToast('Link copied!'); }
+}
+
+function copyEmbed() {
+  var box = document.getElementById('embed-code-box');
+  if (box) { navigator.clipboard.writeText(box.textContent); showToast('Embed code copied!'); }
+}
+
+function exportCatalog() {
+  var blob = new Blob([JSON.stringify(catalog, null, 2)], { type:'application/json' });
+  var a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = 'prokit-catalog.json';
+  a.click();
+}
+
+// ── TOAST ──
+function showToast(msg) {
+  var t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  setTimeout(function(){ t.classList.remove('show'); }, 3000);
+}
+
+// ── INIT ──
+loadFromStorage();
+updateEmbedCodes();
+updateStats();
+</script>
+</body>
+</html>
