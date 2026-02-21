@@ -501,11 +501,20 @@
 <div class="toast" id="toast"></div>
 
 <script>
-  // ── LOAD SUPPLIER CATALOG ──
+  // ── LOAD SUPPLIER CATALOG (by URL param ?supplier=id) ──
   var supplierCatalog = null;
   try {
-    var saved = localStorage.getItem('prokit_supplier_catalog');
-    if (saved) supplierCatalog = JSON.parse(saved);
+    var urlParams = new URLSearchParams(window.location.search);
+    var supplierId = urlParams.get('supplier');
+    if (supplierId) {
+      var saved = localStorage.getItem('prokit_supplier_' + supplierId);
+      if (saved) supplierCatalog = JSON.parse(saved);
+    }
+    // Fallback: if no param but old single-key exists, use that
+    if (!supplierCatalog) {
+      var legacy = localStorage.getItem('prokit_supplier_catalog');
+      if (legacy) supplierCatalog = JSON.parse(legacy);
+    }
   } catch(e) {}
 
   function getSupplierName() {
