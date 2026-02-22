@@ -461,7 +461,6 @@
 var currentSupplierId = null;
 var catalog = {};
 
-// ── SUPABASE CONFIG ──
 var SUPA_URL   = 'https://zpxafkkbxkfdhtstaeuf.supabase.co';
 var SUPA_KEY   = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InpweGFma2tieGtmZGh0c3RhZXVmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzE3MjM1NzYsImV4cCI6MjA4NzI5OTU3Nn0.gi6GhJ6sa9DmhemLuqje1JYBjwzF3kur0wm-5P44C40';
 var SUPA_TABLE = 'suppliers';
@@ -469,14 +468,16 @@ var SUPA_TABLE = 'suppliers';
 function supaHeaders(){
   return { 'Content-Type':'application/json', 'apikey':SUPA_KEY, 'Authorization':'Bearer '+SUPA_KEY };
 }
+
 async function dbGet(id){
   try {
     var res = await fetch(SUPA_URL+'/rest/v1/'+SUPA_TABLE+'?id=eq.'+encodeURIComponent(id)+'&select=data', { headers:supaHeaders() });
     var body = await res.json();
-    if (!res.ok) { console.error('dbGet error:', body); return null; }
+    if (!res.ok){ console.error('dbGet error:',body); return null; }
     return (body && body.length) ? body[0].data : null;
-  } catch(e) { console.error('dbGet fetch failed:', e); return null; }
+  } catch(e){ console.error('dbGet failed:',e); return null; }
 }
+
 async function dbUpsert(id, data){
   try {
     var res = await fetch(SUPA_URL+'/rest/v1/'+SUPA_TABLE, {
@@ -485,24 +486,20 @@ async function dbUpsert(id, data){
       body:JSON.stringify({ id:id, data:data })
     });
     var body = await res.text();
-    if (!res.ok) {
-      console.error('dbUpsert failed:', res.status, body);
-      showToast('DB error ' + res.status + ': ' + body.slice(0,80));
-      return false;
-    }
+    if (!res.ok){ console.error('dbUpsert failed:',res.status,body); showToast('DB error '+res.status+': '+body.slice(0,60)); return false; }
     return true;
-  } catch(e) { console.error('dbUpsert fetch failed:', e); return false; }
+  } catch(e){ console.error('dbUpsert failed:',e); return false; }
 }
+
 async function dbGetAll(){
   try {
     var res = await fetch(SUPA_URL+'/rest/v1/'+SUPA_TABLE+'?select=id,data', { headers:supaHeaders() });
     var body = await res.json();
-    if (!res.ok) { console.error('dbGetAll error:', body); return []; }
+    if (!res.ok){ console.error('dbGetAll error:',body); return []; }
     return body;
-  } catch(e) { console.error('dbGetAll failed:', e); return []; }
+  } catch(e){ console.error('dbGetAll failed:',e); return []; }
 }
 
-// ── DEFAULT DATA ──
 var DEFAULT_PRODUCTS = [
   { id:1,  active:true,  category:'Headwear',     name:'Richardson 112',         sku:'R112',  desc:'6-Panel Structured Snapback', strap:true,  rope:false },
   { id:2,  active:true,  category:'Headwear',     name:'Richardson 258',         sku:'R258',  desc:'6-Panel Rope Hat Snapback',   strap:true,  rope:true  },
@@ -520,47 +517,44 @@ var DEFAULT_COLORS = [
   {hex:'#3a6fa8',name:'Royal Blue'},{hex:'#c0392b',name:'Red'},
 ];
 var DEFAULT_PATCHES = [
-  {id:'logo',active:true, icon:'\u{1F5BC}\uFE0F',name:'Custom Logo',    desc:'Embroidered or woven customer logo'},
-  {id:'text',active:true, icon:'\u270F\uFE0F',name:'Text Embroidery',desc:'Custom text, initials, or short phrase'},
-  {id:'flag',active:true, icon:'\u{1F4CD}',name:'Flag Patch',     desc:'Country or custom flag on side panel'},
-  {id:'none',active:true, icon:'\u2715', name:'No Decoration',  desc:'Plain — no patch or embroidery'},
+  {id:'logo',active:true, icon:'🖼️',name:'Custom Logo',    desc:'Embroidered or woven customer logo'},
+  {id:'text',active:true, icon:'✏️',name:'Text Embroidery',desc:'Custom text, initials, or short phrase'},
+  {id:'flag',active:true, icon:'📍',name:'Flag Patch',     desc:'Country or custom flag on side panel'},
+  {id:'none',active:true, icon:'✕', name:'No Decoration',  desc:'Plain — no patch or embroidery'},
 ];
 var DEFAULT_MINIMUMS = {Headwear:12,Polos:24,'Quarter Zips':12,Belts:24,Bags:48,Outerwear:24};
 
 function freshCatalog(name, id){
   return {
-    supplierId: id,
-    brand: { name:name, tagline:'', primaryColor:'#1a3c2b', accentColor:'#c9a84c', logoUrl:'' },
-    products: JSON.parse(JSON.stringify(DEFAULT_PRODUCTS)),
-    colors:   JSON.parse(JSON.stringify(DEFAULT_COLORS)),
-    patches:  JSON.parse(JSON.stringify(DEFAULT_PATCHES)),
-    minimums: Object.assign({}, DEFAULT_MINIMUMS),
-    leadTime:'3-4 weeks', rushTime:'10-14 business days',
+    supplierId:id,
+    brand:{name:name,tagline:'',primaryColor:'#1a3c2b',accentColor:'#c9a84c',logoUrl:''},
+    products:JSON.parse(JSON.stringify(DEFAULT_PRODUCTS)),
+    colors:JSON.parse(JSON.stringify(DEFAULT_COLORS)),
+    patches:JSON.parse(JSON.stringify(DEFAULT_PATCHES)),
+    minimums:Object.assign({},DEFAULT_MINIMUMS),
+    leadTime:'3-4 weeks',rushTime:'10-14 business days',
     acceptedFiles:'AI, EPS, PDF, PNG (300dpi+)',
     logoNote:'Please submit vector files (AI or EPS) for best embroidery results.',
   };
 }
 
-// ── LOGIN / ACCOUNT MANAGEMENT ──
 async function renderExistingSuppliers(){
   var el = document.getElementById('existing-suppliers-list');
-  el.innerHTML = '<div class="no-suppliers">Loading accounts…</div>';
-  try {
-    var rows = await dbGetAll();
-    if (!rows.length) {
-      el.innerHTML = '<div class="no-suppliers">No accounts yet — create one above.</div>';
-      return;
-    }
-    el.innerHTML = rows.map(function(row){
-      var name = row.data && row.data.brand && row.data.brand.name ? row.data.brand.name : row.id;
-      return '<button class="existing-supplier-btn" onclick="loadSupplier(''+row.id+'')"><div>'
-        +'<span class="existing-supplier-name">'+name+'</span>'
-        +'<span class="existing-supplier-id">ID: '+row.id+'</span>'
-        +'</div><span class="existing-supplier-arrow">&#8594;</span></button>';
-    }).join('');
-  } catch(e) {
-    el.innerHTML = '<div class="no-suppliers" style="color:#c0392b">Could not connect to database.</div>';
+  el.innerHTML = '<div class="no-suppliers">Loading accounts\u2026</div>';
+  var rows = await dbGetAll();
+  if (!rows.length){
+    el.innerHTML = '<div class="no-suppliers">No accounts yet \u2014 create one above.</div>';
+    return;
   }
+  el.innerHTML = '';
+  rows.forEach(function(row){
+    var name = row.data && row.data.brand && row.data.brand.name ? row.data.brand.name : row.id;
+    var btn = document.createElement('button');
+    btn.className = 'existing-supplier-btn';
+    btn.innerHTML = '<div><span class="existing-supplier-name">'+name+'</span><span class="existing-supplier-id">ID: '+row.id+'</span></div><span class="existing-supplier-arrow">\u2192</span>';
+    btn.onclick = function(){ loadSupplier(row.id); };
+    el.appendChild(btn);
+  });
 }
 
 document.getElementById('login-supplier-id').addEventListener('input', function(){
@@ -571,25 +565,25 @@ document.getElementById('login-supplier-id').addEventListener('input', function(
 async function loginOrCreate(){
   var name = document.getElementById('login-company-name').value.trim();
   var id   = document.getElementById('login-supplier-id').value.trim().toLowerCase().replace(/[^a-z0-9-]/g,'');
-  if (!name) { showToast('Enter your company name'); return; }
-  if (!id)   { showToast('Enter a supplier ID'); return; }
-  showToast('Checking…');
+  if (!name){ showToast('Enter your company name'); return; }
+  if (!id){   showToast('Enter a supplier ID'); return; }
+  showToast('Checking\u2026');
   var existing = await dbGet(id);
-  if (existing) {
+  if (existing){
     catalog = existing; currentSupplierId = id; enterPortal();
   } else {
     catalog = freshCatalog(name, id);
     var ok = await dbUpsert(id, catalog);
-    if (ok) { currentSupplierId = id; enterPortal(); }
-    else { showToast('Error creating account — check connection'); }
+    if (ok){ currentSupplierId = id; enterPortal(); }
+    else { showToast('Error creating account \u2014 see console'); }
   }
 }
 
 async function loadSupplier(id){
-  showToast('Loading…');
+  showToast('Loading\u2026');
   var data = await dbGet(id);
-  if (data) { catalog = data; currentSupplierId = id; enterPortal(); }
-  else { showToast('Could not load — check connection'); }
+  if (data){ catalog = data; currentSupplierId = id; enterPortal(); }
+  else { showToast('Could not load \u2014 check connection'); }
 }
 
 function goToLogin(){
@@ -607,7 +601,6 @@ function enterPortal(){
   document.getElementById('embed-supplier-name').textContent = catalog.brand.name || 'your';
 }
 
-// ── SAVE ──
 async function saveAll(){
   catalog.brand.name         = document.getElementById('brand-name').value.trim();
   catalog.brand.tagline      = document.getElementById('brand-tagline').value.trim();
@@ -619,44 +612,41 @@ async function saveAll(){
   catalog.acceptedFiles      = document.getElementById('accepted-files').value.trim();
   catalog.logoNote           = document.getElementById('logo-note').value.trim();
   catalog.supplierId         = currentSupplierId;
-
   document.querySelectorAll('.minimum-input').forEach(function(inp){
-    catalog.minimums[inp.dataset.product] = parseInt(inp.value) || 12;
+    catalog.minimums[inp.dataset.product] = parseInt(inp.value)||12;
   });
   document.querySelectorAll('[data-product-id]').forEach(function(row){
     var id = parseInt(row.dataset.productId);
-    var item = catalog.products.find(function(p){ return p.id === id; });
+    var item = catalog.products.find(function(p){ return p.id===id; });
     if (!item) return;
     var tog = row.querySelector('.product-toggle input');
     var sku = row.querySelector('.sku-input');
     if (tog) item.active = tog.checked;
     if (sku) item.sku = sku.value;
   });
-
   var ok = await dbUpsert(currentSupplierId, catalog);
-  if (ok) {
+  if (ok){
     document.getElementById('nav-supplier-name').textContent = catalog.brand.name || currentSupplierId;
     document.getElementById('embed-supplier-name').textContent = catalog.brand.name || 'your';
     updateEmbedCodes(); updateStats();
-    showToast('Saved — ' + (catalog.brand.name || currentSupplierId));
+    showToast('Saved \u2014 '+(catalog.brand.name||currentSupplierId));
   } else {
-    showToast('Save failed — check connection');
+    showToast('Save failed \u2014 see console');
   }
 }
 
-// ── FORM ──
 function applyToForm(){
-  document.getElementById('brand-name').value          = catalog.brand.name || '';
-  document.getElementById('brand-tagline').value       = catalog.brand.tagline || '';
-  document.getElementById('brand-primary-color').value = catalog.brand.primaryColor || '#1a3c2b';
-  document.getElementById('brand-primary-hex').value   = catalog.brand.primaryColor || '#1a3c2b';
-  document.getElementById('brand-accent-color').value  = catalog.brand.accentColor || '#c9a84c';
-  document.getElementById('brand-accent-hex').value    = catalog.brand.accentColor || '#c9a84c';
-  document.getElementById('brand-logo-url').value      = catalog.brand.logoUrl || '';
-  document.getElementById('lead-time').value           = catalog.leadTime || '3-4 weeks';
-  document.getElementById('rush-time').value           = catalog.rushTime || '10-14 business days';
-  document.getElementById('accepted-files').value      = catalog.acceptedFiles || 'AI, EPS, PDF, PNG (300dpi+)';
-  document.getElementById('logo-note').value           = catalog.logoNote || '';
+  document.getElementById('brand-name').value          = catalog.brand.name||'';
+  document.getElementById('brand-tagline').value       = catalog.brand.tagline||'';
+  document.getElementById('brand-primary-color').value = catalog.brand.primaryColor||'#1a3c2b';
+  document.getElementById('brand-primary-hex').value   = catalog.brand.primaryColor||'#1a3c2b';
+  document.getElementById('brand-accent-color').value  = catalog.brand.accentColor||'#c9a84c';
+  document.getElementById('brand-accent-hex').value    = catalog.brand.accentColor||'#c9a84c';
+  document.getElementById('brand-logo-url').value      = catalog.brand.logoUrl||'';
+  document.getElementById('lead-time').value           = catalog.leadTime||'3-4 weeks';
+  document.getElementById('rush-time').value           = catalog.rushTime||'10-14 business days';
+  document.getElementById('accepted-files').value      = catalog.acceptedFiles||'AI, EPS, PDF, PNG (300dpi+)';
+  document.getElementById('logo-note').value           = catalog.logoNote||'';
   livePreview(); renderProducts(); renderPalette(); renderPatches(); renderMinimums();
 }
 
@@ -665,24 +655,28 @@ function switchTab(name){
   document.getElementById('tab-'+name).classList.add('active');
   document.querySelectorAll('.sidebar-item').forEach(function(s){ s.classList.remove('active'); });
   var sb = document.getElementById('sb-'+name); if (sb) sb.classList.add('active');
-  if (name === 'embed') { updateEmbedCodes(); updateStats(); }
+  if (name==='embed'){ updateEmbedCodes(); updateStats(); }
 }
 
 function livePreview(){
-  document.getElementById('preview-brand-name').textContent    = document.getElementById('brand-name').value || 'Your Company Name';
-  document.getElementById('preview-brand-tagline').textContent = document.getElementById('brand-tagline').value || 'Your tagline appears here';
+  document.getElementById('preview-brand-name').textContent    = document.getElementById('brand-name').value||'Your Company Name';
+  document.getElementById('preview-brand-tagline').textContent = document.getElementById('brand-tagline').value||'Your tagline appears here';
   document.getElementById('preview-primary-dot').style.background = document.getElementById('brand-primary-color').value;
   document.getElementById('preview-accent-dot').style.background  = document.getElementById('brand-accent-color').value;
   var logoUrl = document.getElementById('brand-logo-url').value;
-  document.getElementById('logo-preview-box').innerHTML = logoUrl
-    ? '<img src="'+logoUrl+'" alt="logo" onerror="this.parentElement.innerHTML='&#127991;'">'
-    : '&#127991;';
+  var lb = document.getElementById('logo-preview-box');
+  if (logoUrl){
+    var img = document.createElement('img');
+    img.src = logoUrl; img.alt = 'logo';
+    img.style.cssText = 'width:100%;height:100%;object-fit:contain;border-radius:6px';
+    img.onerror = function(){ lb.textContent = '\uD83C\uDFF7'; };
+    lb.innerHTML = ''; lb.appendChild(img);
+  } else { lb.textContent = '\uD83C\uDFF7'; }
 }
 
 function syncHex(pid,hid){ document.getElementById(hid).value = document.getElementById(pid).value; }
 function syncPicker(pid,hid){ var h=document.getElementById(hid).value; if(/^#[0-9a-fA-F]{6}$/.test(h)) document.getElementById(pid).value=h; }
 
-// ── PRODUCTS ──
 function renderProducts(){
   document.getElementById('product-tbody').innerHTML = catalog.products.map(function(p){
     return '<tr data-product-id="'+p.id+'">'
@@ -698,63 +692,74 @@ function renderProducts(){
 
 function addProduct(){
   var name = document.getElementById('new-product-name').value.trim();
-  if (!name) { showToast('Enter a style name'); return; }
+  if (!name){ showToast('Enter a style name'); return; }
   catalog.products.push({
     id:Date.now(), active:true,
     category:document.getElementById('new-product-category').value,
-    name:name,
-    sku:document.getElementById('new-product-sku').value.trim(),
+    name:name, sku:document.getElementById('new-product-sku').value.trim(),
     desc:document.getElementById('new-product-desc').value.trim(),
-    strap:document.getElementById('new-product-strap').value==='true',
-    rope:false,
+    strap:document.getElementById('new-product-strap').value==='true', rope:false,
   });
   renderProducts();
-  document.getElementById('new-product-name').value = '';
-  document.getElementById('new-product-sku').value  = '';
-  document.getElementById('new-product-desc').value = '';
+  document.getElementById('new-product-name').value='';
+  document.getElementById('new-product-sku').value='';
+  document.getElementById('new-product-desc').value='';
   showToast('Style added!');
 }
 
-function removeProduct(id){ catalog.products = catalog.products.filter(function(p){ return p.id!==id; }); renderProducts(); }
+function removeProduct(id){ catalog.products=catalog.products.filter(function(p){ return p.id!==id; }); renderProducts(); }
 
-// ── COLORS ──
 function renderPalette(){
-  document.getElementById('palette-grid').innerHTML =
-    catalog.colors.map(function(c,i){
-      return '<div class="palette-swatch" style="background:'+c.hex+';'+(c.border?'outline:2px solid #bbb;':'')+'" title="'+c.name+'">'
-        +'<div class="swatch-remove" onclick="removeColor('+i+')">&#215;</div></div>';
-    }).join('') + '<button class="add-color-btn" onclick="openColorModal()">+</button>';
+  var grid = document.getElementById('palette-grid');
+  grid.innerHTML = '';
+  catalog.colors.forEach(function(c,i){
+    var sw = document.createElement('div');
+    sw.className = 'palette-swatch';
+    sw.style.background = c.hex;
+    if (c.border) sw.style.outline = '2px solid #bbb';
+    sw.title = c.name;
+    var rm = document.createElement('div');
+    rm.className = 'swatch-remove';
+    rm.textContent = '\u00D7';
+    rm.onclick = function(){ removeColor(i); };
+    sw.appendChild(rm);
+    grid.appendChild(sw);
+  });
+  var addBtn = document.createElement('button');
+  addBtn.className = 'add-color-btn';
+  addBtn.textContent = '+';
+  addBtn.onclick = openColorModal;
+  grid.appendChild(addBtn);
 }
 
 function openColorModal(){
-  document.getElementById('new-color-name').value = '';
-  document.getElementById('new-color-hex').value  = '#1a3c2b';
-  document.getElementById('new-color-picker').value = '#1a3c2b';
-  document.getElementById('color-preview-large').style.background = '#1a3c2b';
+  document.getElementById('new-color-name').value='';
+  document.getElementById('new-color-hex').value='#1a3c2b';
+  document.getElementById('new-color-picker').value='#1a3c2b';
+  document.getElementById('color-preview-large').style.background='#1a3c2b';
   document.getElementById('color-modal').classList.add('open');
-  document.getElementById('new-color-picker').oninput = function(){
-    document.getElementById('new-color-hex').value = this.value;
-    document.getElementById('color-preview-large').style.background = this.value;
+  document.getElementById('new-color-picker').oninput=function(){
+    document.getElementById('new-color-hex').value=this.value;
+    document.getElementById('color-preview-large').style.background=this.value;
   };
-  document.getElementById('new-color-hex').oninput = function(){
-    if (/^#[0-9a-fA-F]{6}$/.test(this.value)){
-      document.getElementById('new-color-picker').value = this.value;
-      document.getElementById('color-preview-large').style.background = this.value;
+  document.getElementById('new-color-hex').oninput=function(){
+    if(/^#[0-9a-fA-F]{6}$/.test(this.value)){
+      document.getElementById('new-color-picker').value=this.value;
+      document.getElementById('color-preview-large').style.background=this.value;
     }
   };
 }
 function closeColorModal(){ document.getElementById('color-modal').classList.remove('open'); }
 function confirmAddColor(){
-  var name = document.getElementById('new-color-name').value.trim();
-  var hex  = document.getElementById('new-color-hex').value.trim();
-  if (!name) { showToast('Enter a color name'); return; }
-  if (!/^#[0-9a-fA-F]{6}$/.test(hex)) { showToast('Enter a valid hex like #1a3c2b'); return; }
-  catalog.colors.push({ hex:hex, name:name });
+  var name=document.getElementById('new-color-name').value.trim();
+  var hex=document.getElementById('new-color-hex').value.trim();
+  if (!name){ showToast('Enter a color name'); return; }
+  if (!/^#[0-9a-fA-F]{6}$/.test(hex)){ showToast('Enter a valid hex like #1a3c2b'); return; }
+  catalog.colors.push({hex:hex,name:name});
   renderPalette(); closeColorModal(); showToast('Color added!');
 }
 function removeColor(i){ catalog.colors.splice(i,1); renderPalette(); }
 
-// ── PATCHES ──
 function renderPatches(){
   document.getElementById('patch-list').innerHTML = catalog.patches.map(function(p,i){
     return '<div class="patch-item">'
@@ -766,9 +771,8 @@ function renderPatches(){
   }).join('');
 }
 
-// ── MINIMUMS ──
 function renderMinimums(){
-  var cats = ['Headwear','Polos','Quarter Zips','Belts','Bags','Outerwear'];
+  var cats=['Headwear','Polos','Quarter Zips','Belts','Bags','Outerwear'];
   document.getElementById('minimums-grid').innerHTML = cats.map(function(cat){
     return '<div class="minimum-card">'
       +'<div class="minimum-product">'+cat+'</div>'
@@ -777,52 +781,51 @@ function renderMinimums(){
   }).join('');
 }
 
-// ── EMBED & STATS ──
 function updateEmbedCodes(){
   if (!currentSupplierId) return;
   var base = window.location.href.replace('supplier.html','configure.html');
-  var link = base + '?supplier=' + currentSupplierId;
+  var link = base+'?supplier='+currentSupplierId;
   var lb = document.getElementById('direct-link-box');
   var eb = document.getElementById('embed-code-box');
   var pl = document.getElementById('nav-preview-link');
   if (lb) lb.textContent = link;
-  if (eb) eb.textContent = '<a href="'+link+'"
-   target="_blank"
-   style="background:#1a3c2b;color:white;
-          padding:12px 28px;font-family:sans-serif;
-          font-size:14px;font-weight:600;
-          text-decoration:none;border-radius:3px;
-          display:inline-block">
-  Configure Your Gear &#8594;
-</a>';
+  if (eb){
+    var lines = [
+      '<a href="'+link+'"',
+      '   target="_blank"',
+      '   style="background:#1a3c2b;color:white;padding:12px 28px;',
+      '          font-family:sans-serif;font-size:14px;font-weight:600;',
+      '          text-decoration:none;border-radius:3px;display:inline-block">',
+      '  Configure Your Gear \u2192',
+      '</a>'
+    ];
+    eb.textContent = lines.join('\n');
+  }
   if (pl) pl.href = link;
 }
 
 function updateStats(){
   var active = catalog.products ? catalog.products.filter(function(p){ return p.active; }) : [];
-  var cats = []; active.forEach(function(p){ if (cats.indexOf(p.category)===-1) cats.push(p.category); });
+  var cats = []; active.forEach(function(p){ if(cats.indexOf(p.category)===-1) cats.push(p.category); });
   var ap = catalog.patches ? catalog.patches.filter(function(p){ return p.active; }) : [];
   function s(id,v){ var el=document.getElementById(id); if(el) el.textContent=v; }
-  s('stat-products', active.length);
-  s('stat-colors', catalog.colors ? catalog.colors.length : 0);
-  s('stat-patches', ap.length);
-  s('stat-categories', cats.length);
+  s('stat-products',active.length); s('stat-colors',catalog.colors?catalog.colors.length:0);
+  s('stat-patches',ap.length); s('stat-categories',cats.length);
 }
 
 function copyLink(){ var b=document.getElementById('direct-link-box'); if(b){ navigator.clipboard.writeText(b.textContent); showToast('Link copied!'); } }
 function copyEmbed(){ var b=document.getElementById('embed-code-box'); if(b){ navigator.clipboard.writeText(b.textContent); showToast('Embed code copied!'); } }
 function exportCatalog(){
-  var blob = new Blob([JSON.stringify(catalog,null,2)], {type:'application/json'});
-  var a = document.createElement('a'); a.href = URL.createObjectURL(blob);
-  a.download = (currentSupplierId||'prokit')+'-catalog.json'; a.click();
+  var blob=new Blob([JSON.stringify(catalog,null,2)],{type:'application/json'});
+  var a=document.createElement('a'); a.href=URL.createObjectURL(blob);
+  a.download=(currentSupplierId||'prokit')+'-catalog.json'; a.click();
 }
 
 function showToast(msg){
-  var t = document.getElementById('toast'); t.textContent = msg; t.classList.add('show');
-  setTimeout(function(){ t.classList.remove('show'); }, 3000);
+  var t=document.getElementById('toast'); t.textContent=msg; t.classList.add('show');
+  setTimeout(function(){ t.classList.remove('show'); },3000);
 }
 
-// ── INIT ──
 renderExistingSuppliers();
 </script>
 </body>
