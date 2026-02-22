@@ -470,22 +470,36 @@ function supaHeaders(){
   return { 'Content-Type':'application/json', 'apikey':SUPA_KEY, 'Authorization':'Bearer '+SUPA_KEY };
 }
 async function dbGet(id){
-  var res = await fetch(SUPA_URL+'/rest/v1/'+SUPA_TABLE+'?id=eq.'+encodeURIComponent(id)+'&select=data', { headers:supaHeaders() });
-  var rows = await res.json();
-  return (rows && rows.length) ? rows[0].data : null;
+  try {
+    var res = await fetch(SUPA_URL+'/rest/v1/'+SUPA_TABLE+'?id=eq.'+encodeURIComponent(id)+'&select=data', { headers:supaHeaders() });
+    var body = await res.json();
+    if (!res.ok) { console.error('dbGet error:', body); return null; }
+    return (body && body.length) ? body[0].data : null;
+  } catch(e) { console.error('dbGet fetch failed:', e); return null; }
 }
 async function dbUpsert(id, data){
-  var res = await fetch(SUPA_URL+'/rest/v1/'+SUPA_TABLE, {
-    method:'POST',
-    headers:Object.assign({}, supaHeaders(), {'Prefer':'resolution=merge-duplicates'}),
-    body:JSON.stringify({ id:id, data:data })
-  });
-  return res.ok;
+  try {
+    var res = await fetch(SUPA_URL+'/rest/v1/'+SUPA_TABLE, {
+      method:'POST',
+      headers:Object.assign({}, supaHeaders(), {'Prefer':'resolution=merge-duplicates'}),
+      body:JSON.stringify({ id:id, data:data })
+    });
+    var body = await res.text();
+    if (!res.ok) {
+      console.error('dbUpsert failed:', res.status, body);
+      showToast('DB error ' + res.status + ': ' + body.slice(0,80));
+      return false;
+    }
+    return true;
+  } catch(e) { console.error('dbUpsert fetch failed:', e); return false; }
 }
 async function dbGetAll(){
-  var res = await fetch(SUPA_URL+'/rest/v1/'+SUPA_TABLE+'?select=id,data', { headers:supaHeaders() });
-  if (!res.ok) return [];
-  return await res.json();
+  try {
+    var res = await fetch(SUPA_URL+'/rest/v1/'+SUPA_TABLE+'?select=id,data', { headers:supaHeaders() });
+    var body = await res.json();
+    if (!res.ok) { console.error('dbGetAll error:', body); return []; }
+    return body;
+  } catch(e) { console.error('dbGetAll failed:', e); return []; }
 }
 
 // ── DEFAULT DATA ──
