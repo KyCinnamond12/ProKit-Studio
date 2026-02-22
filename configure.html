@@ -1250,18 +1250,27 @@
         + '</div>';
     }).join('');
 
-    // Add coming soon for non-active categories
-    var ALL_CATS = ['Headwear','Polos','Quarter Zips','Belts','Bags','Outerwear'];
-    ALL_CATS.forEach(function(cat) {
-      if (categories.indexOf(cat) === -1) {
-        html += '<div class="product-card coming-soon"><div class="product-icon">' + (ICONS[cat]||'📦') + '</div>'
-          + '<div class="product-name">' + cat + '</div>'
-          + '<div class="product-soon">Coming Soon</div></div>';
-      }
-    });
+    // Only show Coming Soon cards in default demo mode (no supplier loaded)
+    // When a supplier is configured, show only what they carry — nothing else
+    if (!supplierCatalog) {
+      var ALL_CATS = ['Headwear','Polos','Quarter Zips','Belts','Bags','Outerwear'];
+      ALL_CATS.forEach(function(cat) {
+        if (categories.indexOf(cat) === -1) {
+          html += '<div class="product-card coming-soon"><div class="product-icon">' + (ICONS[cat]||'📦') + '</div>'
+            + '<div class="product-name">' + cat + '</div>'
+            + '<div class="product-soon">Coming Soon</div></div>';
+        }
+      });
+    }
 
     grid.innerHTML = html;
     applySupplierBranding();
+
+    // If supplier only carries one category, auto-select it and skip step 1
+    if (supplierCatalog && categories.length === 1) {
+      var onlyCard = grid.querySelector('.product-card');
+      if (onlyCard) setTimeout(function(){ onlyCard.click(); }, 150);
+    }
   })();
 
 </script>
