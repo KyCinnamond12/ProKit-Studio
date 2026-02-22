@@ -501,15 +501,17 @@
 <div class="toast" id="toast"></div>
 
 <script>
-  // ── LOAD SUPPLIER CATALOG FROM SUPABASE ──
-  var SUPA_URL  = 'https://zpxafkkbxkfdhtstaeuf.supabase.co';
-  var SUPA_KEY  = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InpweGFma2tieGtmZGh0c3RhZXVmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzE3MjM1NzYsImV4cCI6MjA4NzI5OTU3Nn0.gi6GhJ6sa9DmhemLuqje1JYBjwzF3kur0wm-5P44C40';
 
-  var supplierCatalog = null;
-  var _supplierId = new URLSearchParams(window.location.search).get('supplier');
+// ── LOAD SUPPLIER CATALOG FROM SUPABASE ──
+var SUPA_URL  = 'https://zpxafkkbxkfdhtstaeuf.supabase.co';
+var SUPA_KEY  = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InpweGFma2tieGtmZGh0c3RhZXVmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzE3MjM1NzYsImV4cCI6MjA4NzI5OTU3Nn0.gi6GhJ6sa9DmhemLuqje1JYBjwzF3kur0wm-5P44C40';
 
-  // Async load — fetch from Supabase then init the grid
-  (async function loadCatalog() {
+var supplierCatalog = null;
+var _supplierId = new URLSearchParams(window.location.search).get('supplier');
+
+// Load supplier catalog then init — wrapped in DOMContentLoaded so DOM is ready
+document.addEventListener('DOMContentLoaded', function() {
+  (async function() {
     if (_supplierId) {
       try {
         var res = await fetch(
@@ -520,771 +522,765 @@
         if (rows && rows.length) supplierCatalog = rows[0].data;
       } catch(e) { console.warn('Could not load supplier catalog', e); }
     }
-    initGrid();
+    initProductGrid();
   })();
+});
 
-  function initGrid() {
+function getSupplierName() {
+  return supplierCatalog && supplierCatalog.brand && supplierCatalog.brand.name
+    ? supplierCatalog.brand.name : null;
+}
 
-  function getSupplierName() {
-    return supplierCatalog && supplierCatalog.brand && supplierCatalog.brand.name
-      ? supplierCatalog.brand.name : null;
+function getColors() {
+  if (supplierCatalog && supplierCatalog.colors && supplierCatalog.colors.length)
+    return supplierCatalog.colors;
+  return [
+    { hex:'#1a3c2b', name:'Forest Green' },
+    { hex:'#c9a84c', name:'Gold' },
+    { hex:'#1a1a2e', name:'Navy' },
+    { hex:'#8B1A1A', name:'Cardinal' },
+    { hex:'#e0dcd3', name:'White', border:true },
+    { hex:'#2b2b2b', name:'Charcoal' },
+    { hex:'#5c3d1e', name:'Brown' },
+    { hex:'#7a4f7d', name:'Purple' },
+    { hex:'#3a6fa8', name:'Royal Blue' },
+    { hex:'#c0392b', name:'Red' },
+    { hex:'#e67e22', name:'Orange' },
+    { hex:'#f5f5dc', name:'Khaki', border:true },
+  ];
+}
+
+function getProductStyles(category) {
+  if (supplierCatalog && supplierCatalog.products) {
+    var filtered = supplierCatalog.products.filter(function(p){
+      return p.active && p.category === category;
+    });
+    if (filtered.length) return filtered.map(function(p){
+      return { name: p.name, desc: p.desc + (p.sku ? ' — ' + p.sku : ''), strap: p.strap, rope: p.rope };
+    });
   }
-
-  function getColors() {
-    if (supplierCatalog && supplierCatalog.colors && supplierCatalog.colors.length)
-      return supplierCatalog.colors;
-    return [
-      { hex:'#1a3c2b', name:'Forest Green' },
-      { hex:'#c9a84c', name:'Gold' },
-      { hex:'#1a1a2e', name:'Navy' },
-      { hex:'#8B1A1A', name:'Cardinal' },
-      { hex:'#e0dcd3', name:'White', border:true },
-      { hex:'#2b2b2b', name:'Charcoal' },
-      { hex:'#5c3d1e', name:'Brown' },
-      { hex:'#7a4f7d', name:'Purple' },
-      { hex:'#3a6fa8', name:'Royal Blue' },
-      { hex:'#c0392b', name:'Red' },
-      { hex:'#e67e22', name:'Orange' },
-      { hex:'#f5f5dc', name:'Khaki', border:true },
-    ];
-  }
-
-  function getProductStyles(category) {
-    if (supplierCatalog && supplierCatalog.products) {
-      var filtered = supplierCatalog.products.filter(function(p){
-        return p.active && p.category === category;
-      });
-      if (filtered.length) return filtered.map(function(p){
-        return { name: p.name, desc: p.desc + (p.sku ? ' — ' + p.sku : ''), strap: p.strap, rope: p.rope };
-      });
-    }
-    // Fallback defaults by category
-    var defaults = {
-      Headwear: [
-        { name:'Richardson 112', desc:'6-Panel Structured Snapback', strap:true, rope:false },
-        { name:'Richardson 258', desc:'6-Panel Rope Hat Snapback', strap:true, rope:true },
-        { name:'Richardson 65',  desc:'5-Panel Trucker Snapback', strap:true, rope:false },
-        { name:'Richardson 172', desc:'Fitted Performance Cap', strap:false, rope:false },
-        { name:'Richardson 115', desc:'Washed Chino Twill Dad Hat', strap:false, rope:false },
-      ],
-      Polos: [
-        { name:'Classic Pique Polo', desc:'Traditional pique weave, tailored fit' },
-        { name:'Performance Polo', desc:'Moisture-wicking stretch fabric' },
-      ],
-      'Quarter Zips': [
-        { name:'Lightweight Quarter Zip', desc:'Midlayer fleece for cool mornings' },
-        { name:'Performance Quarter Zip', desc:'Moisture-wicking stretch fabric' },
-      ],
-      Belts: [
-        { name:'Ribbon Belt', desc:'Classic woven ribbon, adjustable buckle' },
-        { name:'Leather Belt', desc:'Full-grain leather, custom emboss' },
-      ],
-    };
-    return defaults[category] || [];
-  }
-
-  function getMinimum(category) {
-    if (supplierCatalog && supplierCatalog.minimums && supplierCatalog.minimums[category])
-      return supplierCatalog.minimums[category];
-    return { Headwear:12, Polos:24, 'Quarter Zips':12, Belts:24 }[category] || 12;
-  }
-
-  function getActivePatches() {
-    if (supplierCatalog && supplierCatalog.patches)
-      return supplierCatalog.patches.filter(function(p){ return p.active; });
-    return [
-      { id:'logo', icon:'🖼️', name:'Custom Logo' },
-      { id:'text', icon:'✏️', name:'Text Only' },
-      { id:'flag', icon:'📍', name:'Flag Patch' },
-      { id:'none', icon:'✕',  name:'No Logo' },
-    ];
-  }
-
-  function getActiveCategories() {
-    if (supplierCatalog && supplierCatalog.products) {
-      var cats = [];
-      supplierCatalog.products.forEach(function(p){
-        if (p.active && cats.indexOf(p.category) === -1) cats.push(p.category);
-      });
-      if (cats.length) return cats;
-    }
-    return ['Headwear','Polos','Quarter Zips','Belts'];
-  }
-
-  function applySupplierBranding() {
-    if (!supplierCatalog || !supplierCatalog.brand) return;
-    var b = supplierCatalog.brand;
-    if (b.name) {
-      document.getElementById('supplier-banner').textContent = b.name + ' × ProKit Studio';
-      document.getElementById('supplier-banner').style.display = 'inline-block';
-    }
-    if (b.primaryColor) {
-      document.documentElement.style.setProperty('--green', b.primaryColor);
-      document.documentElement.style.setProperty('--green-light', b.primaryColor);
-    }
-    if (b.accentColor) {
-      document.documentElement.style.setProperty('--gold', b.accentColor);
-      document.documentElement.style.setProperty('--gold-light', b.accentColor);
-    }
-  }
-
-  // ── STATE ──
-  const state = {
-    product: null, style: null,
-    crownColor: '#1a3c2b', crownName: 'Forest Green',
-    brimColor: '#c9a84c',  brimName: 'Gold',
-    ropeColor: '#c9a84c',  ropeName: 'Gold',
-    stitchColor: '#c9a84c', stitchName: 'Gold',
-    patchColor: '#1a3c2b', patch: 'logo',
-  };
-
-  const MINIMUMS = {
-    'Headwear': 12, 'Polos': 24, 'Quarter Zips': 12, 'Belts': 24,
-  };
-
-  // STYLES now loaded dynamically via getProductStyles()
-  const STYLES_STATIC = {
+  // Fallback defaults by category
+  var defaults = {
     Headwear: [
-      { name: 'Richardson 112', desc: '6-Panel Structured Snapback', strap: true,  rope: false },
-      { name: 'Richardson 258', desc: '6-Panel Rope Hat Snapback',   strap: true,  rope: true  },
-      { name: 'Richardson 65',  desc: '5-Panel Trucker Snapback',    strap: true,  rope: false },
-      { name: 'Richardson 172', desc: 'Fitted Performance Cap',      strap: false, rope: false },
-      { name: 'Richardson 115', desc: 'Washed Chino Twill Dad Hat',  strap: false, rope: false },
+      { name:'Richardson 112', desc:'6-Panel Structured Snapback', strap:true, rope:false },
+      { name:'Richardson 258', desc:'6-Panel Rope Hat Snapback', strap:true, rope:true },
+      { name:'Richardson 65',  desc:'5-Panel Trucker Snapback', strap:true, rope:false },
+      { name:'Richardson 172', desc:'Fitted Performance Cap', strap:false, rope:false },
+      { name:'Richardson 115', desc:'Washed Chino Twill Dad Hat', strap:false, rope:false },
     ],
     Polos: [
-      { name: 'Classic Pique Polo',   desc: 'Traditional pique weave, tailored fit' },
-      { name: 'Performance Polo',     desc: 'Moisture-wicking stretch fabric' },
-      { name: 'Tour Polo',            desc: 'Tour-inspired premium feel' },
-      { name: 'Ladies Polo',          desc: 'Womens fit, pique fabric' },
+      { name:'Classic Pique Polo', desc:'Traditional pique weave, tailored fit' },
+      { name:'Performance Polo', desc:'Moisture-wicking stretch fabric' },
     ],
     'Quarter Zips': [
-      { name: 'Lightweight Quarter Zip', desc: 'Midlayer fleece, great for cool mornings' },
-      { name: 'Performance Quarter Zip', desc: 'Moisture-wicking stretch fabric' },
-      { name: 'Sherpa Quarter Zip',      desc: 'Sherpa-lined interior, premium warmth' },
+      { name:'Lightweight Quarter Zip', desc:'Midlayer fleece for cool mornings' },
+      { name:'Performance Quarter Zip', desc:'Moisture-wicking stretch fabric' },
     ],
     Belts: [
-      { name: 'Ribbon Belt',  desc: 'Classic woven ribbon, adjustable buckle' },
-      { name: 'Leather Belt', desc: 'Full-grain leather, custom emboss' },
-      { name: 'Stretch Belt', desc: 'Elastic stretch, performance fit' },
+      { name:'Ribbon Belt', desc:'Classic woven ribbon, adjustable buckle' },
+      { name:'Leather Belt', desc:'Full-grain leather, custom emboss' },
     ],
   };
+  return defaults[category] || [];
+}
 
-  const LABEL_MAP = {
-    Headwear:      { crown: 'Crown Color',   brim: 'Brim Color',          stitch: 'Stitch & Eyelet' },
-    Polos:         { crown: 'Body Color',    brim: 'Collar & Sleeve Trim', stitch: 'Button Color'    },
-    'Quarter Zips':{ crown: 'Body Color',    brim: 'Zipper & Collar',      stitch: 'Stitch Color'    },
-    Belts:         { crown: 'Belt Color',    brim: 'Buckle Finish',         stitch: 'Stitch Color'    },
-  };
+function getMinimum(category) {
+  if (supplierCatalog && supplierCatalog.minimums && supplierCatalog.minimums[category])
+    return supplierCatalog.minimums[category];
+  return { Headwear:12, Polos:24, 'Quarter Zips':12, Belts:24 }[category] || 12;
+}
 
-  const ALL_COLORS_DYNAMIC = getColors();
-  const ALL_COLORS = ALL_COLORS_DYNAMIC;
-  const ALL_COLORS_ORIG = [
-    { hex: '#1a3c2b', name: 'Forest Green' },
-    { hex: '#c9a84c', name: 'Gold' },
-    { hex: '#1a1a2e', name: 'Navy' },
-    { hex: '#8B1A1A', name: 'Cardinal' },
-    { hex: '#e0dcd3', name: 'White', border: true },
-    { hex: '#2b2b2b', name: 'Charcoal' },
-    { hex: '#5c3d1e', name: 'Brown' },
-    { hex: '#7a4f7d', name: 'Purple' },
-    { hex: '#3a6fa8', name: 'Royal Blue' },
-    { hex: '#c0392b', name: 'Red' },
-    { hex: '#e67e22', name: 'Orange' },
-    { hex: '#f5f5dc', name: 'Khaki', border: true },
+function getActivePatches() {
+  if (supplierCatalog && supplierCatalog.patches)
+    return supplierCatalog.patches.filter(function(p){ return p.active; });
+  return [
+    { id:'logo', icon:'🖼️', name:'Custom Logo' },
+    { id:'text', icon:'✏️', name:'Text Only' },
+    { id:'flag', icon:'📍', name:'Flag Patch' },
+    { id:'none', icon:'✕',  name:'No Logo' },
   ];
+}
 
-  // ── STEP NAVIGATION ──
-  function toggleStep(n) {
-    const b = document.getElementById('step'+n);
-    if (b.classList.contains('locked')) return;
-    const wasActive = b.classList.contains('active');
-    [1,2,3].forEach(i => {
-      const el = document.getElementById('step'+i);
-      if (!el.classList.contains('locked')) el.classList.remove('active');
+function getActiveCategories() {
+  if (supplierCatalog && supplierCatalog.products) {
+    var cats = [];
+    supplierCatalog.products.forEach(function(p){
+      if (p.active && cats.indexOf(p.category) === -1) cats.push(p.category);
     });
-    if (!wasActive) b.classList.add('active');
+    if (cats.length) return cats;
+  }
+  return ['Headwear','Polos','Quarter Zips','Belts'];
+}
+
+function applySupplierBranding() {
+  if (!supplierCatalog || !supplierCatalog.brand) return;
+  var b = supplierCatalog.brand;
+  if (b.name) {
+    document.getElementById('supplier-banner').textContent = b.name + ' × ProKit Studio';
+    document.getElementById('supplier-banner').style.display = 'inline-block';
+  }
+  if (b.primaryColor) {
+    document.documentElement.style.setProperty('--green', b.primaryColor);
+    document.documentElement.style.setProperty('--green-light', b.primaryColor);
+  }
+  if (b.accentColor) {
+    document.documentElement.style.setProperty('--gold', b.accentColor);
+    document.documentElement.style.setProperty('--gold-light', b.accentColor);
+  }
+}
+
+// ── STATE ──
+const state = {
+  product: null, style: null,
+  crownColor: '#1a3c2b', crownName: 'Forest Green',
+  brimColor: '#c9a84c',  brimName: 'Gold',
+  ropeColor: '#c9a84c',  ropeName: 'Gold',
+  stitchColor: '#c9a84c', stitchName: 'Gold',
+  patchColor: '#1a3c2b', patch: 'logo',
+};
+
+const MINIMUMS = {
+  'Headwear': 12, 'Polos': 24, 'Quarter Zips': 12, 'Belts': 24,
+};
+
+// STYLES now loaded dynamically via getProductStyles()
+const STYLES_STATIC = {
+  Headwear: [
+    { name: 'Richardson 112', desc: '6-Panel Structured Snapback', strap: true,  rope: false },
+    { name: 'Richardson 258', desc: '6-Panel Rope Hat Snapback',   strap: true,  rope: true  },
+    { name: 'Richardson 65',  desc: '5-Panel Trucker Snapback',    strap: true,  rope: false },
+    { name: 'Richardson 172', desc: 'Fitted Performance Cap',      strap: false, rope: false },
+    { name: 'Richardson 115', desc: 'Washed Chino Twill Dad Hat',  strap: false, rope: false },
+  ],
+  Polos: [
+    { name: 'Classic Pique Polo',   desc: 'Traditional pique weave, tailored fit' },
+    { name: 'Performance Polo',     desc: 'Moisture-wicking stretch fabric' },
+    { name: 'Tour Polo',            desc: 'Tour-inspired premium feel' },
+    { name: 'Ladies Polo',          desc: 'Womens fit, pique fabric' },
+  ],
+  'Quarter Zips': [
+    { name: 'Lightweight Quarter Zip', desc: 'Midlayer fleece, great for cool mornings' },
+    { name: 'Performance Quarter Zip', desc: 'Moisture-wicking stretch fabric' },
+    { name: 'Sherpa Quarter Zip',      desc: 'Sherpa-lined interior, premium warmth' },
+  ],
+  Belts: [
+    { name: 'Ribbon Belt',  desc: 'Classic woven ribbon, adjustable buckle' },
+    { name: 'Leather Belt', desc: 'Full-grain leather, custom emboss' },
+    { name: 'Stretch Belt', desc: 'Elastic stretch, performance fit' },
+  ],
+};
+
+const LABEL_MAP = {
+  Headwear:      { crown: 'Crown Color',   brim: 'Brim Color',          stitch: 'Stitch & Eyelet' },
+  Polos:         { crown: 'Body Color',    brim: 'Collar & Sleeve Trim', stitch: 'Button Color'    },
+  'Quarter Zips':{ crown: 'Body Color',    brim: 'Zipper & Collar',      stitch: 'Stitch Color'    },
+  Belts:         { crown: 'Belt Color',    brim: 'Buckle Finish',         stitch: 'Stitch Color'    },
+};
+
+const ALL_COLORS_DYNAMIC = getColors();
+const ALL_COLORS = ALL_COLORS_DYNAMIC;
+const ALL_COLORS_ORIG = [
+  { hex: '#1a3c2b', name: 'Forest Green' },
+  { hex: '#c9a84c', name: 'Gold' },
+  { hex: '#1a1a2e', name: 'Navy' },
+  { hex: '#8B1A1A', name: 'Cardinal' },
+  { hex: '#e0dcd3', name: 'White', border: true },
+  { hex: '#2b2b2b', name: 'Charcoal' },
+  { hex: '#5c3d1e', name: 'Brown' },
+  { hex: '#7a4f7d', name: 'Purple' },
+  { hex: '#3a6fa8', name: 'Royal Blue' },
+  { hex: '#c0392b', name: 'Red' },
+  { hex: '#e67e22', name: 'Orange' },
+  { hex: '#f5f5dc', name: 'Khaki', border: true },
+];
+
+// ── STEP NAVIGATION ──
+function toggleStep(n) {
+  const b = document.getElementById('step'+n);
+  if (b.classList.contains('locked')) return;
+  const wasActive = b.classList.contains('active');
+  [1,2,3].forEach(i => {
+    const el = document.getElementById('step'+i);
+    if (!el.classList.contains('locked')) el.classList.remove('active');
+  });
+  if (!wasActive) b.classList.add('active');
+}
+
+// ── STEP 1: SELECT PRODUCT ──
+function selectProduct(el, name, icon) {
+  document.querySelectorAll('.product-card').forEach(c => c.classList.remove('selected'));
+  el.classList.add('selected');
+  state.product = name;
+  state.style = null;
+  document.getElementById('step1-selection').textContent = icon + ' ' + name;
+  document.getElementById('step2-selection').textContent = '';
+
+  // Populate styles
+  const styles = getProductStyles(name);
+  const min = getMinimum(name);
+  const minNote = document.getElementById('minimum-note');
+  minNote.textContent = 'Minimum order: ' + min + ' units for this product';
+  minNote.style.display = 'block';
+
+  document.getElementById('style-list').innerHTML = styles.map(s =>
+    '<div class="style-option" onclick="selectStyle(this,\'' + s.name + '\',' + (s.strap || false) + ',' + (s.rope || false) + ')">'
+    + '<div><div class="style-name">' + s.name + '</div><div class="style-desc">' + s.desc + '</div></div>'
+    + '<div class="style-check">✓</div></div>'
+  ).join('');
+
+  // Reset customize fields
+  document.getElementById('customize-fields').innerHTML = '';
+
+  // Show/update preview
+  document.getElementById('preview-placeholder').style.display = 'none';
+  document.getElementById('angle-switcher').classList.remove('visible');
+
+  if (name === 'Headwear') {
+    // Show the hat preview immediately (default front view)
+    document.getElementById('product-illustration').style.display = 'none';
+    document.getElementById('preview-placeholder').style.display = 'none';
+    document.getElementById('angle-switcher').classList.add('visible');
+    currentAngle = 'front';
+    document.querySelectorAll('.angle-btn').forEach(function(b){ b.classList.remove('active'); });
+    const firstAngleBtn = document.querySelector('#angle-switcher .angle-btn');
+    if (firstAngleBtn) firstAngleBtn.classList.add('active');
+    showHatView('front');
+    // Reset hat details until a style is chosen
+    updateHatDetails(true, false);
+  } else {
+    document.getElementById('product-illustration').style.display = 'flex';
+    // Hide any hat SVG views when switching away from Headwear
+    document.querySelectorAll('.hat-view').forEach(function(v){ v.classList.remove('active'); v.style.display='none'; });
+    updateIllustration();
   }
 
-  // ── STEP 1: SELECT PRODUCT ──
-  function selectProduct(el, name, icon) {
-    document.querySelectorAll('.product-card').forEach(c => c.classList.remove('selected'));
-    el.classList.add('selected');
-    state.product = name;
-    state.style = null;
-    document.getElementById('step1-selection').textContent = icon + ' ' + name;
-    document.getElementById('step2-selection').textContent = '';
+  updateTag('tag-product', name, true);
+  updateTag('tag-style', 'No style selected', false);
 
-    // Populate styles
-    const styles = getProductStyles(name);
-    const min = getMinimum(name);
-    const minNote = document.getElementById('minimum-note');
-    minNote.textContent = 'Minimum order: ' + min + ' units for this product';
-    minNote.style.display = 'block';
+  // Advance to step 2
+  setTimeout(() => {
+    document.getElementById('step1').classList.remove('active');
+    document.getElementById('step1').classList.add('completed');
+    document.getElementById('step2').classList.remove('locked');
+    document.getElementById('step2').classList.add('active');
+    document.getElementById('step3').classList.add('locked');
+    document.getElementById('step3').classList.remove('active','completed');
+  }, 300);
+}
 
-    document.getElementById('style-list').innerHTML = styles.map(s =>
-      '<div class="style-option" onclick="selectStyle(this,\'' + s.name + '\',' + (s.strap || false) + ',' + (s.rope || false) + ')">'
-      + '<div><div class="style-name">' + s.name + '</div><div class="style-desc">' + s.desc + '</div></div>'
-      + '<div class="style-check">✓</div></div>'
+// ── STEP 2: SELECT STYLE ──
+function selectStyle(el, name, hasStrap, hasRope) {
+  document.querySelectorAll('.style-option').forEach(o => o.classList.remove('selected'));
+  el.classList.add('selected');
+  state.style = name;
+  state.hasRope = hasRope;
+  document.getElementById('step2-selection').textContent = name;
+
+  // Show hat for headwear
+  if (state.product === 'Headwear') {
+    document.getElementById('preview-placeholder').style.display = 'none';
+    document.getElementById('angle-switcher').classList.add('visible');
+    currentAngle = 'front';
+    document.querySelectorAll('.angle-btn').forEach(function(b){ b.classList.remove('active'); });
+    document.querySelector('.angle-btn').classList.add('active');
+    showHatView('front');
+
+    // If this is the rope hat, initialize rope color (defaults to current brim color)
+    if (hasRope && name === 'Richardson 258') {
+      state.ropeColor = state.ropeColor || state.brimColor;
+      state.ropeName = state.ropeName || state.brimName;
+      updateTag('tag-rope', 'Rope: ' + (state.ropeName || '—'), true);
+    } else {
+      updateTag('tag-rope', 'Rope: —', false);
+    }
+
+    updateHatDetails(hasStrap, hasRope);
+  }
+
+  updateTag('tag-style', name, true);
+
+  setTimeout(() => {
+    document.getElementById('step2').classList.remove('active');
+    document.getElementById('step2').classList.add('completed');
+    document.getElementById('step3').classList.remove('locked');
+    document.getElementById('step3').classList.add('active');
+    buildCustomizeFields();
+  }, 300);
+}
+
+// ── BUILD CUSTOMIZE FIELDS ──
+function buildCustomizeFields() {
+  const product = state.product;
+  const lbls = LABEL_MAP[product] || LABEL_MAP.Headwear;
+
+  const swatchesFor = (part, selectedHex) =>
+    ALL_COLORS.map(c =>
+      '<div class="swatch ' + (c.hex === selectedHex ? 'active' : '') + '" '
+      + 'style="background:' + c.hex + ';' + (c.border ? 'border:1px solid #aaa;' : '') + '" '
+      + 'onclick="setColor(this,\'' + part + '\',\'' + c.hex + '\')" '
+      + 'title="' + c.name + '"></div>'
     ).join('');
 
-    // Reset customize fields
-    document.getElementById('customize-fields').innerHTML = '';
+  const patchOpts = getActivePatches().map(function(p) {
+    var type = p.id || p.type;
+    var icon = p.icon || '📋';
+    var label = p.name || type;
+    return '<div class="patch-option ' + (state.patch === type ? 'selected' : '') + '" onclick="setPatch(this,\'' + type + '\')">'
+      + '<span class="patch-icon">' + icon + '</span>' + label + '</div>';
+  }).join('');
 
-    // Show/update preview
-    document.getElementById('preview-placeholder').style.display = 'none';
-    document.getElementById('angle-switcher').classList.remove('visible');
+  document.getElementById('customize-fields').innerHTML =
+    '<div class="customize-section"><div class="customize-label">' + lbls.crown + '</div>'
+    + '<div class="color-swatches">' + swatchesFor('crown', state.crownColor) + '</div></div>'
+    + '<div class="customize-section"><div class="customize-label">' + lbls.brim + '</div>'
+    + '<div class="color-swatches">' + swatchesFor('brim', state.brimColor) + '</div></div>'
+    + '<div class="customize-section"><div class="customize-label">' + lbls.stitch + '</div>'
+    + '<div class="color-swatches">' + swatchesFor('stitch', state.stitchColor) + '</div></div>'
+    + ((state.product === 'Headwear' && state.style === 'Richardson 258')
+        ? '<div class="customize-section"><div class="customize-label">Rope</div>'
+          + '<div class="color-swatches">' + swatchesFor('rope', state.ropeColor) + '</div></div>'
+        : '')
+    + '<div class="customize-section"><div class="customize-label">Logo / Patch</div>'
+    + '<div class="patch-options">' + patchOpts + '</div></div>'
+    + '<div class="customize-section" id="patch-color-section"'
+    + (state.patch === 'none' ? ' style="display:none"' : '') + '>'
+    + '<div class="customize-label">Patch Color</div>'
+    + '<div class="color-swatches">' + swatchesFor('patch', state.patchColor) + '</div></div>';
+}
 
-    if (name === 'Headwear') {
-      // Show the hat preview immediately (default front view)
-      document.getElementById('product-illustration').style.display = 'none';
-      document.getElementById('preview-placeholder').style.display = 'none';
-      document.getElementById('angle-switcher').classList.add('visible');
-      currentAngle = 'front';
-      document.querySelectorAll('.angle-btn').forEach(function(b){ b.classList.remove('active'); });
-      const firstAngleBtn = document.querySelector('#angle-switcher .angle-btn');
-      if (firstAngleBtn) firstAngleBtn.classList.add('active');
-      showHatView('front');
-      // Reset hat details until a style is chosen
-      updateHatDetails(true, false);
-    } else {
-      document.getElementById('product-illustration').style.display = 'flex';
-      // Hide any hat SVG views when switching away from Headwear
-      document.querySelectorAll('.hat-view').forEach(function(v){ v.classList.remove('active'); v.style.display='none'; });
-      updateIllustration();
-    }
+// ── SET COLOR ──
+function setColor(el, part, color) {
+  el.parentElement.querySelectorAll('.swatch').forEach(s => s.classList.remove('active'));
+  el.classList.add('active');
+  const name = el.getAttribute('title');
 
-    updateTag('tag-product', name, true);
-    updateTag('tag-style', 'No style selected', false);
-
-    // Advance to step 2
-    setTimeout(() => {
-      document.getElementById('step1').classList.remove('active');
-      document.getElementById('step1').classList.add('completed');
-      document.getElementById('step2').classList.remove('locked');
-      document.getElementById('step2').classList.add('active');
-      document.getElementById('step3').classList.add('locked');
-      document.getElementById('step3').classList.remove('active','completed');
-    }, 300);
+  function setAttr(ids, attr, val) {
+    ids.forEach(function(id){ var el=document.getElementById(id); if(el) el.setAttribute(attr,val); });
   }
-
-  // ── STEP 2: SELECT STYLE ──
-  function selectStyle(el, name, hasStrap, hasRope) {
-    document.querySelectorAll('.style-option').forEach(o => o.classList.remove('selected'));
-    el.classList.add('selected');
-    state.style = name;
-    state.hasRope = hasRope;
-    document.getElementById('step2-selection').textContent = name;
-
-    // Show hat for headwear
-    if (state.product === 'Headwear') {
-      document.getElementById('preview-placeholder').style.display = 'none';
-      document.getElementById('angle-switcher').classList.add('visible');
-      currentAngle = 'front';
-      document.querySelectorAll('.angle-btn').forEach(function(b){ b.classList.remove('active'); });
-      document.querySelector('.angle-btn').classList.add('active');
-      showHatView('front');
-
-      // If this is the rope hat, initialize rope color (defaults to current brim color)
-      if (hasRope && name === 'Richardson 258') {
-        state.ropeColor = state.ropeColor || state.brimColor;
-        state.ropeName = state.ropeName || state.brimName;
-        updateTag('tag-rope', 'Rope: ' + (state.ropeName || '—'), true);
-      } else {
-        updateTag('tag-rope', 'Rope: —', false);
-      }
-
-      updateHatDetails(hasStrap, hasRope);
-    }
-
-    updateTag('tag-style', name, true);
-
-    setTimeout(() => {
-      document.getElementById('step2').classList.remove('active');
-      document.getElementById('step2').classList.add('completed');
-      document.getElementById('step3').classList.remove('locked');
-      document.getElementById('step3').classList.add('active');
-      buildCustomizeFields();
-    }, 300);
+  if (part === 'crown') {
+    state.crownColor = color; state.crownName = name;
+    setAttr(['f-crown','s-crown','b-crown'], 'fill', color);
+    setAttr(['f-button','s-button'], 'fill', shadeColor(color, -30));
+    updateTag('tag-crown', 'Crown: ' + name, true);
+  } else if (part === 'brim') {
+    state.brimColor = color; state.brimName = name;
+    setAttr(['f-brim','s-brim'], 'fill', color);
+    setAttr(['f-brim-under','s-brim-under'], 'fill', shadeColor(color, -20));
+    // Rope color is configurable for Richardson 258; we don't auto-sync it here.
+  } else if (part === 'rope') {
+    state.ropeColor = color; state.ropeName = name;
+    ['f-rope','s-rope','b-rope'].forEach(function(id){
+      var g = document.getElementById(id);
+      if(g){ var paths = g.querySelectorAll('path'); if(paths[0]) paths[0].setAttribute('stroke', color); }
+    });
+    updateTag('tag-rope', 'Rope: ' + name, true);
+  } else if (part === 'stitch') {
+    state.stitchColor = color; state.stitchName = name;
+    setAttr(['f-eyelet1','f-eyelet2','s-eyelet','b-eyelet1','b-eyelet2'], 'stroke', color);
+  } else if (part === 'patch') {
+    state.patchColor = color;
+    setAttr(['f-patch-bg'], 'fill', color);
+    var pt = document.getElementById('f-patch-text');
+    if(pt) pt.setAttribute('fill', isLight(color) ? '#1a1a1a' : '#c9a84c');
   }
+  updateIllustration();
+}
 
-  // ── BUILD CUSTOMIZE FIELDS ──
-  function buildCustomizeFields() {
-    const product = state.product;
-    const lbls = LABEL_MAP[product] || LABEL_MAP.Headwear;
+// ── SET PATCH ──
+function setPatch(el, type) {
+  document.querySelectorAll('.patch-option').forEach(o => o.classList.remove('selected'));
+  el.classList.add('selected');
+  state.patch = type;
 
-    const swatchesFor = (part, selectedHex) =>
-      ALL_COLORS.map(c =>
-        '<div class="swatch ' + (c.hex === selectedHex ? 'active' : '') + '" '
-        + 'style="background:' + c.hex + ';' + (c.border ? 'border:1px solid #aaa;' : '') + '" '
-        + 'onclick="setColor(this,\'' + part + '\',\'' + c.hex + '\')" '
-        + 'title="' + c.name + '"></div>'
-      ).join('');
+  const svgPatch = document.getElementById('f-patch');
+  const pcs = document.getElementById('patch-color-section');
+  const textMap = { logo:['YOUR LOGO','EST. 2025'], text:['APPO GC','GOLF CLUB'], flag:['FLAG','PATCH'] };
 
-    const patchOpts = getActivePatches().map(function(p) {
-      var type = p.id || p.type;
-      var icon = p.icon || '📋';
-      var label = p.name || type;
-      return '<div class="patch-option ' + (state.patch === type ? 'selected' : '') + '" onclick="setPatch(this,\'' + type + '\')">'
-        + '<span class="patch-icon">' + icon + '</span>' + label + '</div>';
-    }).join('');
-
-    document.getElementById('customize-fields').innerHTML =
-      '<div class="customize-section"><div class="customize-label">' + lbls.crown + '</div>'
-      + '<div class="color-swatches">' + swatchesFor('crown', state.crownColor) + '</div></div>'
-      + '<div class="customize-section"><div class="customize-label">' + lbls.brim + '</div>'
-      + '<div class="color-swatches">' + swatchesFor('brim', state.brimColor) + '</div></div>'
-      + '<div class="customize-section"><div class="customize-label">' + lbls.stitch + '</div>'
-      + '<div class="color-swatches">' + swatchesFor('stitch', state.stitchColor) + '</div></div>'
-      + ((state.product === 'Headwear' && state.style === 'Richardson 258')
-          ? '<div class="customize-section"><div class="customize-label">Rope</div>'
-            + '<div class="color-swatches">' + swatchesFor('rope', state.ropeColor) + '</div></div>'
-          : '')
-      + '<div class="customize-section"><div class="customize-label">Logo / Patch</div>'
-      + '<div class="patch-options">' + patchOpts + '</div></div>'
-      + '<div class="customize-section" id="patch-color-section"'
-      + (state.patch === 'none' ? ' style="display:none"' : '') + '>'
-      + '<div class="customize-label">Patch Color</div>'
-      + '<div class="color-swatches">' + swatchesFor('patch', state.patchColor) + '</div></div>';
+  if (type === 'none') {
+    if (svgPatch) { svgPatch.style.opacity = '0'; svgPatch.style.pointerEvents = 'none'; }
+    if (pcs) pcs.style.display = 'none';
+  } else {
+    if (svgPatch) { svgPatch.style.opacity = '1'; svgPatch.style.pointerEvents = ''; }
+    if (pcs) pcs.style.display = '';
+    const lbl = textMap[type];
+    const pt = document.getElementById('f-patch-text');
+    const ps = document.getElementById('f-patch-sub');
+    if (pt && lbl) pt.textContent = lbl[0];
+    if (ps && lbl) ps.textContent = lbl[1];
   }
+  updateTag('tag-patch', 'Patch: ' + ({logo:'Custom Logo',text:'Text',flag:'Flag',none:'None'}[type] || type), true);
+  updateIllustration();
+}
 
-  // ── SET COLOR ──
-  function setColor(el, part, color) {
-    el.parentElement.querySelectorAll('.swatch').forEach(s => s.classList.remove('active'));
+// ── ANGLE SWITCHER (headwear) ──
+let currentAngle = 'front';
+
+function showHatView(angle) {
+  // Ensure only the selected hat SVG is visible (works even if any inline styles exist)
+  document.querySelectorAll('.hat-view').forEach(function(v){
+    v.classList.remove('active');
+    v.style.display = 'none';
+  });
+  const el = document.getElementById('hat-' + angle);
+  if (el) {
     el.classList.add('active');
-    const name = el.getAttribute('title');
-
-    function setAttr(ids, attr, val) {
-      ids.forEach(function(id){ var el=document.getElementById(id); if(el) el.setAttribute(attr,val); });
-    }
-    if (part === 'crown') {
-      state.crownColor = color; state.crownName = name;
-      setAttr(['f-crown','s-crown','b-crown'], 'fill', color);
-      setAttr(['f-button','s-button'], 'fill', shadeColor(color, -30));
-      updateTag('tag-crown', 'Crown: ' + name, true);
-    } else if (part === 'brim') {
-      state.brimColor = color; state.brimName = name;
-      setAttr(['f-brim','s-brim'], 'fill', color);
-      setAttr(['f-brim-under','s-brim-under'], 'fill', shadeColor(color, -20));
-      // Rope color is configurable for Richardson 258; we don't auto-sync it here.
-    } else if (part === 'rope') {
-      state.ropeColor = color; state.ropeName = name;
-      ['f-rope','s-rope','b-rope'].forEach(function(id){
-        var g = document.getElementById(id);
-        if(g){ var paths = g.querySelectorAll('path'); if(paths[0]) paths[0].setAttribute('stroke', color); }
-      });
-      updateTag('tag-rope', 'Rope: ' + name, true);
-    } else if (part === 'stitch') {
-      state.stitchColor = color; state.stitchName = name;
-      setAttr(['f-eyelet1','f-eyelet2','s-eyelet','b-eyelet1','b-eyelet2'], 'stroke', color);
-    } else if (part === 'patch') {
-      state.patchColor = color;
-      setAttr(['f-patch-bg'], 'fill', color);
-      var pt = document.getElementById('f-patch-text');
-      if(pt) pt.setAttribute('fill', isLight(color) ? '#1a1a1a' : '#c9a84c');
-    }
-    updateIllustration();
+    el.style.display = 'block';
   }
+}
 
-  // ── SET PATCH ──
-  function setPatch(el, type) {
-    document.querySelectorAll('.patch-option').forEach(o => o.classList.remove('selected'));
-    el.classList.add('selected');
-    state.patch = type;
+function setAngle(angle, btn) {
+  currentAngle = angle;
+  document.querySelectorAll('.angle-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  showHatView(angle);
+}
 
-    const svgPatch = document.getElementById('f-patch');
-    const pcs = document.getElementById('patch-color-section');
-    const textMap = { logo:['YOUR LOGO','EST. 2025'], text:['APPO GC','GOLF CLUB'], flag:['FLAG','PATCH'] };
-
-    if (type === 'none') {
-      if (svgPatch) { svgPatch.style.opacity = '0'; svgPatch.style.pointerEvents = 'none'; }
-      if (pcs) pcs.style.display = 'none';
-    } else {
-      if (svgPatch) { svgPatch.style.opacity = '1'; svgPatch.style.pointerEvents = ''; }
-      if (pcs) pcs.style.display = '';
-      const lbl = textMap[type];
-      const pt = document.getElementById('f-patch-text');
-      const ps = document.getElementById('f-patch-sub');
-      if (pt && lbl) pt.textContent = lbl[0];
-      if (ps && lbl) ps.textContent = lbl[1];
-    }
-    updateTag('tag-patch', 'Patch: ' + ({logo:'Custom Logo',text:'Text',flag:'Flag',none:'None'}[type] || type), true);
-    updateIllustration();
-  }
-
-  // ── ANGLE SWITCHER (headwear) ──
-  let currentAngle = 'front';
-
-  function showHatView(angle) {
-    // Ensure only the selected hat SVG is visible (works even if any inline styles exist)
-    document.querySelectorAll('.hat-view').forEach(function(v){
-      v.classList.remove('active');
-      v.style.display = 'none';
-    });
-    const el = document.getElementById('hat-' + angle);
-    if (el) {
-      el.classList.add('active');
-      el.style.display = 'block';
-    }
-  }
-
-  function setAngle(angle, btn) {
-    currentAngle = angle;
-    document.querySelectorAll('.angle-btn').forEach(b => b.classList.remove('active'));
-    btn.classList.add('active');
-    showHatView(angle);
-  }
-
-  function updateHatDetails(hasStrap, hasRope) {
-    // Straps
-    ['f-strap','s-strap','b-strap'].forEach(function(id) {
-      const el = document.getElementById(id);
-      if (el) el.style.display = hasStrap ? 'block' : 'none';
-    });
-    // Rope
-    ['f-rope','s-rope','b-rope'].forEach(function(id) {
-      const el = document.getElementById(id);
-      if (el) el.style.display = hasRope ? 'block' : 'none';
-    });
-    // Apply selected rope color (if applicable)
-    if (hasRope && state.ropeColor) {
-      ['f-rope','s-rope','b-rope'].forEach(function(id){
-        var g = document.getElementById(id);
-        if(g){ var paths = g.querySelectorAll('path'); if(paths[0]) paths[0].setAttribute('stroke', state.ropeColor); }
-      });
-    }
-  }
-
-  // ── PRODUCT ILLUSTRATION (non-headwear) ──
-  function updateIllustration() {
-    const el = document.getElementById('product-illustration');
-    if (!el || el.style.display === 'none') return;
-    if (state.product && state.product !== 'Headwear') {
-      el.innerHTML = buildSVG(state.product);
-    }
-  }
-
-  function buildSVG(product) {
-    const c = state.crownColor || '#1a3c2b';
-    const b = state.brimColor  || '#c9a84c';
-    const s = state.stitchColor || '#c9a84c';
-    const p = state.patchColor || '#1a3c2b';
-    const dark = shadeColor(c, -40);
-    const mid  = shadeColor(c, -20);
-    const bDark = shadeColor(b, -30);
-    const bDark2 = shadeColor(b, -50);
-    const pOn = state.patch !== 'none';
-    const pt = isLight(p) ? '#111111' : '#c9a84c';
-    const ps = isLight(p) ? '#333333' : 'rgba(201,168,76,0.6)';
-    const pLabels = { logo:'YOUR LOGO', text:'APPO GC', flag:'FLAG' };
-    const pSubs   = { logo:'EST. 2025', text:'GOLF CLUB', flag:'PATCH' };
-    const pl = pLabels[state.patch] || 'LOGO';
-    const psl = pSubs[state.patch] || '';
-
-    if (product === 'Polos') {
-      const patch = pOn
-        ? '<rect x="90" y="145" width="65" height="45" rx="4" fill="'+p+'"/>'
-          + '<text x="122" y="168" text-anchor="middle" fill="'+pt+'" font-size="8" font-family="Arial" font-weight="bold" letter-spacing="1">'+pl+'</text>'
-          + '<text x="122" y="182" text-anchor="middle" fill="'+ps+'" font-size="6" font-family="Arial">'+psl+'</text>' : '';
-      return '<svg viewBox="0 0 300 340" fill="none" style="width:100%;height:100%;filter:drop-shadow(0 12px 28px rgba(0,0,0,0.12))">'
-        + '<path d="M75 110 L50 90 L20 130 L45 145 L45 300 L255 300 L255 145 L280 130 L250 90 L225 110 Q200 85 150 85 Q100 85 75 110Z" fill="'+c+'"/>'
-        + '<path d="M110 88 Q150 105 190 88 L180 65 Q165 58 150 56 Q135 58 120 65Z" fill="'+mid+'"/>'
-        + '<path d="M110 88 Q150 105 190 88" stroke="'+b+'" stroke-width="2.5" fill="none"/>'
-        + '<path d="M75 110 L50 90 L20 130 L45 145 L60 130 Z" fill="'+dark+'"/>'
-        + '<path d="M225 110 L250 90 L280 130 L255 145 L240 130 Z" fill="'+dark+'"/>'
-        + '<path d="M20 130 L45 145" stroke="'+b+'" stroke-width="3"/>'
-        + '<path d="M280 130 L255 145" stroke="'+b+'" stroke-width="3"/>'
-        + '<line x1="150" y1="90" x2="150" y2="190" stroke="'+mid+'" stroke-width="2"/>'
-        + '<circle cx="150" cy="105" r="3" fill="'+b+'"/>'
-        + '<circle cx="150" cy="120" r="3" fill="'+b+'"/>'
-        + '<circle cx="150" cy="135" r="3" fill="'+b+'"/>'
-        + patch
-        + '<line x1="45" y1="295" x2="255" y2="295" stroke="'+mid+'" stroke-width="2"/>'
-        + '</svg>';
-    }
-
-    if (product === 'Quarter Zips') {
-      const patch = pOn
-        ? '<rect x="88" y="158" width="65" height="45" rx="4" fill="'+p+'"/>'
-          + '<text x="120" y="181" text-anchor="middle" fill="'+pt+'" font-size="8" font-family="Arial" font-weight="bold" letter-spacing="1">'+pl+'</text>'
-          + '<text x="120" y="195" text-anchor="middle" fill="'+ps+'" font-size="6" font-family="Arial">'+psl+'</text>' : '';
-      return '<svg viewBox="0 0 300 360" fill="none" style="width:100%;height:100%;filter:drop-shadow(0 12px 28px rgba(0,0,0,0.12))">'
-        + '<path d="M70 120 L45 95 L15 140 L42 155 L42 310 L258 310 L258 155 L285 140 L255 95 L230 120 Q200 92 150 90 Q100 92 70 120Z" fill="'+c+'"/>'
-        + '<path d="M70 120 L45 95 L15 140 L42 155 L58 138 Z" fill="'+dark+'"/>'
-        + '<path d="M230 120 L255 95 L285 140 L258 155 L242 138 Z" fill="'+dark+'"/>'
-        + '<rect x="15" y="138" width="27" height="10" rx="2" fill="'+b+'"/>'
-        + '<rect x="258" y="138" width="27" height="10" rx="2" fill="'+b+'"/>'
-        + '<path d="M108 92 Q150 108 192 92 L185 68 Q168 60 150 58 Q132 60 115 68Z" fill="'+mid+'"/>'
-        + '<path d="M108 92 Q150 108 192 92" stroke="'+b+'" stroke-width="2.5" fill="none"/>'
-        + '<rect x="146" y="90" width="8" height="90" rx="2" fill="'+mid+'"/>'
-        + '<rect x="143" y="155" width="14" height="8" rx="2" fill="'+b+'"/>'
-        + '<circle cx="150" cy="159" r="2" fill="'+dark+'"/>'
-        + patch
-        + '<rect x="42" y="302" width="216" height="10" rx="3" fill="'+mid+'"/>'
-        + '</svg>';
-    }
-
-    if (product === 'Belts') {
-      const patch = pOn
-        ? '<rect x="275" y="78" width="80" height="44" rx="4" fill="'+p+'" opacity="0.9"/>'
-          + '<text x="315" y="101" text-anchor="middle" fill="'+pt+'" font-size="9" font-family="Arial" font-weight="bold" letter-spacing="1">'+pl+'</text>'
-          + '<text x="315" y="113" text-anchor="middle" fill="'+ps+'" font-size="6" font-family="Arial">'+psl+'</text>' : '';
-      return '<svg viewBox="0 0 420 200" fill="none" style="width:100%;height:100%;filter:drop-shadow(0 12px 28px rgba(0,0,0,0.12))">'
-        + '<rect x="20" y="70" width="380" height="60" rx="6" fill="'+c+'"/>'
-        + '<line x1="20" y1="78" x2="400" y2="78" stroke="'+s+'" stroke-width="1" stroke-dasharray="8,4" opacity="0.5"/>'
-        + '<line x1="20" y1="122" x2="400" y2="122" stroke="'+s+'" stroke-width="1" stroke-dasharray="8,4" opacity="0.5"/>'
-        + '<rect x="20" y="62" width="78" height="76" rx="6" fill="'+b+'"/>'
-        + '<rect x="26" y="68" width="66" height="64" rx="4" fill="'+bDark+'"/>'
-        + '<rect x="55" y="65" width="6" height="70" rx="3" fill="'+b+'"/>'
-        + '<path d="M58 68 L58 120 L64 115 L64 73 Z" fill="'+bDark2+'"/>'
-        + '<circle cx="135" cy="100" r="5" fill="'+dark+'"/>'
-        + '<circle cx="160" cy="100" r="5" fill="'+dark+'"/>'
-        + '<circle cx="185" cy="100" r="5" fill="'+dark+'"/>'
-        + '<circle cx="210" cy="100" r="5" fill="'+dark+'"/>'
-        + '<circle cx="235" cy="100" r="5" fill="'+dark+'"/>'
-        + patch
-        + '</svg>';
-    }
-    return '';
-  }
-
-  // ── ORDER CART ──
-  let orderItems = [];
-
-  function showReviewModal() {
-    if (!state.product) { showToast('Please select a product first!'); return; }
-    if (!state.style && state.product === 'Headwear') { showToast('Please choose a hat style first!'); return; }
-    if (!state.style) state.style = state.product;
-
-    const lbls = LABEL_MAP[state.product] || LABEL_MAP.Headwear;
-    const min = getMinimum(state.product);
-    const patchLabels = { logo:'Custom Logo', text:'Text Only', flag:'Flag Patch', none:'No Logo' };
-
-    document.getElementById('sum-product').textContent = state.product;
-    document.getElementById('sum-style').textContent = state.style;
-    document.getElementById('sum-crown-label').textContent = lbls.crown;
-    document.getElementById('sum-crown').textContent = state.crownName || 'Forest Green';
-    document.getElementById('sum-crown-dot').style.background = state.crownColor;
-    document.getElementById('sum-brim-label').textContent = lbls.brim;
-    document.getElementById('sum-brim').textContent = state.brimName || 'Gold';
-    document.getElementById('sum-brim-dot').style.background = state.brimColor;
-    document.getElementById('sum-patch').textContent = patchLabels[state.patch] || state.patch;
-    document.getElementById('sum-minimum').textContent = min + ' unit minimum';
-    document.getElementById('modal-overlay').classList.add('open');
-  }
-
-  function closeModal() {
-    document.getElementById('modal-overlay').classList.remove('open');
-  }
-
-  function confirmAddToOrder() {
-    closeModal();
-    const min = getMinimum(state.product);
-    orderItems.push({
-      id: Date.now(),
-      product:   state.product,
-      style:     state.style || state.product,
-      crownName: state.crownName || 'Forest Green',
-      crownHex:  state.crownColor,
-      brimName:  state.brimName || 'Gold',
-      brimHex:   state.brimColor,
-      stitchName:state.stitchName || 'Gold',
-      stitchHex: state.stitchColor,
-      patch:     state.patch,
-      patchHex:  state.patchColor,
-      qty: min,
-    });
-    renderCart();
-    updateCartBadge();
-    openCart();
-    showToast('Added to order!');
-  }
-
-  function removeItem(id) {
-    orderItems = orderItems.filter(i => i.id !== id);
-    renderCart();
-    updateCartBadge();
-  }
-
-  function updateQty(id, val) {
-    const item = orderItems.find(i => i.id === id);
-    if (item) item.qty = parseInt(val) || 0;
-  }
-
-  function clearOrder() {
-    orderItems = [];
-    renderCart();
-    updateCartBadge();
-    showToast('Order cleared');
-  }
-
-  function openCart() {
-    document.getElementById('cart-drawer').classList.add('open');
-    document.getElementById('drawer-overlay').classList.add('open');
-  }
-
-  function closeCart() {
-    document.getElementById('cart-drawer').classList.remove('open');
-    document.getElementById('drawer-overlay').classList.remove('open');
-  }
-
-  function updateCartBadge() {
-    const badge = document.getElementById('cart-badge');
-    document.getElementById('cart-count').textContent = orderItems.length;
-    badge.style.display = orderItems.length > 0 ? 'flex' : 'none';
-  }
-
-  function renderCart() {
-    const el = document.getElementById('cart-items');
-    if (!orderItems.length) {
-      el.innerHTML = '<div class="cart-empty">No items yet.<br>Configure a product and tap<br>"Add to Order" to get started.</div>';
-      return;
-    }
-    const patchLabels = { logo:'Custom Logo', text:'Text Only', flag:'Flag Patch', none:'No Logo' };
-    const lblMap = LABEL_MAP;
-    el.innerHTML = orderItems.map(function(item) {
-      const min = getMinimum(item.product);
-      const lbls = lblMap[item.product] || lblMap.Headwear;
-      return '<div class="cart-item">'
-        + '<div class="cart-item-header">'
-        + '<div><div class="cart-item-name">' + item.style + '</div>'
-        + '<div class="cart-item-product">' + item.product + '</div></div>'
-        + '<button class="cart-item-remove" onclick="removeItem(' + item.id + ')">✕ Remove</button>'
-        + '</div>'
-        + '<div class="cart-item-specs">'
-        + '<div class="cart-spec-tag"><div class="cart-spec-dot" style="background:' + item.crownHex + '"></div>' + lbls.crown + ': ' + item.crownName + '</div>'
-        + '<div class="cart-spec-tag"><div class="cart-spec-dot" style="background:' + item.brimHex + '"></div>' + lbls.brim + ': ' + item.brimName + '</div>'
-        + '<div class="cart-spec-tag">Logo: ' + (patchLabels[item.patch] || item.patch) + '</div>'
-        + '</div>'
-        + '<div class="cart-item-qty">'
-        + '<label>QTY</label>'
-        + '<input class="qty-input" type="number" value="' + item.qty + '" min="' + min + '" onchange="updateQty(' + item.id + ',this.value)">'
-        + '<div class="cart-minimum">Min. ' + min + ' units</div>'
-        + '</div></div>';
-    }).join('');
-  }
-
-  function submitFullOrder() {
-    if (!orderItems.length) { showToast('Your order is empty!'); return; }
-    const patchLabels = { logo:'Custom Logo', text:'Text Only', flag:'Flag Patch', none:'No Logo' };
-    const win = window.open('', '_blank');
-    const itemsHTML = orderItems.map(function(item, i) {
-      const min = getMinimum(item.product);
-      const lbls = LABEL_MAP[item.product] || LABEL_MAP.Headwear;
-      return '<div class="item">'
-        + '<div class="item-header"><div class="item-name">' + item.style + '</div>'
-        + '<div class="item-num">Item ' + (i+1) + ' of ' + orderItems.length + '</div></div>'
-        + '<div class="specs">'
-        + '<div class="spec"><div class="dot" style="background:' + item.crownHex + '"></div><span><span class="lbl">' + lbls.crown + ': </span>' + item.crownName + '</span></div>'
-        + '<div class="spec"><div class="dot" style="background:' + item.brimHex + '"></div><span><span class="lbl">' + lbls.brim + ': </span>' + item.brimName + '</span></div>'
-        + '<div class="spec"><div class="dot" style="background:' + item.stitchHex + '"></div><span><span class="lbl">' + lbls.stitch + ': </span>' + item.stitchName + '</span></div>'
-        + '<div class="spec"><span><span class="lbl">Logo: </span>' + (patchLabels[item.patch]||item.patch) + '</span></div>'
-        + '</div>'
-        + '<div class="qty-row"><span class="lbl">Quantity: </span><span class="qty">' + item.qty + ' units</span>'
-        + '<span class="min">Min. ' + min + ' units</span></div>'
-        + '</div>';
-    }).join('');
-
-    win.document.write('<!DOCTYPE html><html><head><title>ProKit Studio Order</title>'
-      + '<style>*{margin:0;padding:0;box-sizing:border-box}body{font-family:Arial,sans-serif;background:#f8f6f1;color:#1a1a1a;padding:3rem}'
-      + '.header{border-bottom:3px solid #1a3c2b;padding-bottom:1.5rem;margin-bottom:2rem;display:flex;justify-content:space-between;align-items:flex-end}'
-      + '.logo{font-size:2rem;font-weight:900;letter-spacing:0.05em;color:#1a3c2b}.logo span{color:#c9a84c}'
-      + '.date{font-size:0.8rem;color:#888}.title{font-size:1rem;font-weight:700;margin-bottom:1.5rem;color:#1a3c2b;text-transform:uppercase;letter-spacing:0.05em}'
-      + '.item{background:white;border:1px solid #e0ddd8;border-radius:6px;padding:1.5rem;margin-bottom:1rem}'
-      + '.item-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:1rem}'
-      + '.item-name{font-size:1.1rem;font-weight:700}.item-num{font-size:0.72rem;background:#1a3c2b;color:white;padding:0.2rem 0.6rem;border-radius:12px}'
-      + '.specs{display:grid;grid-template-columns:1fr 1fr;gap:0.5rem;margin-bottom:1rem}'
-      + '.spec{padding:0.5rem 0.8rem;background:#f8f6f1;border-radius:3px;font-size:0.82rem;display:flex;gap:0.5rem;align-items:center}'
-      + '.dot{width:12px;height:12px;border-radius:50%;border:1px solid rgba(0,0,0,0.1);flex-shrink:0}.lbl{color:#888;font-size:0.72rem}'
-      + '.qty-row{display:flex;align-items:center;gap:0.8rem;padding-top:0.8rem;border-top:1px solid #e0ddd8}'
-      + '.qty{font-weight:700;color:#1a3c2b}.min{font-size:0.72rem;color:#c9a84c;margin-left:auto}'
-      + '.footer{margin-top:2rem;padding-top:1.5rem;border-top:2px solid #1a3c2b;display:flex;justify-content:space-between;font-size:0.8rem;color:#888}'
-      + '.total{font-weight:700;color:#1a3c2b}@media print{body{padding:1.5rem}}</style></head><body>'
-      + '<div class="header"><div class="logo">ProKit<span>Studio</span></div>'
-      + '<div class="date">' + new Date().toLocaleDateString('en-US',{year:'numeric',month:'long',day:'numeric'}) + '</div></div>'
-      + '<div class="title">Custom Order Summary</div>'
-      + itemsHTML
-      + '<div class="footer"><div>Submitted via ProKit Studio</div>'
-      + '<div class="total">' + orderItems.length + ' item' + (orderItems.length !== 1 ? 's' : '') + ' in order</div></div>'
-      + '<script>window.onload=function(){window.print();}<\/script>'
-      + '</body></html>');
-    win.document.close();
-  }
-
-  // ── HELPERS ──
-  function updateTag(id, text, lit) {
+function updateHatDetails(hasStrap, hasRope) {
+  // Straps
+  ['f-strap','s-strap','b-strap'].forEach(function(id) {
     const el = document.getElementById(id);
-    if (!el) return;
-    el.textContent = text;
-    el.classList.toggle('lit', lit);
+    if (el) el.style.display = hasStrap ? 'block' : 'none';
+  });
+  // Rope
+  ['f-rope','s-rope','b-rope'].forEach(function(id) {
+    const el = document.getElementById(id);
+    if (el) el.style.display = hasRope ? 'block' : 'none';
+  });
+  // Apply selected rope color (if applicable)
+  if (hasRope && state.ropeColor) {
+    ['f-rope','s-rope','b-rope'].forEach(function(id){
+      var g = document.getElementById(id);
+      if(g){ var paths = g.querySelectorAll('path'); if(paths[0]) paths[0].setAttribute('stroke', state.ropeColor); }
+    });
+  }
+}
+
+// ── PRODUCT ILLUSTRATION (non-headwear) ──
+function updateIllustration() {
+  const el = document.getElementById('product-illustration');
+  if (!el || el.style.display === 'none') return;
+  if (state.product && state.product !== 'Headwear') {
+    el.innerHTML = buildSVG(state.product);
+  }
+}
+
+function buildSVG(product) {
+  const c = state.crownColor || '#1a3c2b';
+  const b = state.brimColor  || '#c9a84c';
+  const s = state.stitchColor || '#c9a84c';
+  const p = state.patchColor || '#1a3c2b';
+  const dark = shadeColor(c, -40);
+  const mid  = shadeColor(c, -20);
+  const bDark = shadeColor(b, -30);
+  const bDark2 = shadeColor(b, -50);
+  const pOn = state.patch !== 'none';
+  const pt = isLight(p) ? '#111111' : '#c9a84c';
+  const ps = isLight(p) ? '#333333' : 'rgba(201,168,76,0.6)';
+  const pLabels = { logo:'YOUR LOGO', text:'APPO GC', flag:'FLAG' };
+  const pSubs   = { logo:'EST. 2025', text:'GOLF CLUB', flag:'PATCH' };
+  const pl = pLabels[state.patch] || 'LOGO';
+  const psl = pSubs[state.patch] || '';
+
+  if (product === 'Polos') {
+    const patch = pOn
+      ? '<rect x="90" y="145" width="65" height="45" rx="4" fill="'+p+'"/>'
+        + '<text x="122" y="168" text-anchor="middle" fill="'+pt+'" font-size="8" font-family="Arial" font-weight="bold" letter-spacing="1">'+pl+'</text>'
+        + '<text x="122" y="182" text-anchor="middle" fill="'+ps+'" font-size="6" font-family="Arial">'+psl+'</text>' : '';
+    return '<svg viewBox="0 0 300 340" fill="none" style="width:100%;height:100%;filter:drop-shadow(0 12px 28px rgba(0,0,0,0.12))">'
+      + '<path d="M75 110 L50 90 L20 130 L45 145 L45 300 L255 300 L255 145 L280 130 L250 90 L225 110 Q200 85 150 85 Q100 85 75 110Z" fill="'+c+'"/>'
+      + '<path d="M110 88 Q150 105 190 88 L180 65 Q165 58 150 56 Q135 58 120 65Z" fill="'+mid+'"/>'
+      + '<path d="M110 88 Q150 105 190 88" stroke="'+b+'" stroke-width="2.5" fill="none"/>'
+      + '<path d="M75 110 L50 90 L20 130 L45 145 L60 130 Z" fill="'+dark+'"/>'
+      + '<path d="M225 110 L250 90 L280 130 L255 145 L240 130 Z" fill="'+dark+'"/>'
+      + '<path d="M20 130 L45 145" stroke="'+b+'" stroke-width="3"/>'
+      + '<path d="M280 130 L255 145" stroke="'+b+'" stroke-width="3"/>'
+      + '<line x1="150" y1="90" x2="150" y2="190" stroke="'+mid+'" stroke-width="2"/>'
+      + '<circle cx="150" cy="105" r="3" fill="'+b+'"/>'
+      + '<circle cx="150" cy="120" r="3" fill="'+b+'"/>'
+      + '<circle cx="150" cy="135" r="3" fill="'+b+'"/>'
+      + patch
+      + '<line x1="45" y1="295" x2="255" y2="295" stroke="'+mid+'" stroke-width="2"/>'
+      + '</svg>';
   }
 
-  function shadeColor(hex, amt) {
-    hex = hex.replace('#','');
-    if (hex.length === 3) hex = hex.split('').map(function(x){return x+x;}).join('');
-    const n = parseInt(hex, 16);
-    const R = Math.min(255, Math.max(0, (n>>16) + amt));
-    const G = Math.min(255, Math.max(0, ((n>>8)&0xff) + amt));
-    const B = Math.min(255, Math.max(0, (n&0xff) + amt));
-    return '#' + (0x1000000 + R*0x10000 + G*0x100 + B).toString(16).slice(1);
+  if (product === 'Quarter Zips') {
+    const patch = pOn
+      ? '<rect x="88" y="158" width="65" height="45" rx="4" fill="'+p+'"/>'
+        + '<text x="120" y="181" text-anchor="middle" fill="'+pt+'" font-size="8" font-family="Arial" font-weight="bold" letter-spacing="1">'+pl+'</text>'
+        + '<text x="120" y="195" text-anchor="middle" fill="'+ps+'" font-size="6" font-family="Arial">'+psl+'</text>' : '';
+    return '<svg viewBox="0 0 300 360" fill="none" style="width:100%;height:100%;filter:drop-shadow(0 12px 28px rgba(0,0,0,0.12))">'
+      + '<path d="M70 120 L45 95 L15 140 L42 155 L42 310 L258 310 L258 155 L285 140 L255 95 L230 120 Q200 92 150 90 Q100 92 70 120Z" fill="'+c+'"/>'
+      + '<path d="M70 120 L45 95 L15 140 L42 155 L58 138 Z" fill="'+dark+'"/>'
+      + '<path d="M230 120 L255 95 L285 140 L258 155 L242 138 Z" fill="'+dark+'"/>'
+      + '<rect x="15" y="138" width="27" height="10" rx="2" fill="'+b+'"/>'
+      + '<rect x="258" y="138" width="27" height="10" rx="2" fill="'+b+'"/>'
+      + '<path d="M108 92 Q150 108 192 92 L185 68 Q168 60 150 58 Q132 60 115 68Z" fill="'+mid+'"/>'
+      + '<path d="M108 92 Q150 108 192 92" stroke="'+b+'" stroke-width="2.5" fill="none"/>'
+      + '<rect x="146" y="90" width="8" height="90" rx="2" fill="'+mid+'"/>'
+      + '<rect x="143" y="155" width="14" height="8" rx="2" fill="'+b+'"/>'
+      + '<circle cx="150" cy="159" r="2" fill="'+dark+'"/>'
+      + patch
+      + '<rect x="42" y="302" width="216" height="10" rx="3" fill="'+mid+'"/>'
+      + '</svg>';
   }
 
-  function isLight(hex) {
-    hex = hex.replace('#','');
-    if (hex.length === 3) hex = hex.split('').map(function(x){return x+x;}).join('');
-    const n = parseInt(hex, 16);
-    const r = (n>>16), g = ((n>>8)&0xff), b = (n&0xff);
-    return (r*299 + g*587 + b*114) / 1000 > 128;
+  if (product === 'Belts') {
+    const patch = pOn
+      ? '<rect x="275" y="78" width="80" height="44" rx="4" fill="'+p+'" opacity="0.9"/>'
+        + '<text x="315" y="101" text-anchor="middle" fill="'+pt+'" font-size="9" font-family="Arial" font-weight="bold" letter-spacing="1">'+pl+'</text>'
+        + '<text x="315" y="113" text-anchor="middle" fill="'+ps+'" font-size="6" font-family="Arial">'+psl+'</text>' : '';
+    return '<svg viewBox="0 0 420 200" fill="none" style="width:100%;height:100%;filter:drop-shadow(0 12px 28px rgba(0,0,0,0.12))">'
+      + '<rect x="20" y="70" width="380" height="60" rx="6" fill="'+c+'"/>'
+      + '<line x1="20" y1="78" x2="400" y2="78" stroke="'+s+'" stroke-width="1" stroke-dasharray="8,4" opacity="0.5"/>'
+      + '<line x1="20" y1="122" x2="400" y2="122" stroke="'+s+'" stroke-width="1" stroke-dasharray="8,4" opacity="0.5"/>'
+      + '<rect x="20" y="62" width="78" height="76" rx="6" fill="'+b+'"/>'
+      + '<rect x="26" y="68" width="66" height="64" rx="4" fill="'+bDark+'"/>'
+      + '<rect x="55" y="65" width="6" height="70" rx="3" fill="'+b+'"/>'
+      + '<path d="M58 68 L58 120 L64 115 L64 73 Z" fill="'+bDark2+'"/>'
+      + '<circle cx="135" cy="100" r="5" fill="'+dark+'"/>'
+      + '<circle cx="160" cy="100" r="5" fill="'+dark+'"/>'
+      + '<circle cx="185" cy="100" r="5" fill="'+dark+'"/>'
+      + '<circle cx="210" cy="100" r="5" fill="'+dark+'"/>'
+      + '<circle cx="235" cy="100" r="5" fill="'+dark+'"/>'
+      + patch
+      + '</svg>';
+  }
+  return '';
+}
+
+// ── ORDER CART ──
+let orderItems = [];
+
+function showReviewModal() {
+  if (!state.product) { showToast('Please select a product first!'); return; }
+  if (!state.style && state.product === 'Headwear') { showToast('Please choose a hat style first!'); return; }
+  if (!state.style) state.style = state.product;
+
+  const lbls = LABEL_MAP[state.product] || LABEL_MAP.Headwear;
+  const min = getMinimum(state.product);
+  const patchLabels = { logo:'Custom Logo', text:'Text Only', flag:'Flag Patch', none:'No Logo' };
+
+  document.getElementById('sum-product').textContent = state.product;
+  document.getElementById('sum-style').textContent = state.style;
+  document.getElementById('sum-crown-label').textContent = lbls.crown;
+  document.getElementById('sum-crown').textContent = state.crownName || 'Forest Green';
+  document.getElementById('sum-crown-dot').style.background = state.crownColor;
+  document.getElementById('sum-brim-label').textContent = lbls.brim;
+  document.getElementById('sum-brim').textContent = state.brimName || 'Gold';
+  document.getElementById('sum-brim-dot').style.background = state.brimColor;
+  document.getElementById('sum-patch').textContent = patchLabels[state.patch] || state.patch;
+  document.getElementById('sum-minimum').textContent = min + ' unit minimum';
+  document.getElementById('modal-overlay').classList.add('open');
+}
+
+function closeModal() {
+  document.getElementById('modal-overlay').classList.remove('open');
+}
+
+function confirmAddToOrder() {
+  closeModal();
+  const min = getMinimum(state.product);
+  orderItems.push({
+    id: Date.now(),
+    product:   state.product,
+    style:     state.style || state.product,
+    crownName: state.crownName || 'Forest Green',
+    crownHex:  state.crownColor,
+    brimName:  state.brimName || 'Gold',
+    brimHex:   state.brimColor,
+    stitchName:state.stitchName || 'Gold',
+    stitchHex: state.stitchColor,
+    patch:     state.patch,
+    patchHex:  state.patchColor,
+    qty: min,
+  });
+  renderCart();
+  updateCartBadge();
+  openCart();
+  showToast('Added to order!');
+}
+
+function removeItem(id) {
+  orderItems = orderItems.filter(i => i.id !== id);
+  renderCart();
+  updateCartBadge();
+}
+
+function updateQty(id, val) {
+  const item = orderItems.find(i => i.id === id);
+  if (item) item.qty = parseInt(val) || 0;
+}
+
+function clearOrder() {
+  orderItems = [];
+  renderCart();
+  updateCartBadge();
+  showToast('Order cleared');
+}
+
+function openCart() {
+  document.getElementById('cart-drawer').classList.add('open');
+  document.getElementById('drawer-overlay').classList.add('open');
+}
+
+function closeCart() {
+  document.getElementById('cart-drawer').classList.remove('open');
+  document.getElementById('drawer-overlay').classList.remove('open');
+}
+
+function updateCartBadge() {
+  const badge = document.getElementById('cart-badge');
+  document.getElementById('cart-count').textContent = orderItems.length;
+  badge.style.display = orderItems.length > 0 ? 'flex' : 'none';
+}
+
+function renderCart() {
+  const el = document.getElementById('cart-items');
+  if (!orderItems.length) {
+    el.innerHTML = '<div class="cart-empty">No items yet.<br>Configure a product and tap<br>"Add to Order" to get started.</div>';
+    return;
+  }
+  const patchLabels = { logo:'Custom Logo', text:'Text Only', flag:'Flag Patch', none:'No Logo' };
+  const lblMap = LABEL_MAP;
+  el.innerHTML = orderItems.map(function(item) {
+    const min = getMinimum(item.product);
+    const lbls = lblMap[item.product] || lblMap.Headwear;
+    return '<div class="cart-item">'
+      + '<div class="cart-item-header">'
+      + '<div><div class="cart-item-name">' + item.style + '</div>'
+      + '<div class="cart-item-product">' + item.product + '</div></div>'
+      + '<button class="cart-item-remove" onclick="removeItem(' + item.id + ')">✕ Remove</button>'
+      + '</div>'
+      + '<div class="cart-item-specs">'
+      + '<div class="cart-spec-tag"><div class="cart-spec-dot" style="background:' + item.crownHex + '"></div>' + lbls.crown + ': ' + item.crownName + '</div>'
+      + '<div class="cart-spec-tag"><div class="cart-spec-dot" style="background:' + item.brimHex + '"></div>' + lbls.brim + ': ' + item.brimName + '</div>'
+      + '<div class="cart-spec-tag">Logo: ' + (patchLabels[item.patch] || item.patch) + '</div>'
+      + '</div>'
+      + '<div class="cart-item-qty">'
+      + '<label>QTY</label>'
+      + '<input class="qty-input" type="number" value="' + item.qty + '" min="' + min + '" onchange="updateQty(' + item.id + ',this.value)">'
+      + '<div class="cart-minimum">Min. ' + min + ' units</div>'
+      + '</div></div>';
+  }).join('');
+}
+
+function submitFullOrder() {
+  if (!orderItems.length) { showToast('Your order is empty!'); return; }
+  const patchLabels = { logo:'Custom Logo', text:'Text Only', flag:'Flag Patch', none:'No Logo' };
+  const win = window.open('', '_blank');
+  const itemsHTML = orderItems.map(function(item, i) {
+    const min = getMinimum(item.product);
+    const lbls = LABEL_MAP[item.product] || LABEL_MAP.Headwear;
+    return '<div class="item">'
+      + '<div class="item-header"><div class="item-name">' + item.style + '</div>'
+      + '<div class="item-num">Item ' + (i+1) + ' of ' + orderItems.length + '</div></div>'
+      + '<div class="specs">'
+      + '<div class="spec"><div class="dot" style="background:' + item.crownHex + '"></div><span><span class="lbl">' + lbls.crown + ': </span>' + item.crownName + '</span></div>'
+      + '<div class="spec"><div class="dot" style="background:' + item.brimHex + '"></div><span><span class="lbl">' + lbls.brim + ': </span>' + item.brimName + '</span></div>'
+      + '<div class="spec"><div class="dot" style="background:' + item.stitchHex + '"></div><span><span class="lbl">' + lbls.stitch + ': </span>' + item.stitchName + '</span></div>'
+      + '<div class="spec"><span><span class="lbl">Logo: </span>' + (patchLabels[item.patch]||item.patch) + '</span></div>'
+      + '</div>'
+      + '<div class="qty-row"><span class="lbl">Quantity: </span><span class="qty">' + item.qty + ' units</span>'
+      + '<span class="min">Min. ' + min + ' units</span></div>'
+      + '</div>';
+  }).join('');
+
+  win.document.write('<!DOCTYPE html><html><head><title>ProKit Studio Order</title>'
+    + '<style>*{margin:0;padding:0;box-sizing:border-box}body{font-family:Arial,sans-serif;background:#f8f6f1;color:#1a1a1a;padding:3rem}'
+    + '.header{border-bottom:3px solid #1a3c2b;padding-bottom:1.5rem;margin-bottom:2rem;display:flex;justify-content:space-between;align-items:flex-end}'
+    + '.logo{font-size:2rem;font-weight:900;letter-spacing:0.05em;color:#1a3c2b}.logo span{color:#c9a84c}'
+    + '.date{font-size:0.8rem;color:#888}.title{font-size:1rem;font-weight:700;margin-bottom:1.5rem;color:#1a3c2b;text-transform:uppercase;letter-spacing:0.05em}'
+    + '.item{background:white;border:1px solid #e0ddd8;border-radius:6px;padding:1.5rem;margin-bottom:1rem}'
+    + '.item-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:1rem}'
+    + '.item-name{font-size:1.1rem;font-weight:700}.item-num{font-size:0.72rem;background:#1a3c2b;color:white;padding:0.2rem 0.6rem;border-radius:12px}'
+    + '.specs{display:grid;grid-template-columns:1fr 1fr;gap:0.5rem;margin-bottom:1rem}'
+    + '.spec{padding:0.5rem 0.8rem;background:#f8f6f1;border-radius:3px;font-size:0.82rem;display:flex;gap:0.5rem;align-items:center}'
+    + '.dot{width:12px;height:12px;border-radius:50%;border:1px solid rgba(0,0,0,0.1);flex-shrink:0}.lbl{color:#888;font-size:0.72rem}'
+    + '.qty-row{display:flex;align-items:center;gap:0.8rem;padding-top:0.8rem;border-top:1px solid #e0ddd8}'
+    + '.qty{font-weight:700;color:#1a3c2b}.min{font-size:0.72rem;color:#c9a84c;margin-left:auto}'
+    + '.footer{margin-top:2rem;padding-top:1.5rem;border-top:2px solid #1a3c2b;display:flex;justify-content:space-between;font-size:0.8rem;color:#888}'
+    + '.total{font-weight:700;color:#1a3c2b}@media print{body{padding:1.5rem}}</style></head><body>'
+    + '<div class="header"><div class="logo">ProKit<span>Studio</span></div>'
+    + '<div class="date">' + new Date().toLocaleDateString('en-US',{year:'numeric',month:'long',day:'numeric'}) + '</div></div>'
+    + '<div class="title">Custom Order Summary</div>'
+    + itemsHTML
+    + '<div class="footer"><div>Submitted via ProKit Studio</div>'
+    + '<div class="total">' + orderItems.length + ' item' + (orderItems.length !== 1 ? 's' : '') + ' in order</div></div>'
+    + '<script>window.onload=function(){window.print();}<\/script>'
+    + '</body></html>');
+  win.document.close();
+}
+
+// ── HELPERS ──
+function updateTag(id, text, lit) {
+  const el = document.getElementById(id);
+  if (!el) return;
+  el.textContent = text;
+  el.classList.toggle('lit', lit);
+}
+
+function shadeColor(hex, amt) {
+  hex = hex.replace('#','');
+  if (hex.length === 3) hex = hex.split('').map(function(x){return x+x;}).join('');
+  const n = parseInt(hex, 16);
+  const R = Math.min(255, Math.max(0, (n>>16) + amt));
+  const G = Math.min(255, Math.max(0, ((n>>8)&0xff) + amt));
+  const B = Math.min(255, Math.max(0, (n&0xff) + amt));
+  return '#' + (0x1000000 + R*0x10000 + G*0x100 + B).toString(16).slice(1);
+}
+
+function isLight(hex) {
+  hex = hex.replace('#','');
+  if (hex.length === 3) hex = hex.split('').map(function(x){return x+x;}).join('');
+  const n = parseInt(hex, 16);
+  const r = (n>>16), g = ((n>>8)&0xff), b = (n&0xff);
+  return (r*299 + g*587 + b*114) / 1000 > 128;
+}
+
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  setTimeout(function(){ t.classList.remove('show'); }, 3000);
+}
+
+// ── INIT: BUILD PRODUCT GRID FROM SUPPLIER CATALOG ──
+function initProductGrid() {
+  var ICONS = { Headwear:'🧢', Polos:'👔', 'Quarter Zips':'🧥', Belts:'🔗', Bags:'👜', Outerwear:'🧣', Accessories:'🧣' };
+  var categories = getActiveCategories();
+  var grid = document.getElementById('product-grid');
+  if (!grid) return;
+
+  var html = categories.map(function(cat) {
+    var icon = ICONS[cat] || '📦';
+    return '<div class="product-card" onclick="selectProduct(this,\'' + cat + '\',\'' + icon + '\')">'
+      + '<div class="product-icon">' + icon + '</div>'
+      + '<div class="product-name">' + cat + '</div>'
+      + '</div>';
+  }).join('');
+
+  // Only show Coming Soon cards in default demo mode (no supplier loaded)
+  // When a supplier is configured, show only what they carry — nothing else
+  if (!supplierCatalog) {
+    var ALL_CATS = ['Headwear','Polos','Quarter Zips','Belts','Bags','Outerwear'];
+    ALL_CATS.forEach(function(cat) {
+      if (categories.indexOf(cat) === -1) {
+        html += '<div class="product-card coming-soon"><div class="product-icon">' + (ICONS[cat]||'📦') + '</div>'
+          + '<div class="product-name">' + cat + '</div>'
+          + '<div class="product-soon">Coming Soon</div></div>';
+      }
+    });
   }
 
-  function showToast(msg) {
-    const t = document.getElementById('toast');
-    t.textContent = msg;
-    t.classList.add('show');
-    setTimeout(function(){ t.classList.remove('show'); }, 3000);
+  grid.innerHTML = html;
+  applySupplierBranding();
+
+  // If supplier only carries one category, auto-select it and skip step 1
+  if (supplierCatalog && categories.length === 1) {
+    var onlyCard = grid.querySelector('.product-card');
+    if (onlyCard) setTimeout(function(){ onlyCard.click(); }, 150);
   }
-
-  // ── INIT: BUILD PRODUCT GRID FROM SUPPLIER CATALOG ──
-  // called after async catalog load
-  function initGrid() {
-    initProductGrid();
-  }
-
-  function initProductGrid() {
-    var ICONS = { Headwear:'🧢', Polos:'👔', 'Quarter Zips':'🧥', Belts:'🔗', Bags:'👜', Outerwear:'🧣', Accessories:'🧣' };
-    var categories = getActiveCategories();
-    var grid = document.getElementById('product-grid');
-    if (!grid) return;
-
-    var html = categories.map(function(cat) {
-      var icon = ICONS[cat] || '📦';
-      return '<div class="product-card" onclick="selectProduct(this,\'' + cat + '\',\'' + icon + '\')">'
-        + '<div class="product-icon">' + icon + '</div>'
-        + '<div class="product-name">' + cat + '</div>'
-        + '</div>';
-    }).join('');
-
-    // Only show Coming Soon cards in default demo mode (no supplier loaded)
-    // When a supplier is configured, show only what they carry — nothing else
-    if (!supplierCatalog) {
-      var ALL_CATS = ['Headwear','Polos','Quarter Zips','Belts','Bags','Outerwear'];
-      ALL_CATS.forEach(function(cat) {
-        if (categories.indexOf(cat) === -1) {
-          html += '<div class="product-card coming-soon"><div class="product-icon">' + (ICONS[cat]||'📦') + '</div>'
-            + '<div class="product-name">' + cat + '</div>'
-            + '<div class="product-soon">Coming Soon</div></div>';
-        }
-      });
-    }
-
-    grid.innerHTML = html;
-    applySupplierBranding();
-
-    // If supplier only carries one category, auto-select it and skip step 1
-    if (supplierCatalog && categories.length === 1) {
-      var onlyCard = grid.querySelector('.product-card');
-      if (onlyCard) setTimeout(function(){ onlyCard.click(); }, 150);
-    }
-  }
+}
 
 </script>
 </body>
