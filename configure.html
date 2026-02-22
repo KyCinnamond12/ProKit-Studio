@@ -501,21 +501,29 @@
 <div class="toast" id="toast"></div>
 
 <script>
-  // ── LOAD SUPPLIER CATALOG (by URL param ?supplier=id) ──
+  // ── LOAD SUPPLIER CATALOG FROM SUPABASE ──
+  var SUPA_URL  = 'https://zpxafkkbxkfdhtstaeuf.supabase.co';
+  var SUPA_KEY  = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InpweGFma2tieGtmZGh0c3RhZXVmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzE3MjM1NzYsImV4cCI6MjA4NzI5OTU3Nn0.gi6GhJ6sa9DmhemLuqje1JYBjwzF3kur0wm-5P44C40';
+
   var supplierCatalog = null;
-  try {
-    var urlParams = new URLSearchParams(window.location.search);
-    var supplierId = urlParams.get('supplier');
-    if (supplierId) {
-      var saved = localStorage.getItem('prokit_supplier_' + supplierId);
-      if (saved) supplierCatalog = JSON.parse(saved);
+  var _supplierId = new URLSearchParams(window.location.search).get('supplier');
+
+  // Async load — fetch from Supabase then init the grid
+  (async function loadCatalog() {
+    if (_supplierId) {
+      try {
+        var res = await fetch(
+          SUPA_URL + '/rest/v1/suppliers?id=eq.' + encodeURIComponent(_supplierId) + '&select=data',
+          { headers: { 'apikey': SUPA_KEY, 'Authorization': 'Bearer ' + SUPA_KEY } }
+        );
+        var rows = await res.json();
+        if (rows && rows.length) supplierCatalog = rows[0].data;
+      } catch(e) { console.warn('Could not load supplier catalog', e); }
     }
-    // Fallback: if no param but old single-key exists, use that
-    if (!supplierCatalog) {
-      var legacy = localStorage.getItem('prokit_supplier_catalog');
-      if (legacy) supplierCatalog = JSON.parse(legacy);
-    }
-  } catch(e) {}
+    initGrid();
+  })();
+
+  function initGrid() {
 
   function getSupplierName() {
     return supplierCatalog && supplierCatalog.brand && supplierCatalog.brand.name
@@ -1236,7 +1244,12 @@
   }
 
   // ── INIT: BUILD PRODUCT GRID FROM SUPPLIER CATALOG ──
-  (function initProductGrid() {
+  // called after async catalog load
+  function initGrid() {
+    initProductGrid();
+  }
+
+  function initProductGrid() {
     var ICONS = { Headwear:'🧢', Polos:'👔', 'Quarter Zips':'🧥', Belts:'🔗', Bags:'👜', Outerwear:'🧣', Accessories:'🧣' };
     var categories = getActiveCategories();
     var grid = document.getElementById('product-grid');
@@ -1271,7 +1284,7 @@
       var onlyCard = grid.querySelector('.product-card');
       if (onlyCard) setTimeout(function(){ onlyCard.click(); }, 150);
     }
-  })();
+  }
 
 </script>
 </body>

@@ -149,7 +149,7 @@
   </p>
 
   <div class="demo-grid" id="demo-grid">
-    <!-- Populated by JS from localStorage -->
+    <!-- Populated by JS from Supabase -->
   </div>
 
   <div class="section-divider"><span>Are you a supplier?</span></div>
@@ -169,6 +169,9 @@
 </footer>
 
 <script>
+  var SUPA_URL = 'https://zpxafkkbxkfdhtstaeuf.supabase.co';
+  var SUPA_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InpweGFma2tieGtmZGh0c3RhZXVmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzE3MjM1NzYsImV4cCI6MjA4NzI5OTU3Nn0.gi6GhJ6sa9DmhemLuqje1JYBjwzF3kur0wm-5P44C40';
+
   var DEFAULT_DEMO = {
     id: null,
     name: 'ProKit Studio Default',
@@ -182,37 +185,33 @@
     isDefault: true,
   };
 
-  function getAllSuppliers() {
-    var suppliers = [];
-    for (var i = 0; i < localStorage.length; i++) {
-      var k = localStorage.key(i);
-      if (k && k.indexOf('prokit_supplier_') === 0) {
-        try {
-          var id = k.replace('prokit_supplier_', '');
-          var data = JSON.parse(localStorage.getItem(k));
-          if (!data || !data.brand) continue;
-
-          var activeProducts = (data.products || []).filter(function(p){ return p.active; });
-          var cats = [];
-          activeProducts.forEach(function(p){ if (cats.indexOf(p.category) === -1) cats.push(p.category); });
-
-          suppliers.push({
-            id: id,
-            name: data.brand.name || id,
-            tagline: data.brand.tagline || 'Custom gear configurator',
-            primaryColor: data.brand.primaryColor || '#1a3c2b',
-            accentColor: data.brand.accentColor || '#c9a84c',
-            logoUrl: data.brand.logoUrl || '',
-            products: activeProducts.length,
-            colors: (data.colors || []).length,
-            categories: cats.length,
-            colorSamples: (data.colors || []).slice(0, 6).map(function(c){ return c.hex; }),
-            isDefault: false,
-          });
-        } catch(e) {}
-      }
-    }
-    return suppliers;
+  async function getAllSuppliers() {
+    try {
+      var res = await fetch(SUPA_URL + '/rest/v1/suppliers?select=id,data',
+        { headers: { 'apikey': SUPA_KEY, 'Authorization': 'Bearer ' + SUPA_KEY } });
+      if (!res.ok) return [];
+      var rows = await res.json();
+      return rows.map(function(row) {
+        var data = row.data;
+        if (!data || !data.brand) return null;
+        var activeProducts = (data.products || []).filter(function(p){ return p.active; });
+        var cats = [];
+        activeProducts.forEach(function(p){ if (cats.indexOf(p.category) === -1) cats.push(p.category); });
+        return {
+          id: row.id,
+          name: data.brand.name || row.id,
+          tagline: data.brand.tagline || 'Custom gear configurator',
+          primaryColor: data.brand.primaryColor || '#1a3c2b',
+          accentColor: data.brand.accentColor || '#c9a84c',
+          logoUrl: data.brand.logoUrl || '',
+          products: activeProducts.length,
+          colors: (data.colors || []).length,
+          categories: cats.length,
+          colorSamples: (data.colors || []).slice(0, 6).map(function(c){ return c.hex; }),
+          isDefault: false,
+        };
+      }).filter(Boolean);
+    } catch(e) { return []; }
   }
 
   function buildCard(s) {
@@ -242,9 +241,10 @@
       + '</a>';
   }
 
-  function render() {
-    var suppliers = getAllSuppliers();
+  async function render() {
     var grid = document.getElementById('demo-grid');
+    grid.innerHTML = '<div style="grid-column:1/-1;text-align:center;padding:3rem;color:var(--text3);font-size:0.88rem">Loading supplier accounts…</div>';
+    var suppliers = await getAllSuppliers();
 
     if (!suppliers.length) {
       // No supplier accounts — show empty state + default demo only
