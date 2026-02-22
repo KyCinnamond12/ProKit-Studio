@@ -1,0 +1,266 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Try the Demo — ProKit Studio</title>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@300;400;500;600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --black: #0a0a0a;
+    --white: #f5f3ee;
+    --cream: #f0ece3;
+    --green: #1a3c2b;
+    --grass: #2d6a4f;
+    --gold: #c9a84c;
+    --gold-light: #e8c96d;
+    --light-gray: #e2ddd6;
+    --mid-gray: #c8c4bc;
+    --text: #1a1a1a;
+    --text2: #555;
+    --text3: #888;
+  }
+  * { margin:0; padding:0; box-sizing:border-box; }
+  html { scroll-behavior:smooth; }
+  body { font-family:'DM Sans',sans-serif; background:var(--white); color:var(--text); min-height:100vh; }
+
+  /* NAV */
+  nav { display:flex; align-items:center; justify-content:space-between; padding:1.4rem 3rem; background:rgba(245,243,238,0.92); backdrop-filter:blur(12px); border-bottom:1px solid var(--light-gray); position:sticky; top:0; z-index:100; }
+  .logo { font-family:'Bebas Neue',sans-serif; font-size:1.6rem; letter-spacing:0.08em; color:var(--green); text-decoration:none; }
+  .logo span { color:var(--gold); }
+  .nav-links { list-style:none; display:flex; gap:2rem; align-items:center; }
+  .nav-links a { text-decoration:none; font-size:0.85rem; font-weight:500; letter-spacing:0.06em; text-transform:uppercase; color:var(--text); transition:color 0.2s; }
+  .nav-links a:hover { color:var(--grass); }
+  .nav-cta { background:var(--green) !important; color:var(--white) !important; padding:0.55rem 1.4rem; border-radius:2px; }
+  .nav-cta:hover { background:var(--grass) !important; }
+
+  /* PAGE */
+  .page { max-width:960px; margin:0 auto; padding:5rem 2rem 6rem; }
+
+  .eyebrow { font-family:'DM Mono',monospace; font-size:0.72rem; letter-spacing:0.22em; text-transform:uppercase; color:var(--gold); margin-bottom:1rem; }
+  .page-title { font-family:'Bebas Neue',sans-serif; font-size:clamp(3rem,6vw,5rem); color:var(--green); line-height:0.95; margin-bottom:1rem; }
+  .page-desc { font-size:1rem; color:var(--text2); line-height:1.75; max-width:580px; margin-bottom:3.5rem; }
+
+  /* SUPPLIER CARDS */
+  .demo-grid { display:grid; grid-template-columns:repeat(auto-fill, minmax(280px, 1fr)); gap:1.2rem; margin-bottom:3rem; }
+
+  .demo-card {
+    background:var(--cream); border:1px solid var(--light-gray); border-radius:6px;
+    padding:2rem; cursor:pointer; text-decoration:none; color:inherit;
+    transition:all 0.25s; display:flex; flex-direction:column; position:relative; overflow:hidden;
+  }
+  .demo-card::before {
+    content:''; position:absolute; bottom:0; left:0; right:0; height:3px;
+    background:var(--gold); transform:scaleX(0); transform-origin:left; transition:transform 0.35s ease;
+  }
+  .demo-card:hover { border-color:var(--green); box-shadow:0 8px 32px rgba(0,0,0,0.08); transform:translateY(-3px); }
+  .demo-card:hover::before { transform:scaleX(1); }
+
+  .demo-card-badge {
+    font-family:'DM Mono',monospace; font-size:0.6rem; letter-spacing:0.18em;
+    text-transform:uppercase; color:var(--text3); margin-bottom:1rem;
+    display:flex; align-items:center; gap:0.5rem;
+  }
+  .badge-dot { width:6px; height:6px; border-radius:50%; background:var(--grass); flex-shrink:0; }
+
+  .demo-card-color { width:48px; height:48px; border-radius:8px; margin-bottom:1.2rem; flex-shrink:0; border:1px solid rgba(0,0,0,0.06); display:flex; align-items:center; justify-content:center; font-size:1.4rem; }
+
+  .demo-card-name { font-family:'Bebas Neue',sans-serif; font-size:1.6rem; letter-spacing:0.04em; color:var(--green); line-height:1; margin-bottom:0.3rem; }
+  .demo-card-tagline { font-size:0.82rem; color:var(--text3); margin-bottom:1.2rem; line-height:1.5; }
+
+  .demo-card-stats { display:flex; gap:1rem; margin-bottom:1.5rem; }
+  .demo-stat { display:flex; flex-direction:column; }
+  .demo-stat-value { font-family:'Bebas Neue',sans-serif; font-size:1.4rem; color:var(--text); line-height:1; }
+  .demo-stat-label { font-size:0.65rem; font-family:'DM Mono',monospace; color:var(--text3); text-transform:uppercase; letter-spacing:0.1em; }
+
+  .demo-card-colors { display:flex; gap:0.35rem; margin-bottom:1.5rem; flex-wrap:wrap; }
+  .color-pip { width:16px; height:16px; border-radius:50%; border:1px solid rgba(0,0,0,0.08); flex-shrink:0; }
+
+  .demo-card-cta {
+    display:flex; align-items:center; justify-content:space-between;
+    font-size:0.82rem; font-weight:700; letter-spacing:0.06em; text-transform:uppercase;
+    color:var(--green); margin-top:auto; padding-top:1rem; border-top:1px solid var(--light-gray);
+  }
+  .demo-card-arrow { font-size:1rem; transition:transform 0.2s; }
+  .demo-card:hover .demo-card-arrow { transform:translateX(4px); }
+
+  /* DEFAULT DEMO CARD */
+  .demo-card.default-demo {
+    background:var(--green); border-color:var(--green); color:white;
+  }
+  .demo-card.default-demo .demo-card-badge { color:rgba(255,255,255,0.5); }
+  .demo-card.default-demo .badge-dot { background:var(--gold); }
+  .demo-card.default-demo .demo-card-name { color:var(--gold); }
+  .demo-card.default-demo .demo-card-tagline { color:rgba(255,255,255,0.6); }
+  .demo-card.default-demo .demo-stat-value { color:white; }
+  .demo-card.default-demo .demo-stat-label { color:rgba(255,255,255,0.5); }
+  .demo-card.default-demo .demo-card-cta { color:var(--gold); border-top-color:rgba(255,255,255,0.15); }
+  .demo-card.default-demo:hover { border-color:var(--grass); background:var(--grass); }
+  .demo-card.default-demo::before { background:var(--gold); }
+
+  /* EMPTY STATE */
+  .empty-state { text-align:center; padding:3rem; background:var(--cream); border:2px dashed var(--mid-gray); border-radius:6px; margin-bottom:2rem; }
+  .empty-icon { font-size:3rem; opacity:0.4; margin-bottom:1rem; }
+  .empty-title { font-size:1rem; font-weight:600; color:var(--text); margin-bottom:0.5rem; }
+  .empty-desc { font-size:0.85rem; color:var(--text2); line-height:1.6; }
+
+  /* DIVIDER */
+  .section-divider { display:flex; align-items:center; gap:1rem; margin:2.5rem 0; }
+  .section-divider::before,.section-divider::after { content:''; flex:1; height:1px; background:var(--light-gray); }
+  .section-divider span { font-family:'DM Mono',monospace; font-size:0.65rem; letter-spacing:0.15em; text-transform:uppercase; color:var(--text3); white-space:nowrap; }
+
+  /* SUPPLIER PORTAL CTA */
+  .portal-cta {
+    background:var(--black); border-radius:6px; padding:2.5rem;
+    display:flex; align-items:center; justify-content:space-between; gap:2rem;
+  }
+  .portal-cta-text h3 { font-family:'Bebas Neue',sans-serif; font-size:1.8rem; color:white; margin-bottom:0.4rem; }
+  .portal-cta-text h3 span { color:var(--gold); }
+  .portal-cta-text p { font-size:0.88rem; color:#aaa; line-height:1.6; max-width:440px; }
+  .btn-portal { background:var(--gold); color:var(--black); padding:0.9rem 2rem; font-size:0.85rem; font-weight:700; letter-spacing:0.07em; text-transform:uppercase; border:none; border-radius:3px; cursor:pointer; text-decoration:none; transition:background 0.2s, transform 0.15s; white-space:nowrap; display:inline-block; }
+  .btn-portal:hover { background:var(--gold-light); transform:translateY(-1px); }
+
+  /* FOOTER */
+  footer { background:var(--green); padding:2.5rem 3rem; display:flex; align-items:center; justify-content:space-between; }
+  footer .logo { color:white; }
+  footer .logo span { color:var(--gold); }
+  .footer-text { font-size:0.82rem; color:rgba(255,255,255,0.4); }
+</style>
+</head>
+<body>
+
+<nav>
+  <a class="logo" href="index.html">ProKit<span>Studio</span></a>
+  <ul class="nav-links">
+    <li><a href="index.html#how-it-works">How It Works</a></li>
+    <li><a href="index.html#features">Features</a></li>
+    <li><a href="our-story.html">Our Story</a></li>
+    <li><a href="supplier.html">Supplier Portal</a></li>
+    <li><a href="demo.html" class="nav-cta">Try the Demo</a></li>
+  </ul>
+</nav>
+
+<div class="page">
+  <div class="eyebrow">Live Demos</div>
+  <h1 class="page-title">Experience the<br>Configurator</h1>
+  <p class="page-desc">
+    Each supplier gets their own branded configurator — their products, their colors, their logo options.
+    Choose a supplier below to see exactly what their customers experience.
+  </p>
+
+  <div class="demo-grid" id="demo-grid">
+    <!-- Populated by JS from localStorage -->
+  </div>
+
+  <div class="section-divider"><span>Are you a supplier?</span></div>
+
+  <div class="portal-cta">
+    <div class="portal-cta-text">
+      <h3>Set Up Your <span>Own Catalog</span></h3>
+      <p>Create a supplier account, upload your products, colors, and logo options — then get a unique configurator link to embed on your website.</p>
+    </div>
+    <a class="btn-portal" href="supplier.html">Open Supplier Portal →</a>
+  </div>
+</div>
+
+<footer>
+  <a class="logo" href="index.html">ProKit<span>Studio</span></a>
+  <p class="footer-text">© 2025 ProKit Studio. All rights reserved.</p>
+</footer>
+
+<script>
+  var DEFAULT_DEMO = {
+    id: null,
+    name: 'ProKit Studio Default',
+    tagline: 'The full demo with sample products and colors',
+    primaryColor: '#1a3c2b',
+    accentColor: '#c9a84c',
+    products: 9,
+    colors: 12,
+    categories: 4,
+    colorSamples: ['#1a3c2b','#c9a84c','#1a1a2e','#8B1A1A','#e0dcd3','#2b2b2b'],
+    isDefault: true,
+  };
+
+  function getAllSuppliers() {
+    var suppliers = [];
+    for (var i = 0; i < localStorage.length; i++) {
+      var k = localStorage.key(i);
+      if (k && k.indexOf('prokit_supplier_') === 0) {
+        try {
+          var id = k.replace('prokit_supplier_', '');
+          var data = JSON.parse(localStorage.getItem(k));
+          if (!data || !data.brand) continue;
+
+          var activeProducts = (data.products || []).filter(function(p){ return p.active; });
+          var cats = [];
+          activeProducts.forEach(function(p){ if (cats.indexOf(p.category) === -1) cats.push(p.category); });
+
+          suppliers.push({
+            id: id,
+            name: data.brand.name || id,
+            tagline: data.brand.tagline || 'Custom gear configurator',
+            primaryColor: data.brand.primaryColor || '#1a3c2b',
+            accentColor: data.brand.accentColor || '#c9a84c',
+            logoUrl: data.brand.logoUrl || '',
+            products: activeProducts.length,
+            colors: (data.colors || []).length,
+            categories: cats.length,
+            colorSamples: (data.colors || []).slice(0, 6).map(function(c){ return c.hex; }),
+            isDefault: false,
+          });
+        } catch(e) {}
+      }
+    }
+    return suppliers;
+  }
+
+  function buildCard(s) {
+    var url = s.isDefault ? 'configure.html' : 'configure.html?supplier=' + s.id;
+
+    var logoHtml = s.logoUrl
+      ? '<img src="' + s.logoUrl + '" alt="logo" onerror="this.parentElement.innerHTML=\'🏭\'" style="width:100%;height:100%;object-fit:contain;border-radius:6px">'
+      : '<span style="font-size:1.4rem">🏭</span>';
+
+    var colorPips = s.colorSamples.map(function(hex){
+      return '<div class="color-pip" style="background:' + hex + '" title="' + hex + '"></div>';
+    }).join('');
+
+    return '<a class="demo-card' + (s.isDefault ? ' default-demo' : '') + '" href="' + url + '">'
+      + '<div class="demo-card-badge"><div class="badge-dot"></div>'
+      + (s.isDefault ? 'Built-in Demo' : 'Supplier Account') + '</div>'
+      + '<div class="demo-card-color" style="background:' + (s.isDefault ? '#1a3c2b' : 'white') + '">' + logoHtml + '</div>'
+      + '<div class="demo-card-name">' + s.name + '</div>'
+      + '<div class="demo-card-tagline">' + s.tagline + '</div>'
+      + '<div class="demo-card-stats">'
+      + '<div class="demo-stat"><div class="demo-stat-value">' + s.products + '</div><div class="demo-stat-label">Styles</div></div>'
+      + '<div class="demo-stat"><div class="demo-stat-value">' + s.colors + '</div><div class="demo-stat-label">Colors</div></div>'
+      + '<div class="demo-stat"><div class="demo-stat-value">' + s.categories + '</div><div class="demo-stat-label">Categories</div></div>'
+      + '</div>'
+      + '<div class="demo-card-colors">' + colorPips + '</div>'
+      + '<div class="demo-card-cta">Open Configurator <span class="demo-card-arrow">→</span></div>'
+      + '</a>';
+  }
+
+  function render() {
+    var suppliers = getAllSuppliers();
+    var grid = document.getElementById('demo-grid');
+
+    if (!suppliers.length) {
+      // No supplier accounts — show empty state + default demo only
+      grid.innerHTML = '<div class="empty-state" style="grid-column:1/-1">'
+        + '<div class="empty-icon">🏭</div>'
+        + '<div class="empty-title">No supplier accounts set up yet</div>'
+        + '<div class="empty-desc">Create a supplier account in the portal to see their branded configurator listed here.<br>For now, try the default demo below.</div>'
+        + '</div>'
+        + buildCard(Object.assign({}, DEFAULT_DEMO, { products:9, colors:12, categories:4, colorSamples:['#1a3c2b','#c9a84c','#1a1a2e','#8B1A1A','#e0dcd3','#2b2b2b'] }));
+    } else {
+      // Show all supplier accounts + default demo at the end
+      grid.innerHTML = suppliers.map(buildCard).join('') + buildCard(Object.assign({}, DEFAULT_DEMO, { products:9, colors:12, categories:4, colorSamples:['#1a3c2b','#c9a84c','#1a1a2e','#8B1A1A','#e0dcd3','#2b2b2b'] }));
+    }
+  }
+
+  render();
+</script>
+</body>
+</html>
